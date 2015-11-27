@@ -1,16 +1,23 @@
 package com.scop.org.minesweeper;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
+
+import com.scop.org.minesweeper.elements.Grid;
+import com.scop.org.minesweeper.elements.Tile;
+import com.scop.org.minesweeper.elements.TileStyle;
 
 /**
  * Created by Oscar on 25/11/2015.
  */
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
     private MainThread thread;
+    private Grid grid;
 
     public GamePanel(Context context) {
         super(context);
@@ -26,6 +33,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        grid = new Grid(12,12);
+        TileStyle.getInstance().setStyle(getResources());
+
         // we can safely start the game loop
         thread.setRunning(true);
         thread.start();
@@ -57,6 +67,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
     }
 
     public void update() {
+        grid.update();
+    }
 
+    @Override
+    public void draw(Canvas canvas) {
+        super.draw(canvas);
+        if (canvas!=null){
+            float scaleFactor = getWidth()/(Tile.BITMAP_SIZE*8f);
+
+            canvas.scale(scaleFactor, scaleFactor);
+            grid.draw(canvas);
+        }
     }
 }
