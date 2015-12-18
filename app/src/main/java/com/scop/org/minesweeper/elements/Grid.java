@@ -29,7 +29,7 @@ public class Grid {
         //paint.setDither(true);
 
         paintColored  = new Paint(Paint.FILTER_BITMAP_FLAG);
-        paintColored.setColorFilter(ColorFilterHue.adjustHue(0f));
+        paintColored.setColorFilter(ColorFilterHue.adjustHue(180f,1.0f));
     }
 
     public void update(){

@@ -13,9 +13,9 @@ public class ColorFilterHue {
      * @param value degrees to shift the hue.
      * @return
      */
-    public static ColorFilter adjustHue( float value ) {
+    public static ColorFilter adjustHue(float value, float brightness) {
         ColorMatrix cm = new ColorMatrix();
-        adjustHue(cm, value);
+        adjustHue(cm, value, brightness);
         return new ColorMatrixColorFilter(cm);
     }
 
@@ -25,16 +25,16 @@ public class ColorFilterHue {
      * @param cm
      * @param value
      */
-    public static void adjustHue(ColorMatrix cm, float value) {
+    public static void adjustHue(ColorMatrix cm, float value, float brightness) {
         value = cleanValue(value, 180f) / 180f * (float) Math.PI;
         if (value == 0) {
             return;
         }
         float cosVal = (float) Math.cos(value);
         float sinVal = (float) Math.sin(value);
-        float lumR = 0.213f;
-        float lumG = 0.715f;
-        float lumB = 0.072f;
+        float lumR = 0.2125f*brightness;
+        float lumG = 0.7154f*brightness;
+        float lumB = 0.0721f*brightness;
         float[] mat = new float[] {
             lumR + cosVal * (1 - lumR) + sinVal * (-lumR), lumG + cosVal * (-lumG) + sinVal * (-lumG), lumB + cosVal * (-lumB) + sinVal * (1 - lumB), 0, 0,
             lumR + cosVal * (-lumR) + sinVal * (0.143f), lumG + cosVal * (1 - lumG) + sinVal * (0.140f), lumB + cosVal * (-lumB) + sinVal * (-0.283f), 0, 0,
