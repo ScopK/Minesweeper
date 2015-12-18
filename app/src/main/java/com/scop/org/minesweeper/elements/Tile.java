@@ -6,18 +6,18 @@ package com.scop.org.minesweeper.elements;
 public class Tile {
     public static final int BITMAP_SIZE = 96;
 
-    public static final byte UNDISCOVERED = 0;
-    public static final byte NEAR1 = 1;
-    public static final byte NEAR2 = 2;
-    public static final byte NEAR3 = 3;
-    public static final byte NEAR4 = 4;
-    public static final byte NEAR5 = 5;
-    public static final byte NEAR6 = 6;
-    public static final byte NEAR7 = 7;
-    public static final byte NEAR8 = 8;
-    public static final byte EMPTY = 9;
-    public static final byte FLAGGED = 10;
-    public static final byte BOMB = 11;
+    public static final byte UNDISCOVERED = -1;
+    public static final byte NEAR1 = 0;
+    public static final byte NEAR2 = 1;
+    public static final byte NEAR3 = 2;
+    public static final byte NEAR4 = 3;
+    public static final byte NEAR5 = 4;
+    public static final byte NEAR6 = 5;
+    public static final byte NEAR7 = 6;
+    public static final byte NEAR8 = 7;
+    public static final byte EMPTY = 8;
+    public static final byte FLAGGED = 9;
+    public static final byte BOMB = 10;
     private int status;
 
     public Tile(int status) {

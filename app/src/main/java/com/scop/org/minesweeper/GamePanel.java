@@ -74,7 +74,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas!=null){
-            float scaleFactor = getWidth()/(Tile.BITMAP_SIZE*8f);
+            float scaleFactor = getWidth()/(Tile.BITMAP_SIZE*9f);
 
             canvas.scale(scaleFactor, scaleFactor);
             grid.draw(canvas);
