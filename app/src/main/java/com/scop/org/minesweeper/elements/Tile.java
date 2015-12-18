@@ -25,7 +25,7 @@ public class Tile {
     }
 
     public int getStatus() {
-        return status;
+        return this.status;
     }
 
     public void setStatus(int status) {

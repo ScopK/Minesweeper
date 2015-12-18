@@ -23,6 +23,11 @@ public class Grid {
             }
         }
 
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+
         //paint = new Paint(Color.RED);
         //ColorFilter filter = new PorterDuffColorFilter(0xFFFF0000, PorterDuff.Mode.SCREEN);
         //paint.setColorFilter(filter);
