@@ -18,6 +18,8 @@ import com.scop.org.minesweeper.elements.TileStyle;
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
     private MainThread thread;
     private Grid grid;
+    private float initialX,initialY;
+    private float scaleFactor;
 
     public GamePanel(Context context) {
         super(context);
@@ -25,7 +27,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
         //add the callback to the surfaceholder to intercept events
         getHolder().addCallback(this);
 
-        thread = new MainThread(getHolder(), this);
+        grid = new Grid(12,12);
+        TileStyle.getInstance().setStyle(getResources());
 
         //make gamePanel focusable so it can handle events
         setFocusable(true);
@@ -33,12 +36,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        grid = new Grid(12,12);
-        TileStyle.getInstance().setStyle(getResources());
+        scaleFactor = getWidth()/(Tile.BITMAP_SIZE*8f);
 
-        // we can safely start the game loop
-        thread.setRunning(true);
-        thread.start();
+        if (thread==null) {
+            thread = new MainThread(getHolder(), this);
+
+            // we can safely start the game loop
+            thread.setRunning(true);
+            thread.start();
+        }
     }
 
     @Override
@@ -54,6 +60,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
                 thread.setRunning(false);
                 thread.join();
                 retry = false;
+                thread = null;
             } catch (InterruptedException e){
                 e.printStackTrace();
             }
@@ -63,7 +70,39 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-        return super.onTouchEvent(event);
+        int action = event.getActionMasked();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                initialX = event.getX();
+                initialY = event.getY();
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+
+                float X = event.getX();
+                float Y = event.getY();
+
+                int dx = Math.round((X - initialX) / scaleFactor);
+                int dy = Math.round((Y - initialY) / scaleFactor);
+
+                initialX = X;
+                initialY = Y;
+
+                grid.move(dx,dy);
+                thread.refreshFrame();
+                break;
+
+            case MotionEvent.ACTION_OUTSIDE:
+            case MotionEvent.ACTION_UP:
+                float finalX = event.getX();
+                float finalY = event.getY();
+                break;
+
+            case MotionEvent.ACTION_CANCEL: break;
+
+        }
+
+        return true;//super.onTouchEvent(event);
     }
 
     public void update() {
@@ -73,9 +112,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        if (canvas!=null){
-            float scaleFactor = getWidth()/(Tile.BITMAP_SIZE*9f);
+        //canvas.drawARGB(255,102,119,135); //Original
+        canvas.drawARGB(255,60,60,60);
 
+        if (canvas!=null){
             canvas.scale(scaleFactor, scaleFactor);
             grid.draw(canvas);
         }

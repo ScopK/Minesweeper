@@ -7,7 +7,7 @@ import android.view.SurfaceHolder;
  * Created by Oscar on 25/11/2015.
  */
 public class MainThread extends Thread {
-    private int FPS = 30;
+    private int FPS = 3;
     private double averageFPS;
     private SurfaceHolder surfaceHolder;
     private GamePanel gamePanel;
@@ -27,30 +27,15 @@ public class MainThread extends Thread {
         long waitTime;
         long totalTime = 0;
         int frameCount = 0;
-        long targetTime = 1000/FPS;
+        //long targetTime = 1000/FPS;
+        long targetTime = 10000/FPS;
 
         while (running){
             startTime = System.nanoTime();
-            canvas = null;
 
             //try locking the canvas for pixel editing
-            try {
-                canvas = this.surfaceHolder.lockCanvas();
-                synchronized(this.surfaceHolder){
-                    this.gamePanel.update();
-                    this.gamePanel.draw(canvas);
-                }
-            } catch (Exception e){
-            } finally {
-                if (canvas != null){
-                    try {
-                        surfaceHolder.unlockCanvasAndPost(canvas);
+            refreshFrame();
 
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            }
             timeMillis = (System.nanoTime() - startTime) / 1000000;
             waitTime = targetTime-timeMillis;
             try {
@@ -65,6 +50,26 @@ public class MainThread extends Thread {
                 frameCount = 0;
                 totalTime = 0;
                 System.out.println(averageFPS);
+            }
+        }
+    }
+
+    public synchronized void refreshFrame(){
+        canvas = null;
+        try {
+            canvas = this.surfaceHolder.lockCanvas();
+            synchronized(this.surfaceHolder){
+                this.gamePanel.update();
+                this.gamePanel.draw(canvas);
+            }
+        } catch (Exception e){
+        } finally {
+            if (canvas != null){
+                try {
+                    surfaceHolder.unlockCanvasAndPost(canvas);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
     }
