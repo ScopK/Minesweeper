@@ -1,5 +1,9 @@
 package com.scop.org.minesweeper.elements;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+
 /**
  * Created by Oscar on 27/11/2015.
  */
@@ -20,8 +24,17 @@ public class Tile {
     public static final byte BOMB = 10;
     private int status;
 
-    public Tile(int status) {
-        this.status = status;
+    private Bitmap baseBitmap,base;
+    private Paint paint,colored;
+    private int x,y;
+
+    public Tile(int status, int x, int y){
+        this.x = x;
+        this.y = y;
+        baseBitmap = TileStyle.getInstance().getBitmap(UNDISCOVERED);
+        paint = TileStyle.getInstance().getPaint();
+        colored = TileStyle.getInstance().getColoredPaint();
+        setStatus(status);
     }
 
     public int getStatus() {
@@ -30,5 +43,19 @@ public class Tile {
 
     public void setStatus(int status) {
         this.status = status;
+        if (status != UNDISCOVERED) {
+            base = TileStyle.getInstance().getBitmap(status);
+        } else {
+            base = null;
+        }
+    }
+
+    public void draw(Canvas canvas, int parentX, int parentY){
+        if (status==FLAGGED || status==UNDISCOVERED){
+            canvas.drawBitmap(baseBitmap,parentX+x,parentY+y, colored);
+        }
+        if (base!=null){
+            canvas.drawBitmap(base,parentX+x,parentY+y, paint);
+        }
     }
 }

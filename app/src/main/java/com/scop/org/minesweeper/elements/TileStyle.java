@@ -3,10 +3,11 @@ package com.scop.org.minesweeper.elements;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Paint;
 
 import com.scop.org.minesweeper.R;
+import com.scop.org.minesweeper.elements.visual.ColorFilterHue;
 
-import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -15,12 +16,16 @@ import java.util.Random;
 public class TileStyle {
     private static TileStyle tilestyle;
     private Bitmap[] bms,defBms;
-    private HashMap<Integer,Integer> seeds;
+    private Paint paint,paintColored;
     private Random random;
 
     private TileStyle(){
         random = new Random();
-        seeds = new HashMap();
+
+        paint = new Paint(Paint.FILTER_BITMAP_FLAG);
+        //paint.setAntiAlias(true);
+        //paint.setFilterBitmap(true);
+        //paint.setDither(true);
     }
     public static TileStyle getInstance(){
         if (tilestyle==null){
@@ -29,7 +34,7 @@ public class TileStyle {
         return tilestyle;
     }
 
-    public void setStyle(Resources src){
+    public void setStyle(Resources src, float radius, float brightness){
         bms = new Bitmap[11];
         bms[0] = BitmapFactory.decodeResource(src,R.drawable.tile1);
         bms[1] = BitmapFactory.decodeResource(src,R.drawable.tile2);
@@ -48,23 +53,24 @@ public class TileStyle {
         defBms[1] = BitmapFactory.decodeResource(src,R.drawable.tile_b);
         defBms[2] = BitmapFactory.decodeResource(src,R.drawable.tile_c);
         defBms[3] = BitmapFactory.decodeResource(src,R.drawable.tile_d);
+
+        paintColored  = new Paint(Paint.FILTER_BITMAP_FLAG);
+        paintColored.setColorFilter(ColorFilterHue.adjustHue(radius, brightness));
     }
 
     public Bitmap getBitmap(int i){
         if (i==Tile.UNDISCOVERED){
-            int idx = new java.util.Random().nextInt(defBms.length);
+            int idx = random.nextInt(defBms.length);
             return defBms[idx];
         }
         return bms[i];
     }
 
-    public Bitmap getBitmap(int i, int seed){
-        if (i==Tile.UNDISCOVERED){
-            if (!seeds.containsKey(seed)){
-                seeds.put(seed,random.nextInt(defBms.length));
-            }
-            return defBms[seeds.get(seed)];
-        }
-        return bms[i];
+    public Paint getPaint(){
+        return this.paint;
+    }
+
+    public Paint getColoredPaint(){
+        return this.paintColored;
     }
 }

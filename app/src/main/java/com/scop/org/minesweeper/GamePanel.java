@@ -27,8 +27,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
         //add the callback to the surfaceholder to intercept events
         getHolder().addCallback(this);
 
+        TileStyle.getInstance().setStyle(getResources(),180f,1f);
         grid = new Grid(12,12);
-        TileStyle.getInstance().setStyle(getResources());
 
         //make gamePanel focusable so it can handle events
         setFocusable(true);
@@ -88,14 +88,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
                 initialX = X;
                 initialY = Y;
 
-                grid.move(dx,dy);
+                grid.move(dx, dy);
                 thread.refreshFrame();
                 break;
 
             case MotionEvent.ACTION_OUTSIDE:
             case MotionEvent.ACTION_UP:
-                float finalX = event.getX();
-                float finalY = event.getY();
                 break;
 
             case MotionEvent.ACTION_CANCEL: break;
@@ -113,7 +111,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
     public void draw(Canvas canvas) {
         super.draw(canvas);
         //canvas.drawARGB(255,102,119,135); //Original
-        canvas.drawARGB(255,60,60,60);
+        canvas.drawARGB(255, 60, 60, 60);
 
         if (canvas!=null){
             canvas.scale(scaleFactor, scaleFactor);
