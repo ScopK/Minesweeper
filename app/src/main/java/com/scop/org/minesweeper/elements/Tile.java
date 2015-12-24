@@ -23,6 +23,7 @@ public class Tile {
     public static final byte FLAGGED = 9;
     public static final byte EMPTY = 10;
     private int status;
+    private boolean hasBomb;
 
     private Bitmap baseBitmap,base;
     private Paint paint;
@@ -39,7 +40,9 @@ public class Tile {
     public int getStatus() {
         return this.status;
     }
-
+    public boolean isStatus(int status){
+        return status==this.status;
+    }
     public void setStatus(int status) {
         this.status = status;
         if (status == UNDISCOVERED) {
@@ -47,6 +50,23 @@ public class Tile {
         } else {
             base = TileStyle.getInstance().getBitmap(status);
         }
+    }
+
+    public void plantBomb(){
+        this.hasBomb = true;
+    }
+    public boolean hasBomb(){
+        return this.hasBomb;
+    }
+
+    public boolean reveal(){
+        if (status==FLAGGED || status==UNDISCOVERED){
+            if (hasBomb){
+                setStatus(BOMB);
+                return false;
+            }
+        }
+        return true;
     }
 
     public void draw(Canvas canvas, float parentX, float parentY){

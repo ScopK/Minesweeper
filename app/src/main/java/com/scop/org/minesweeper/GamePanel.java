@@ -35,9 +35,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
         // init grid:
         Bitmap marks = BitmapFactory.decodeResource(getResources(), R.drawable.tilemarks_a);
         Bitmap tiles = BitmapFactory.decodeResource(getResources(), R.drawable.tiles_a);
-        TileStyle.getInstance().setStyle(tiles,4,marks,180f,1f);
+        TileStyle.getInstance().setStyle(tiles,4,marks,0f,1f);
         gridControl = new GridControl(this,context);
-        gridControl.start(new Grid(3,3));
+        gridControl.start(new Grid(30,20,203));
 
     }
 

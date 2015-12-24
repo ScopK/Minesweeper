@@ -47,7 +47,7 @@ public class GridControl {
         vWidth = w;
         vHeight = h;
         if (this.scale==-1) {
-            this.scale = w / (Tile.BITMAP_SIZE * 8f);
+            this.scale = w / (Tile.BITMAP_SIZE * 6f);
             move(0,0);
         }
     }
@@ -162,23 +162,25 @@ public class GridControl {
         public boolean onSingleTapUp(MotionEvent e) {
             lastX = e.getX()/scale;
             lastY = e.getY()/scale;
-            grid.sTap(new float[]{lastX, lastY});
+            grid.sTap(lastX, lastY);
             gamePanel.refresh();
             return true;
         }
         @Override
         public boolean onDoubleTapEvent(MotionEvent e) {
+            if (e.getAction()!=MotionEvent.ACTION_UP) return false;
+
             int bSize = Tile.BITMAP_SIZE/3;
             float thisX = e.getX()/scale;
             float thisY = e.getY()/scale;
 
             if (Math.abs(thisX-lastX) < bSize && Math.abs(thisY-lastY) < bSize) {
-                grid.dTap(new float[]{thisX, thisY});
+                grid.dTap(thisX, thisY);
             } else {
-                grid.sTap(new float[]{thisX, thisX});
+                grid.sTap(thisX, thisY);
             }
             gamePanel.refresh();
-            return false;
+            return true;
         }
     }
 }
