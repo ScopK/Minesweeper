@@ -25,7 +25,7 @@ public class Tile {
     private int status;
 
     private Bitmap baseBitmap,base;
-    private Paint paint,colored;
+    private Paint paint;
     private int x,y;
 
     public Tile(int status, int x, int y){
@@ -33,7 +33,6 @@ public class Tile {
         this.y = y;
         baseBitmap = TileStyle.getInstance().getBitmap(UNDISCOVERED);
         paint = TileStyle.getInstance().getPaint();
-        colored = TileStyle.getInstance().getColoredPaint();
         setStatus(status);
     }
 
@@ -43,16 +42,16 @@ public class Tile {
 
     public void setStatus(int status) {
         this.status = status;
-        if (status != UNDISCOVERED) {
-            base = TileStyle.getInstance().getBitmap(status);
-        } else {
+        if (status == UNDISCOVERED) {
             base = null;
+        } else {
+            base = TileStyle.getInstance().getBitmap(status);
         }
     }
 
     public void draw(Canvas canvas, int parentX, int parentY){
         if (status==FLAGGED || status==UNDISCOVERED){
-            canvas.drawBitmap(baseBitmap,parentX+x,parentY+y, colored);
+            canvas.drawBitmap(baseBitmap,parentX+x,parentY+y, paint);
         }
         if (base!=null){
             canvas.drawBitmap(base,parentX+x,parentY+y, paint);

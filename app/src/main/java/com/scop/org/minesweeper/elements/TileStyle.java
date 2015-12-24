@@ -1,11 +1,8 @@
 package com.scop.org.minesweeper.elements;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 
-import com.scop.org.minesweeper.R;
 import com.scop.org.minesweeper.elements.visual.ColorFilterHue;
 
 import java.util.Random;
@@ -16,7 +13,7 @@ import java.util.Random;
 public class TileStyle {
     private static TileStyle tilestyle;
     private Bitmap[] bms,defBms;
-    private Paint paint,paintColored;
+    private Paint paint;
     private Random random;
 
     private TileStyle(){
@@ -54,10 +51,9 @@ public class TileStyle {
         defBms = new Bitmap[numTiles];
         for (int i=0;i<numTiles;i++){
             defBms[i] = Bitmap.createBitmap(tiles, i*tileW, 0, tileW, tileH);
+            ColorFilterHue.adjustHue(defBms[i], radius, brightness);
         }
-
-        paintColored  = new Paint(Paint.FILTER_BITMAP_FLAG);
-        paintColored.setColorFilter(ColorFilterHue.adjustHue(radius, brightness));
+        //paintColored.setColorFilter(ColorFilterHue.adjustHue(radius, brightness));
     }
 
     public Bitmap getBitmap(int i){
@@ -70,9 +66,5 @@ public class TileStyle {
 
     public Paint getPaint(){
         return this.paint;
-    }
-
-    public Paint getColoredPaint(){
-        return this.paintColored;
     }
 }
