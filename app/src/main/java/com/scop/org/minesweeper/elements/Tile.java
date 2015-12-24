@@ -26,9 +26,9 @@ public class Tile {
 
     private Bitmap baseBitmap,base;
     private Paint paint;
-    private int x,y;
+    private float x,y;
 
-    public Tile(int status, int x, int y){
+    public Tile(int status, float x, float y){
         this.x = x;
         this.y = y;
         baseBitmap = TileStyle.getInstance().getBitmap(UNDISCOVERED);
@@ -49,7 +49,7 @@ public class Tile {
         }
     }
 
-    public void draw(Canvas canvas, int parentX, int parentY){
+    public void draw(Canvas canvas, float parentX, float parentY){
         if (status==FLAGGED || status==UNDISCOVERED){
             canvas.drawBitmap(baseBitmap,parentX+x,parentY+y, paint);
         }

@@ -52,6 +52,7 @@ public class MainThread extends Thread {
                 System.out.println(averageFPS);
             }
         }
+        running = false;
     }
 
     public synchronized void refreshFrame(){

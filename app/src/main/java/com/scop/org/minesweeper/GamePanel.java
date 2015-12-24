@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -18,11 +19,13 @@ import com.scop.org.minesweeper.elements.TileStyle;
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
     private MainThread thread;
     private Grid grid;
-    private float initialX,initialY;
-    private float scaleFactor;
+    private int scrWidth, scrHeight;
+
+    private ScaleGestureDetector scaleDetector;
 
     public GamePanel(Context context) {
         super(context);
+        scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
 
         //add the callback to the surfaceholder to intercept events
         getHolder().addCallback(this);
@@ -30,7 +33,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
         Bitmap marks = BitmapFactory.decodeResource(getResources(), R.drawable.tilemarks_a);
         Bitmap tiles = BitmapFactory.decodeResource(getResources(), R.drawable.tiles_a);
         TileStyle.getInstance().setStyle(tiles,4,marks,180f,1f);
-        grid = new Grid(12,12);
+        grid = new Grid(this,30,20);
 
         //make gamePanel focusable so it can handle events
         setFocusable(true);
@@ -38,7 +41,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        scaleFactor = getWidth()/(Tile.BITMAP_SIZE*8f);
+        if (grid!=null) {
+            grid.setScreenSize(getWidth(),getHeight());
+            grid.move(0, 0);
+        }
 
         if (thread==null) {
             thread = new MainThread(getHolder(), this);
@@ -51,7 +57,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+        if (grid!=null) grid.setScreenSize(getWidth(),getHeight());
     }
 
     @Override
@@ -72,37 +78,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-        int action = event.getActionMasked();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                initialX = event.getX();
-                initialY = event.getY();
-                break;
+        scaleDetector.onTouchEvent(event);
 
-            case MotionEvent.ACTION_MOVE:
-
-                float X = event.getX();
-                float Y = event.getY();
-
-                int dx = Math.round((X - initialX) / scaleFactor);
-                int dy = Math.round((Y - initialY) / scaleFactor);
-
-                initialX = X;
-                initialY = Y;
-
-                grid.move(dx, dy);
-                thread.refreshFrame();
-                break;
-
-            case MotionEvent.ACTION_OUTSIDE:
-            case MotionEvent.ACTION_UP:
-                break;
-
-            case MotionEvent.ACTION_CANCEL: break;
-
+        if (!scaleDetector.isInProgress()) {
+            if (grid!=null) grid.onTouchEvent(event);
         }
-
         return true;//super.onTouchEvent(event);
+    }
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            if (grid!=null) grid.onTouchDetector(detector);
+            return true;
+        }
     }
 
     public void update() {
@@ -116,8 +105,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
         canvas.drawARGB(255, 60, 60, 60);
 
         if (canvas!=null){
-            canvas.scale(scaleFactor, scaleFactor);
             grid.draw(canvas);
         }
+    }
+
+
+    public void invalidate(){
+        thread.refreshFrame();
     }
 }
