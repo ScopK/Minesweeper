@@ -19,9 +19,9 @@ public class Tile {
     public static final byte NEAR6 = 5;
     public static final byte NEAR7 = 6;
     public static final byte NEAR8 = 7;
-    public static final byte EMPTY = 8;
+    public static final byte BOMB = 8;
     public static final byte FLAGGED = 9;
-    public static final byte BOMB = 10;
+    public static final byte EMPTY = 10;
     private int status;
 
     private Bitmap baseBitmap,base;

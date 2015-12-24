@@ -34,25 +34,27 @@ public class TileStyle {
         return tilestyle;
     }
 
-    public void setStyle(Resources src, float radius, float brightness){
+    public void setStyle(Bitmap tiles, int numTiles, Bitmap marks, float radius, float brightness) {
+        int markSize = marks.getHeight();
         bms = new Bitmap[11];
-        bms[0] = BitmapFactory.decodeResource(src,R.drawable.tile1);
-        bms[1] = BitmapFactory.decodeResource(src,R.drawable.tile2);
-        bms[2] = BitmapFactory.decodeResource(src,R.drawable.tile3);
-        bms[3] = BitmapFactory.decodeResource(src,R.drawable.tile4);
-        bms[4] = BitmapFactory.decodeResource(src,R.drawable.tile5);
-        bms[5] = BitmapFactory.decodeResource(src,R.drawable.tile6);
-        bms[6] = BitmapFactory.decodeResource(src,R.drawable.tile7);
-        bms[7] = BitmapFactory.decodeResource(src,R.drawable.tile8);
-        bms[8] = BitmapFactory.decodeResource(src,R.drawable.tilewhite);
-        bms[9] = BitmapFactory.decodeResource(src,R.drawable.tilemark);
-        bms[10] = BitmapFactory.decodeResource(src,R.drawable.tilebomb);
+        bms[0] = Bitmap.createBitmap(marks, 0         , 0, markSize, markSize);
+        bms[1] = Bitmap.createBitmap(marks,   markSize, 0, markSize, markSize);
+        bms[2] = Bitmap.createBitmap(marks, 2*markSize, 0, markSize, markSize);
+        bms[3] = Bitmap.createBitmap(marks, 3*markSize, 0, markSize, markSize);
+        bms[4] = Bitmap.createBitmap(marks, 4*markSize, 0, markSize, markSize);
+        bms[5] = Bitmap.createBitmap(marks, 5*markSize, 0, markSize, markSize);
+        bms[6] = Bitmap.createBitmap(marks, 6*markSize, 0, markSize, markSize);
+        bms[7] = Bitmap.createBitmap(marks, 7*markSize, 0, markSize, markSize);
+        bms[8] = Bitmap.createBitmap(marks, 8*markSize, 0, markSize, markSize);
+        bms[9] = Bitmap.createBitmap(marks, 9*markSize, 0, markSize, markSize);
+        bms[10]= Bitmap.createBitmap(marks,10*markSize, 0, markSize, markSize);
 
-        defBms = new Bitmap[4];
-        defBms[0] = BitmapFactory.decodeResource(src,R.drawable.tile_a);
-        defBms[1] = BitmapFactory.decodeResource(src,R.drawable.tile_b);
-        defBms[2] = BitmapFactory.decodeResource(src,R.drawable.tile_c);
-        defBms[3] = BitmapFactory.decodeResource(src,R.drawable.tile_d);
+        int tileH = tiles.getHeight();
+        int tileW = tiles.getWidth()/numTiles;
+        defBms = new Bitmap[numTiles];
+        for (int i=0;i<numTiles;i++){
+            defBms[i] = Bitmap.createBitmap(tiles, i*tileW, 0, tileW, tileH);
+        }
 
         paintColored  = new Paint(Paint.FILTER_BITMAP_FLAG);
         paintColored.setColorFilter(ColorFilterHue.adjustHue(radius, brightness));

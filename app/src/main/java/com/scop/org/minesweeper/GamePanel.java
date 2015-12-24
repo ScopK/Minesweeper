@@ -27,7 +27,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback{
         //add the callback to the surfaceholder to intercept events
         getHolder().addCallback(this);
 
-        TileStyle.getInstance().setStyle(getResources(),180f,1f);
+        Bitmap marks = BitmapFactory.decodeResource(getResources(), R.drawable.tilemarks_a);
+        Bitmap tiles = BitmapFactory.decodeResource(getResources(), R.drawable.tiles_a);
+        TileStyle.getInstance().setStyle(tiles,4,marks,180f,1f);
         grid = new Grid(12,12);
 
         //make gamePanel focusable so it can handle events
