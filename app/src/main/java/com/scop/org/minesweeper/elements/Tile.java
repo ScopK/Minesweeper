@@ -26,6 +26,7 @@ public class Tile implements Serializable {
     public static final byte EMPTY = 10;
     private int status;
     private boolean hasBomb;
+    public int bombsNear = 0;
 
     transient private Bitmap baseBitmap,base;
     transient private Paint paint;
@@ -34,6 +35,7 @@ public class Tile implements Serializable {
     public Tile(int status, float x, float y){
         this.x = x;
         this.y = y;
+        bombsNear = 0;
         baseBitmap = TileStyle.getInstance().getBitmap(UNDISCOVERED);
         paint = TileStyle.getInstance().getPaint();
         setStatus(status);
@@ -59,6 +61,12 @@ public class Tile implements Serializable {
     }
     public boolean hasBomb(){
         return this.hasBomb;
+    }
+    public void hasBombNear() {
+        bombsNear++;
+    }
+    public int getBombsNear() {
+        return bombsNear;
     }
 
     public boolean reveal(){

@@ -50,6 +50,12 @@ public class MGameActivity extends Activity {
     }
 
     @Override
+    protected void onStop() {
+        gamepanel.saveState();
+        super.onStop();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
@@ -63,6 +69,8 @@ public class MGameActivity extends Activity {
                 return true;
             case R.id.loadlaststate:
                 gamepanel.loadState();
+                return true;
+            case R.id.test:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

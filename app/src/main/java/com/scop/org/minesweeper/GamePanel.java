@@ -74,7 +74,6 @@ public class GamePanel extends View{
     }
 
     public void saveState(){
-        System.err.println("Go SAVE");
         gridControl.savingState();
         System.err.println("SAVED");
     }

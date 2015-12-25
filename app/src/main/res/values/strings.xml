@@ -9,4 +9,5 @@
     <string name="savestate">Save State</string>
     <string name="loadlaststate">Load last game</string>
     <string name="saveclose">Save and close</string>
+    <string name="test">Test</string>
 </resources>

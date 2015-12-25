@@ -8,6 +8,8 @@ import android.view.ScaleGestureDetector;
 
 import com.scop.org.minesweeper.GamePanel;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -123,7 +125,7 @@ public class GridControl {
 
     public void draw(Canvas canvas){
         canvas.scale(scale, scale);
-        if (grid!=null) grid.draw(canvas);
+        if (grid!=null) grid.draw(canvas,vWidth/scale, vHeight/scale);
         canvas.scale(1/scale, 1/scale);
     }
 
@@ -227,16 +229,22 @@ public class GridControl {
             return true;
         }
     }
-
     public void savingState(){
-        if (grid==null) return;
+        if (grid==null || grid.isGameOver()){
+            new File("/sdcard/Minesweeper/savesstate.save").delete();
+            return;
+        }
         try {
             new File("/sdcard/Minesweeper").mkdirs();
             FileOutputStream fos = new FileOutputStream (new File("/sdcard/Minesweeper/savesstate.save"));
-            ObjectOutputStream os = new ObjectOutputStream(fos);
-            os.writeObject(grid);
-            os.close();
+            DataOutputStream dos = new DataOutputStream(fos);
+
+            char[] map = grid.getMap();
+            for (char c : map)
+                dos.writeChar(c);
+            dos.close();
             fos.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -246,18 +254,25 @@ public class GridControl {
         try {
             File f = new File("/sdcard/Minesweeper/savesstate.save");
             FileInputStream fis = new FileInputStream (f);
-            ObjectInputStream is = new ObjectInputStream(fis);
-            Grid gridRead = (Grid) is.readObject();
-            gridRead.loadGraphics();
-            is.close();
+            DataInputStream dis = new DataInputStream(fis);
+
+            int w = dis.readChar();
+            int h = dis.readChar();
+            int fields = w*h;
+            char[] map = new char[fields+2];
+            map[0] = (char)w;
+            map[1] = (char)h;
+            for (int i=0;i<fields;i++)
+                map[i+2] = dis.readChar();
+
             fis.close();
+            fis.close();
+
             f.delete();
 
             end();
-            start(gridRead);
+            start(Grid.getGridFromMap(map));
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
