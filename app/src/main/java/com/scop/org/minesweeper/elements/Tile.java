@@ -4,10 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import java.io.Serializable;
+
 /**
  * Created by Oscar on 27/11/2015.
  */
-public class Tile {
+public class Tile implements Serializable {
     public static final int BITMAP_SIZE = 95;
 
     public static final byte UNDISCOVERED = -1;

@@ -15,7 +15,6 @@ import com.scop.org.minesweeper.elements.TileStyle;
  * Created by Oscar on 25/11/2015.
  */
 public class GamePanel extends View{
-    private MainThread thread;
 
     private GridControl gridControl;
 
@@ -28,10 +27,12 @@ public class GamePanel extends View{
         // init grid:
         Bitmap marks = BitmapFactory.decodeResource(getResources(), R.drawable.tilemarks_a);
         Bitmap tiles = BitmapFactory.decodeResource(getResources(), R.drawable.tiles_a);
-        TileStyle.getInstance().setStyle(tiles,4,marks,180f,1f);
+        TileStyle.getInstance().setStyle(tiles,4,marks,-140f,1.1f);
         gridControl = new GridControl(this,context);
         restart();
         invalidate();
+
+
     }
 
     @Override
@@ -50,13 +51,14 @@ public class GamePanel extends View{
         gridControl.setDimensions(getWidth(), getHeight());
 
         if (canvas!=null){
-            canvas.drawARGB(255, 60, 60, 60);
+            canvas.drawRGB(102, 119, 136);
+            //canvas.drawRGB(60, 60, 60);
             gridControl.draw(canvas);
         }
     }
 
     public void restart() {
         gridControl.end();
-        gridControl.start(new Grid(25,25,150));
+        gridControl.start(new Grid(25,25,100));
     }
 }
