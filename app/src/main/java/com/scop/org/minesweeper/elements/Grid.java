@@ -19,10 +19,12 @@ import java.util.Random;
 public class Grid implements Serializable {
     private Tile[][] tiles;
     public float x,y,w,h;
+    private boolean gameOver=true;
 
     private List<Tile> revealing;
 
     public Grid(int w, int h, int bombs){
+        gameOver = false;
         revealing = new ArrayList<>();
         this.x=0;
         this.y=0;
@@ -98,6 +100,7 @@ public class Grid implements Serializable {
 
     // ACTIONS_
     public void sTap(float pointX, float pointY){
+        if (gameOver) return;
         int[] c = getCoord(pointX, pointY);
         Tile t = getTile(c[0], c[1]);
         if (t==null) return;
@@ -121,6 +124,7 @@ public class Grid implements Serializable {
     }
 
     public void dTap(float pointX, float pointY){
+        if (gameOver) return;
         int[] c = getCoord(pointX, pointY);
         Tile t = getTile(c[0], c[1]);
         if (t==null) return;
@@ -230,7 +234,7 @@ public class Grid implements Serializable {
     }
 
     public void gameOver(){
-        System.err.println("GAME OVER");
+        gameOver=true;
         for (Tile[] r : tiles) for (Tile t : r){
             if (t.hasBomb()) {
                 t.setStatus(Tile.BOMB);
@@ -247,5 +251,9 @@ public class Grid implements Serializable {
                 tiles[i][j].draw(canvas,x,y);
             }
         }
+    }
+
+    public boolean isGameOver() {
+        return this.gameOver;
     }
 }

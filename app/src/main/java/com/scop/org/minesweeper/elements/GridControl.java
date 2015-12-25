@@ -37,6 +37,7 @@ public class GridControl {
 
     public void start(Grid grid) {
         this.grid = grid;
+        move(MARGIN,MARGIN);
     }
 
     public void end(){
@@ -47,8 +48,8 @@ public class GridControl {
         vWidth = w;
         vHeight = h;
         if (this.scale==-1) {
-            this.scale = w / (Tile.BITMAP_SIZE * 6f);
-            move(0,0);
+            this.scale = w / (Tile.BITMAP_SIZE * 7f);
+            move(MARGIN,MARGIN);
         }
     }
 
@@ -131,7 +132,7 @@ public class GridControl {
                     dragYpos = Y;
 
                     move(dx, dy);
-                    gamePanel.refresh();
+                    gamePanel.postInvalidate();
                     break;
 
                 case MotionEvent.ACTION_OUTSIDE:
@@ -152,7 +153,7 @@ public class GridControl {
             float ratio = detector.getScaleFactor();
             zoom(ratio);
 
-            gamePanel.refresh();
+            gamePanel.postInvalidate();
             return true;
         }
     }
@@ -160,10 +161,17 @@ public class GridControl {
         float lastX, lastY;
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
+            if (grid.isGameOver()){
+                gamePanel.restart();
+                gamePanel.postInvalidate();
+                return true;
+            }
+
             lastX = e.getX()/scale;
             lastY = e.getY()/scale;
             grid.sTap(lastX, lastY);
-            gamePanel.refresh();
+
+            gamePanel.postInvalidate();
             return true;
         }
         @Override
@@ -179,7 +187,7 @@ public class GridControl {
             } else {
                 grid.sTap(thisX, thisY);
             }
-            gamePanel.refresh();
+            gamePanel.postInvalidate();
             return true;
         }
     }

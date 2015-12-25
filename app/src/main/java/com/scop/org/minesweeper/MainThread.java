@@ -7,7 +7,7 @@ import android.view.SurfaceHolder;
  * Created by Oscar on 25/11/2015.
  */
 public class MainThread extends Thread {
-    private int FPS = 3;
+    private int FPS = 30;
     private double averageFPS;
     private SurfaceHolder surfaceHolder;
     private GamePanel gamePanel;
@@ -27,15 +27,14 @@ public class MainThread extends Thread {
         long waitTime;
         long totalTime = 0;
         int frameCount = 0;
-        //long targetTime = 1000/FPS;
-        long targetTime = 10000/FPS;
+        long targetTime = 1000/FPS;
 
         while (running){
             startTime = System.nanoTime();
 
             //try locking the canvas for pixel editing
             refreshFrame();
-
+            if (true) break;
             timeMillis = (System.nanoTime() - startTime) / 1000000;
             waitTime = targetTime-timeMillis;
             try {
@@ -52,7 +51,6 @@ public class MainThread extends Thread {
                 System.out.println(averageFPS);
             }
         }
-        running = false;
     }
 
     public synchronized void refreshFrame(){

@@ -8,7 +8,7 @@ import android.graphics.Paint;
  * Created by Oscar on 27/11/2015.
  */
 public class Tile {
-    public static final int BITMAP_SIZE = 96;
+    public static final int BITMAP_SIZE = 95;
 
     public static final byte UNDISCOVERED = -1;
     public static final byte NEAR1 = 0;
