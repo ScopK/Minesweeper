@@ -8,6 +8,13 @@ import android.view.ScaleGestureDetector;
 
 import com.scop.org.minesweeper.GamePanel;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 /**
  * Created by Oscar on 24/12/2015.
  */
@@ -50,7 +57,7 @@ public class GridControl {
         vHeight = h;
         if (this.scale==-1) {
             this.scale = w / (Tile.BITMAP_SIZE * 7f);
-            moveCenter();
+            if (grid!=null) moveCenter();
         }
     }
 
@@ -112,10 +119,6 @@ public class GridControl {
         float dX = dd*vWidth/2;
         float dY = dd*vHeight/2;
         move(dX,dY);
-    }
-
-    public void update(){
-        if (grid!=null) grid.update();
     }
 
     public void draw(Canvas canvas){
@@ -183,6 +186,11 @@ public class GridControl {
         float lastX, lastY;
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
+            if (grid.isGameOver()){
+                gamePanel.restart();
+                gamePanel.postInvalidate();
+                return true;
+            }
             lastX = e.getX()/scale;
             lastY = e.getY()/scale;
             grid.sTap(lastX, lastY);
@@ -191,13 +199,13 @@ public class GridControl {
         }
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e){
-            if (grid.isGameOver()){
+            /*if (grid.isGameOver()){
                 gamePanel.restart();
                 gamePanel.postInvalidate();
                 return true;
             }
-            //grid.sTap(e.getX()/scale, e.getY()/scale);
-            //gamePanel.postInvalidate();
+            grid.sTap(e.getX()/scale, e.getY()/scale);
+            gamePanel.postInvalidate();*/
             return true;
         }
         @Override
@@ -217,6 +225,40 @@ public class GridControl {
             }
             gamePanel.postInvalidate();
             return true;
+        }
+    }
+
+    public void savingState(){
+        if (grid==null) return;
+        try {
+            new File("/sdcard/Minesweeper").mkdirs();
+            FileOutputStream fos = new FileOutputStream (new File("/sdcard/Minesweeper/savesstate.save"));
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            os.writeObject(grid);
+            os.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadingState(){
+        try {
+            File f = new File("/sdcard/Minesweeper/savesstate.save");
+            FileInputStream fis = new FileInputStream (f);
+            ObjectInputStream is = new ObjectInputStream(fis);
+            Grid gridRead = (Grid) is.readObject();
+            gridRead.loadGraphics();
+            is.close();
+            fis.close();
+            f.delete();
+
+            end();
+            start(gridRead);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 }

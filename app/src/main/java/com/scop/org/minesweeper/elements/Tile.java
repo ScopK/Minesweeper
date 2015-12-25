@@ -27,8 +27,8 @@ public class Tile implements Serializable {
     private int status;
     private boolean hasBomb;
 
-    private Bitmap baseBitmap,base;
-    private Paint paint;
+    transient private Bitmap baseBitmap,base;
+    transient private Paint paint;
     private float x,y;
 
     public Tile(int status, float x, float y){
@@ -78,5 +78,11 @@ public class Tile implements Serializable {
         if (base!=null){
             canvas.drawBitmap(base,parentX+x,parentY+y, paint);
         }
+    }
+
+    public void loadGraphics() {
+        baseBitmap = TileStyle.getInstance().getBitmap(UNDISCOVERED);
+        setStatus(status);
+        paint = TileStyle.getInstance().getPaint();
     }
 }

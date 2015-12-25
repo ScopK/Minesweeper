@@ -60,6 +60,12 @@ public class Grid implements Serializable {
         */
     }
 
+    public void loadGraphics(){
+        for (Tile[] ts : tiles) for (Tile t : ts){
+            t.loadGraphics();
+        }
+    }
+
     private int[] getCoord(float px, float py){
         float dX = (-this.x+px)/Tile.BITMAP_SIZE;
         float dY = (-this.y+py)/Tile.BITMAP_SIZE;
@@ -235,22 +241,23 @@ public class Grid implements Serializable {
 
     public void gameOver(){
         gameOver=true;
-        for (Tile[] r : tiles) for (Tile t : r){
+        for (Tile[] ts : tiles) for (Tile t : ts){
             if (t.hasBomb()) {
                 t.setStatus(Tile.BOMB);
             }
         }
     }
 
-    // UPDATE & DRAW_
-    public void update(){}
-
+    //  DRAW_
     public void draw(Canvas canvas){
-        for (int i=0;i<tiles.length;i++){
+        for (Tile[] ts : tiles) for (Tile t : ts){
+            t.draw(canvas, x, y);
+        }
+        /*for (int i=0;i<tiles.length;i++){
             for (int j=0;j<tiles[0].length;j++){
                 tiles[i][j].draw(canvas,x,y);
             }
-        }
+        }*/
     }
 
     public boolean isGameOver() {

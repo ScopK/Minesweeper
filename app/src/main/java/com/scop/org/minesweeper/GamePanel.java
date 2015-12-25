@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.Parcelable;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -25,14 +26,29 @@ public class GamePanel extends View{
         setFocusable(true);
 
         // init grid:
-        Bitmap marks = BitmapFactory.decodeResource(getResources(), R.drawable.tilemarks_a);
-        Bitmap tiles = BitmapFactory.decodeResource(getResources(), R.drawable.tiles_a);
-        TileStyle.getInstance().setStyle(tiles,4,marks,-140f,1.1f);
         gridControl = new GridControl(this,context);
         restart();
         invalidate();
+    }
 
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        switch(visibility){
+            case GONE:      // minimizing & closing
+                //saveState();
+                break;
+            case INVISIBLE: // resuming
+                break;
+            case VISIBLE:   // Start and resuming
+                break;
+        }
+        super.onWindowVisibilityChanged(visibility);
+    }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        gridControl.setDimensions(w, h);
+        super.onSizeChanged(w, h, oldw, oldh);
     }
 
     @Override
@@ -41,17 +57,12 @@ public class GamePanel extends View{
         return true;//super.onTouchEvent(event);
     }
 
-    public void update() {
-        gridControl.update();
-    }
-
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        gridControl.setDimensions(getWidth(), getHeight());
 
         if (canvas!=null){
-            canvas.drawRGB(102, 119, 136);
+            canvas.drawColor(TileStyle.getInstance().getBackgroundColor());
             //canvas.drawRGB(60, 60, 60);
             gridControl.draw(canvas);
         }
@@ -59,6 +70,18 @@ public class GamePanel extends View{
 
     public void restart() {
         gridControl.end();
-        gridControl.start(new Grid(25,25,100));
+        gridControl.start(new Grid(50, 50, 503));
+    }
+
+    public void saveState(){
+        System.err.println("Go SAVE");
+        gridControl.savingState();
+        System.err.println("SAVED");
+    }
+
+    public void loadState(){
+        gridControl.loadingState();
+        System.err.println("LOADED");
+        invalidate();
     }
 }

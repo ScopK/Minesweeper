@@ -1,6 +1,8 @@
 package com.scop.org.minesweeper.elements;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 
 import com.scop.org.minesweeper.elements.visual.ColorFilterHue;
@@ -15,6 +17,7 @@ public class TileStyle {
     private Bitmap[] bms,defBms;
     private Paint paint;
     private Random random;
+    private int backgroundColor;
 
     private TileStyle(){
         random = new Random();
@@ -31,7 +34,19 @@ public class TileStyle {
         return tilestyle;
     }
 
-    public void setStyle(Bitmap tiles, int numTiles, Bitmap marks, float radius, float brightness) {
+    public void setStyle(Context context, String setName, int numUndiscoveredTiles, float color, float brightness, int bgColor){
+        this.backgroundColor = bgColor;
+        int id;
+        id = context.getResources().getIdentifier("tilemarks_"+setName, "drawable", context.getPackageName());
+        Bitmap marks = BitmapFactory.decodeResource(context.getResources(), id);
+
+        id = context.getResources().getIdentifier("tiles_"+setName, "drawable", context.getPackageName());
+        Bitmap tiles = BitmapFactory.decodeResource(context.getResources(), id);
+
+        this.setStyle(tiles,numUndiscoveredTiles,marks,color,brightness);
+    }
+
+    private void setStyle(Bitmap tiles, int numUndiscoveredTiles, Bitmap marks, float color, float brightness) {
         int markSize = marks.getHeight();
         bms = new Bitmap[11];
         bms[0] = Bitmap.createBitmap(marks, 0         , 0, markSize, markSize);
@@ -47,11 +62,11 @@ public class TileStyle {
         bms[10]= Bitmap.createBitmap(marks,10*markSize, 0, markSize, markSize);
 
         int tileH = tiles.getHeight();
-        int tileW = tiles.getWidth()/numTiles;
-        defBms = new Bitmap[numTiles];
-        for (int i=0;i<numTiles;i++){
+        int tileW = tiles.getWidth()/numUndiscoveredTiles;
+        defBms = new Bitmap[numUndiscoveredTiles];
+        for (int i=0;i<numUndiscoveredTiles;i++){
             defBms[i] = Bitmap.createBitmap(tiles, i*tileW, 0, tileW, tileH);
-            ColorFilterHue.adjustHue(defBms[i], radius, brightness);
+            ColorFilterHue.adjustHue(defBms[i], color, brightness);
         }
         //paintColored.setColorFilter(ColorFilterHue.adjustHue(radius, brightness));
     }
@@ -66,5 +81,9 @@ public class TileStyle {
 
     public Paint getPaint(){
         return this.paint;
+    }
+
+    public int getBackgroundColor() {
+        return backgroundColor;
     }
 }
