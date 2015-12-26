@@ -21,7 +21,7 @@ import java.io.ObjectOutputStream;
  * Created by Oscar on 24/12/2015.
  */
 public class GridControl {
-    public static final float MARGIN = 50;
+    public static final float MARGIN = 100;
 
     private Grid grid = null;
     private float xPos, yPos, vWidth, vHeight, scale=-1;
