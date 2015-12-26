@@ -81,7 +81,8 @@ public class Tile implements Serializable {
 
     public void draw(Canvas canvas, float parentX, float parentY){
         if (status==FLAGGED || status==UNDISCOVERED){
-            canvas.drawBitmap(baseBitmap,parentX+x,parentY+y, paint);
+            float m = TileStyle.getInstance().getMargin();
+            canvas.drawBitmap(baseBitmap,m+parentX+x,m+parentY+y, paint);
         }
         if (base!=null){
             canvas.drawBitmap(base,parentX+x,parentY+y, paint);
