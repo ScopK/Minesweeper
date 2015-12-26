@@ -14,8 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import com.scop.org.minesweeper.control.Settings;
 
 /**
  * Created by Oscar on 24/12/2015.
@@ -230,13 +229,13 @@ public class GridControl {
         }
     }
     public void savingState(){
-        if (grid==null || grid.isGameOver()){
-            new File("/sdcard/Minesweeper/savesstate.save").delete();
+        if (grid== null || grid.isGameOver()){
+            new File(Settings.SAVE_STATE_PATH).delete();
             return;
         }
         try {
-            new File("/sdcard/Minesweeper").mkdirs();
-            FileOutputStream fos = new FileOutputStream (new File("/sdcard/Minesweeper/savesstate.save"));
+            new File(Settings.SAVE_STATE_PATH.substring(0,Settings.SAVE_STATE_PATH.lastIndexOf("/"))).mkdirs();
+            FileOutputStream fos = new FileOutputStream (new File(Settings.SAVE_STATE_PATH));
             DataOutputStream dos = new DataOutputStream(fos);
 
             char[] map = grid.getMap();
@@ -252,7 +251,7 @@ public class GridControl {
 
     public void loadingState(){
         try {
-            File f = new File("/sdcard/Minesweeper/savesstate.save");
+            File f = new File(Settings.SAVE_STATE_PATH);
             FileInputStream fis = new FileInputStream (f);
             DataInputStream dis = new DataInputStream(fis);
 

@@ -1,10 +1,7 @@
 package com.scop.org.minesweeper;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.os.Parcelable;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -18,6 +15,7 @@ import com.scop.org.minesweeper.elements.TileStyle;
 public class GamePanel extends View{
 
     private GridControl gridControl;
+    private int sizeW=50,sizeH=50,bombs=503;
 
     public GamePanel(Context context) {
         super(context);
@@ -27,22 +25,6 @@ public class GamePanel extends View{
 
         // init grid:
         gridControl = new GridControl(this,context);
-        restart();
-        invalidate();
-    }
-
-    @Override
-    protected void onWindowVisibilityChanged(int visibility) {
-        switch(visibility){
-            case GONE:      // minimizing & closing
-                //saveState();
-                break;
-            case INVISIBLE: // resuming
-                break;
-            case VISIBLE:   // Start and resuming
-                break;
-        }
-        super.onWindowVisibilityChanged(visibility);
     }
 
     @Override
@@ -68,9 +50,16 @@ public class GamePanel extends View{
         }
     }
 
+    public void setAndStart(int w, int h, int b){
+        this.sizeW = w;
+        this.sizeH = h;
+        this.bombs = b;
+        restart();
+    }
+
     public void restart() {
         gridControl.end();
-        gridControl.start(new Grid(50, 50, 503));
+        gridControl.start(new Grid(sizeW, sizeH, bombs));
     }
 
     public void saveState(){
@@ -81,6 +70,5 @@ public class GamePanel extends View{
     public void loadState(){
         gridControl.loadingState();
         System.err.println("LOADED");
-        invalidate();
     }
 }
