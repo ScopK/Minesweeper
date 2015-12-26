@@ -1,17 +1,14 @@
 package com.scop.org.minesweeper;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
+
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.KeyEvent;
+
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.scop.org.minesweeper.control.Settings;
-import com.scop.org.minesweeper.elements.TileStyle;
 
 
 /**
@@ -20,7 +17,6 @@ import com.scop.org.minesweeper.elements.TileStyle;
  */
 public class GameActivity extends Activity {
     private GamePanel gamepanel;
-    private MenuPanel menupanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,4 +49,12 @@ public class GameActivity extends Activity {
         super.onStop();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode==KeyEvent.KEYCODE_MENU){
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }

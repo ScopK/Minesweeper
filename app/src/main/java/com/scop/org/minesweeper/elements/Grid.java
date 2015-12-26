@@ -6,6 +6,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import com.scop.org.minesweeper.GamePanel;
+import com.scop.org.minesweeper.control.Settings;
 import com.scop.org.minesweeper.elements.visual.ColorFilterHue;
 
 import java.io.Serializable;
@@ -36,7 +37,12 @@ public class Grid implements Serializable {
         this.totalBombs = bombs;
         this.w=w;
         this.h=h;
+        start();
+    }
 
+    public void start(){
+        x=y=0;
+        gameOver=false;
         int tileSize = Tile.BITMAP_SIZE;
         tiles = new Tile[w][h];
         for (int i=0;i<w;i++) {
@@ -46,7 +52,7 @@ public class Grid implements Serializable {
         }
         Random random = new Random();
         int x,y,rnd,max = w*h;
-        for (int i=0;i<bombs;i++) {
+        for (int i=0;i<totalBombs;i++) {
             rnd = random.nextInt(max);
             x = rnd%w;
             y = rnd/w;
@@ -60,22 +66,18 @@ public class Grid implements Serializable {
                 t.hasBombNear();
             }
         }
-        boolean found = false;
-        while (!found){
-            rnd = random.nextInt(max);
-            x = rnd%w;
-            y = rnd/w;
-            if (!tiles[x][y].hasBomb() && tiles[x][y].getBombsNear()==0){
-                revealAppend(tiles[x][y]);
-                reveal();
-                found = true;
+        if (Settings.getInstance().isFirstOpen()) {
+            boolean found = false;
+            while (!found) {
+                rnd = random.nextInt(max);
+                x = rnd % w;
+                y = rnd / w;
+                if (!tiles[x][y].hasBomb() && tiles[x][y].getBombsNear() == 0) {
+                    revealAppend(tiles[x][y]);
+                    reveal();
+                    found = true;
+                }
             }
-        }
-    }
-
-    public void loadGraphics(){
-        for (Tile[] ts : tiles) for (Tile t : ts){
-            t.loadGraphics();
         }
     }
 
@@ -197,13 +199,14 @@ public class Grid implements Serializable {
 
     private boolean massReveal(Tile tile, int[] coord){
         List<Tile> ts = getNeighbors(tiles,coord);
-        boolean harderMode = false;
-        if (!harderMode) {
+        int hardLevel = Settings.getInstance().getDiscoveryMode();
+        if (hardLevel<Settings.HARD) {
             int countFlagged = 0;
             for (Tile t : ts){
                 if (t.getStatus()==Tile.FLAGGED) countFlagged++;
             }
-            if (tile.getStatus()+1-Tile.NEAR1 != countFlagged){
+            if (hardLevel==Settings.EASY  &&  tile.getStatus()+1-Tile.NEAR1 != countFlagged ||
+                hardLevel==Settings.NORMAL && tile.getStatus()+1-Tile.NEAR1 > countFlagged){
                 return true;
             }
         }

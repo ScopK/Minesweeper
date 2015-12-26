@@ -48,6 +48,10 @@ public class GridControl {
         this.grid = grid;
         moveCenter();
     }
+    public void restart() {
+        grid.start();
+        moveCenter();
+    }
 
     public void end(){
         this.grid = null;
@@ -75,7 +79,7 @@ public class GridControl {
         float minX = -(gridW-screenW);
         float minY = -(gridH-screenH);
 
-        grid.x=(maxX+minX)/2;
+        grid.x = (maxX+minX)/2;
         grid.y = (maxY+minY)/2;
     }
 

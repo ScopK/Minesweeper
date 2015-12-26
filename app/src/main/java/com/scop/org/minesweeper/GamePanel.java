@@ -15,7 +15,6 @@ import com.scop.org.minesweeper.elements.TileStyle;
 public class GamePanel extends View{
 
     private GridControl gridControl;
-    private int sizeW=50,sizeH=50,bombs=503;
 
     public GamePanel(Context context) {
         super(context);
@@ -51,15 +50,13 @@ public class GamePanel extends View{
     }
 
     public void setAndStart(int w, int h, int b){
-        this.sizeW = w;
-        this.sizeH = h;
-        this.bombs = b;
-        restart();
+        gridControl.end();
+        gridControl.start(new Grid(w, h, b));
     }
 
     public void restart() {
-        gridControl.end();
-        gridControl.start(new Grid(sizeW, sizeH, bombs));
+        gridControl.restart();
+        invalidate();
     }
 
     public void saveState(){

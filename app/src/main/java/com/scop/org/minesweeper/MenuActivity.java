@@ -2,6 +2,7 @@ package com.scop.org.minesweeper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
@@ -26,6 +27,12 @@ public class MenuActivity extends Activity {
         menupanel = new MenuPanel(this);
         setContentView(menupanel);
 
+        SharedPreferences preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        Settings sets = Settings.getInstance();
+        sets.setDiscoveryMode(Integer.parseInt(preferences.getString("option_reveal", "0")));
+        sets.setShowTime(preferences.getBoolean("option_time", true));
+        sets.setFirstOpen(preferences.getBoolean("option_firstopen", true));
+
         if (new java.io.File(Settings.SAVE_STATE_PATH).exists()){
             loadGrid();
         }
@@ -46,6 +53,7 @@ public class MenuActivity extends Activity {
     }
 
     public void openSettings(){
-        System.err.println("Settings");
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 }

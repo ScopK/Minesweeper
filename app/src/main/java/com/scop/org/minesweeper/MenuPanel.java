@@ -31,7 +31,7 @@ public class MenuPanel extends View {
 
     private float x=0;
     private float y=0;
-    private float minY, heightNextButton = 0;
+    private float heightNextButton = 0;
     private float dragXpos,dragYpos;
 
     public MenuPanel(MenuActivity parent) {
@@ -85,7 +85,7 @@ public class MenuPanel extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         buttons.clear();
-        heightNextButton = minY = w*.15f;
+        heightNextButton = 40;
         addButton(ACTION_LOAD,      "Load", "",                               w, h, 0x99FF0000);
         addButton(ACTION_GAME1,     "Sandbox", "4x6 - 5 bombs",               w, h, 0x99FFFF00);
         addButton(ACTION_GAME2,     "Baby", "10x10 - 12 bombs",               w, h, 0x99FFFF00);
@@ -120,7 +120,7 @@ public class MenuPanel extends View {
                 y+= Y - dragYpos;
 
                 float maxHeight = getHeight()-heightNextButton;
-                if (y>0) y = 0;
+                if (y>0 || maxHeight>0) y = 0;
                 else if (y<maxHeight) y=maxHeight;
 
                 //dragXpos = X;

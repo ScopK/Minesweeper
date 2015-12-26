@@ -1,14 +1,19 @@
 <resources>
     <string name="app_name">Minesweeper</string>
-
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="new_game">New game</string>
-    <string name="help">Help</string>
-    <string name="loadstate">Load State</string>
-    <string name="savestate">Save State</string>
-    <string name="loadlaststate">Load last game</string>
-    <string name="saveclose">Save and close</string>
-    <string name="test">Test</string>
     <string name="settings">Settings</string>
+    <string name="pref_showtime">Show time</string>
+    <string name="pref_discoverymode">Set revealing mode</string>
+    <string name="pref_firstopen">First Open</string>
+    <string name="pref_firstopen_desc">Open automatically a first empty tile, so there won\'t be a \'blind\' start.</string>
+    <string-array name="pref_discoverymode_title">
+        <item>Easy</item>
+        <item>Normal</item>
+        <item>Hard</item>
+    </string-array>
+    <string-array name="pref_discoverymode_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

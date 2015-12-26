@@ -8,15 +8,14 @@ public class Settings {
     public static final int EASY=0;
     public static final int NORMAL=1;
     public static final int HARD=2;
-    public static final int HARDEST=3;
     public static final String SAVE_STATE_PATH = "/sdcard/Minesweeper/savesstate.save";
 
-    private boolean showTime;
+    private boolean showTime, firstOpen;
     private int discoveryMode;
 
     private static Settings settings;
     private Settings() {}
-    public Settings getInstance(){
+    public static Settings getInstance(){
         if (settings==null){
             settings = new Settings();
         }
@@ -37,6 +36,14 @@ public class Settings {
 
     public void setShowTime(boolean showTime) {
         this.showTime = showTime;
+    }
+
+    public boolean isFirstOpen() {
+        return firstOpen;
+    }
+
+    public void setFirstOpen(boolean firstOpen) {
+        this.firstOpen = firstOpen;
     }
 }
 
