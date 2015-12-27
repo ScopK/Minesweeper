@@ -10,6 +10,7 @@ import com.scop.org.minesweeper.control.Settings;
 import com.scop.org.minesweeper.elements.visual.ColorFilterHue;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -26,7 +27,9 @@ public class Grid implements Serializable {
 
     private List<Tile> revealing = new ArrayList<>();
 
-    private Grid(int w, int h, int totalBombs, Tile[][] tiles){
+    private Grid(int w, int h, int totalBombs, Tile[][] tiles, float x, float y){
+        this.x = x;
+        this.y = y;
         this.w = w;
         this.h = h;
         this.totalBombs = totalBombs;
@@ -41,7 +44,7 @@ public class Grid implements Serializable {
     }
 
     public void start(){
-        x=y=0;
+        x=y=Integer.MIN_VALUE;;
         gameOver=false;
         int tileSize = Tile.BITMAP_SIZE;
         tiles = new Tile[w][h];
@@ -75,6 +78,8 @@ public class Grid implements Serializable {
                 if (!tiles[x][y].hasBomb() && tiles[x][y].getBombsNear() == 0) {
                     revealAppend(tiles[x][y]);
                     reveal();
+                    this.x = x;
+                    this.y = y;
                     found = true;
                 }
             }
@@ -260,12 +265,20 @@ public class Grid implements Serializable {
 
 
 
-    public char[] getMap(){
-        char[] map = new char[w*h+2];
+    public char[] getMap(float centerX, float centerY){
+        char[] map = new char[w*h+10];
         char c = 'E';
+
+        int[] coord = getCoord(centerX, centerY);
+        byte[] bx = ByteBuffer.allocate(4).putInt(coord[0]).array();
+        byte[] by = ByteBuffer.allocate(4).putInt(coord[1]).array();
+
         map[0] = (char)w;
         map[1] = (char)h;
-        int count = 2;
+        map[2]=(char)bx[0]; map[3]=(char)bx[1]; map[4]=(char)bx[2]; map[5]=(char)bx[3];
+        map[6]=(char)by[0]; map[7]=(char)by[1]; map[8]=(char)by[2]; map[9]=(char)by[3];
+
+        int count = 10;
         for (int j=0;j<h;j++){
             for (int i=0;i<w;i++){
                 Tile t = tiles[i][j];
@@ -296,6 +309,11 @@ public class Grid implements Serializable {
     public static Grid getGridFromMap(char[] map){
         int w = map[0];
         int h = map[1];
+        byte[] bx = new byte[]{(byte)map[2],(byte)map[3],(byte)map[4],(byte)map[5]};
+        byte[] by = new byte[]{(byte)map[6],(byte)map[7],(byte)map[8],(byte)map[9]};
+        int x = convertByteToInt(bx);
+        int y = convertByteToInt(by);
+
         int totalBombs = 0;
         int xx,yy;
         int tileSize = Tile.BITMAP_SIZE;
@@ -306,7 +324,7 @@ public class Grid implements Serializable {
         Tile[][] newTiles = new Tile[w][h];
 
         for (int i=0;i<fields;i++){
-            char c = map[i+2];
+            char c = map[i+10];
             xx = i%w;
             yy = i/w;
 
@@ -353,6 +371,12 @@ public class Grid implements Serializable {
                 }
             }
         }
-        return new Grid(w,h,totalBombs,newTiles);
+        return new Grid(w,h,totalBombs,newTiles, x, y);
+    }
+    private static int convertByteToInt(byte[] b){
+        int value= 0;
+        for(int i=0; i<b.length; i++)
+            value = (value << 8) | (b[i]&0xFF);
+        return value;
     }
 }

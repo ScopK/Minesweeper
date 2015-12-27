@@ -23,7 +23,7 @@ public class GamePanel extends View{
         setFocusable(true);
 
         // init grid:
-        gridControl = new GridControl(this,context);
+        gridControl = new GridControl(context,this);
     }
 
     @Override
@@ -52,11 +52,6 @@ public class GamePanel extends View{
     public void setAndStart(int w, int h, int b){
         gridControl.end();
         gridControl.start(new Grid(w, h, b));
-    }
-
-    public void restart() {
-        gridControl.restart();
-        invalidate();
     }
 
     public void saveState(){

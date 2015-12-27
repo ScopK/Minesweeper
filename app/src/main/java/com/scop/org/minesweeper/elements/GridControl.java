@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
 
 import com.scop.org.minesweeper.GamePanel;
 
@@ -23,7 +24,7 @@ public class GridControl {
     public static final float MARGIN = 100;
 
     private Grid grid = null;
-    private float xPos, yPos, vWidth, vHeight, scale=-1;
+    private float vWidth=-1, vHeight=-1, scale=-1, vWidthScaled = -1, vHeightScaled = -1;
     private float dragXpos,dragYpos;
 
     private boolean isResizing = false;
@@ -32,13 +33,12 @@ public class GridControl {
     private ScaleGestureDetector scaleDetector;
     private GestureDetector gestureDetector;
 
-    private GamePanel gamePanel;
+    private View view;
     private Context context;
 
-    public GridControl(GamePanel gamePanel, Context context) {
-        this.xPos = this.yPos = 0;
+    public GridControl(Context context, View view) {
         this.context = context;
-        this.gamePanel = gamePanel;
+        this.view = view;
         this.scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         this.scaleDetector.setQuickScaleEnabled(false);
         this.gestureDetector = new GestureDetector(context, new GestureListener());
@@ -46,11 +46,11 @@ public class GridControl {
 
     public void start(Grid grid) {
         this.grid = grid;
-        moveCenter();
+        move();
     }
     public void restart() {
         grid.start();
-        moveCenter();
+        move();
     }
 
     public void end(){
@@ -62,63 +62,75 @@ public class GridControl {
         vHeight = h;
         if (this.scale==-1) {
             this.scale = w / (Tile.BITMAP_SIZE * 7f);
-            if (grid!=null) moveCenter();
+            this.vWidthScaled = vWidth/scale;
+            this.vHeightScaled = vHeight/scale;
+            if (grid!=null) move();
         }
     }
 
-    public void moveCenter(){
+    public void focus(){
         float tileSize = Tile.BITMAP_SIZE;
-        float gridW = grid.w*tileSize+MARGIN;
-        float gridH = grid.h*tileSize+MARGIN;
-
-        float screenW = vWidth/scale;
-        float screenH = vHeight/scale;
-
-        float maxX = MARGIN;
-        float maxY = MARGIN;
-        float minX = -(gridW-screenW);
-        float minY = -(gridH-screenH);
-
-        grid.x = (maxX+minX)/2;
-        grid.y = (maxY+minY)/2;
+        grid.x = -(grid.x*tileSize+tileSize/2-vWidthScaled/2);
+        grid.y = -(grid.y*tileSize+tileSize/2-vHeightScaled/2);
+        limitMoving();
     }
+    public void move(){
+        float tileSize = Tile.BITMAP_SIZE;
+        if (vWidth>0) {
+            if (grid.x == Integer.MIN_VALUE){
+                float gridW = grid.w * tileSize + MARGIN;
+                float maxX = MARGIN;
+                float minX = -(gridW - vWidthScaled);
+                grid.x = (maxX + minX) / 2;
+            } else {
+                focus();
+            }
+        }
 
+        if (vHeight>0) {
+            if (grid.y == Integer.MIN_VALUE){
+                float gridH = grid.h * tileSize + MARGIN;
+                float maxY = MARGIN;
+                float minY = -(gridH - vHeightScaled);
+                grid.y = (maxY + minY) / 2;
+            }
+        }
+    }
     public void move(float x, float y){
-        x+=grid.x;
-        y+=grid.y;
-
+        grid.x+=x;
+        grid.y+=y;
+        limitMoving();
+    }
+    private void limitMoving(){
         float tileSize = Tile.BITMAP_SIZE;
         float gridW = grid.w*tileSize+MARGIN;
         float gridH = grid.h*tileSize+MARGIN;
 
-        float screenW = vWidth/scale;
-        float screenH = vHeight/scale;
-
         float maxX = MARGIN;
         float maxY = MARGIN;
-        float minX = -(gridW-screenW);
-        float minY = -(gridH-screenH);
+        float minX = -(gridW-vWidthScaled);
+        float minY = -(gridH-vHeightScaled);
 
-        if (gridW+MARGIN < screenW){
+        if (gridW+MARGIN < vWidthScaled){
             grid.x=(maxX+minX)/2;
         } else {
-            if (x > maxX) grid.x = maxX;
-            else if (x < minX) grid.x = minX;
-            else grid.x = x;
+            if (grid.x > maxX) grid.x = maxX;
+            else if (grid.x < minX) grid.x = minX;
         }
 
-        if (gridH+MARGIN < screenH){
+        if (gridH+MARGIN < vHeightScaled){
             grid.y = (maxY+minY)/2;
         } else {
-            if (y > maxY) grid.y = maxY;
-            else if (y < minY) grid.y = minY;
-            else grid.y = y;
+            if (grid.y > maxY) grid.y = maxY;
+            else if (grid.y < minY) grid.y = minY;
         }
     }
     public void zoom(float z){
         float iScale = scale;
         this.scale *= z;
         this.scale = Math.max(0.4f, Math.min(scale, 1.1f));
+        this.vWidthScaled = vWidth/scale;
+        this.vHeightScaled = vHeight/scale;
 
         float dd = (1/scale - 1/iScale);
         float dX = dd*vWidth/2;
@@ -128,7 +140,7 @@ public class GridControl {
 
     public void draw(Canvas canvas){
         canvas.scale(scale, scale);
-        if (grid!=null) grid.draw(canvas,vWidth/scale, vHeight/scale);
+        if (grid!=null) grid.draw(canvas,vWidthScaled, vHeightScaled);
         canvas.scale(1/scale, 1/scale);
     }
 
@@ -160,7 +172,7 @@ public class GridControl {
                     if (isMoving || Math.abs(dx)+Math.abs(dy)>3){
                         move(dx, dy);
                         this.isMoving = true;
-                        gamePanel.postInvalidate();
+                        view.postInvalidate();
                     }
                     break;
 
@@ -183,7 +195,7 @@ public class GridControl {
             float ratio = detector.getScaleFactor();
             zoom(ratio);
 
-            gamePanel.postInvalidate();
+            view.postInvalidate();
             return true;
         }
     }
@@ -192,14 +204,14 @@ public class GridControl {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             if (grid.isGameOver()){
-                gamePanel.restart();
-                gamePanel.postInvalidate();
+                restart();
+                view.postInvalidate();
                 return true;
             }
             lastX = e.getX()/scale;
             lastY = e.getY()/scale;
             grid.sTap(lastX, lastY);
-            gamePanel.postInvalidate();
+            view.postInvalidate();
             return true;
         }
         @Override
@@ -228,7 +240,7 @@ public class GridControl {
                 //grid.sTap(lastX, lastY);
                 grid.sTap(thisX, thisY);
             }
-            gamePanel.postInvalidate();
+            view.postInvalidate();
             return true;
         }
     }
@@ -242,7 +254,7 @@ public class GridControl {
             FileOutputStream fos = new FileOutputStream (new File(Settings.SAVE_STATE_PATH));
             DataOutputStream dos = new DataOutputStream(fos);
 
-            char[] map = grid.getMap();
+            char[] map = grid.getMap(vWidthScaled/2,vHeightScaled/2);
             for (char c : map)
                 dos.writeChar(c);
             dos.close();
@@ -261,8 +273,8 @@ public class GridControl {
 
             int w = dis.readChar();
             int h = dis.readChar();
-            int fields = w*h;
-            char[] map = new char[fields+2];
+            int fields = w*h+8;
+            char[] map = new char[fields+10];
             map[0] = (char)w;
             map[1] = (char)h;
             for (int i=0;i<fields;i++)
