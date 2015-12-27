@@ -128,7 +128,7 @@ public class GridControl {
     public void zoom(float z){
         float iScale = scale;
         this.scale *= z;
-        this.scale = Math.max(0.4f, Math.min(scale, 1.1f));
+        this.scale = Math.max(0.3f, Math.min(scale, 1f));
         this.vWidthScaled = vWidth/scale;
         this.vHeightScaled = vHeight/scale;
 

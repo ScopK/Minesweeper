@@ -10,7 +10,7 @@ import java.io.Serializable;
  * Created by Oscar on 27/11/2015.
  */
 public class Tile implements Serializable {
-    public static final int BITMAP_SIZE = 127;
+    public static final int BITMAP_SIZE = 126;
 
     public static final byte UNDISCOVERED = -1;
     public static final byte NEAR1 = 0;
