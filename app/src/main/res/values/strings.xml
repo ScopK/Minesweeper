@@ -6,6 +6,7 @@
     <string name="pref_discoverymode">Set revealing mode</string>
     <string name="pref_firstopen">First Open</string>
     <string name="pref_firstopen_desc">Open automatically a first empty tile, so there won\'t be a \'blind\' start.</string>
+    <string name="pref_visualtheme">Visual Theme</string>
     <string-array name="pref_discoverymode_title">
         <item>Easy</item>
         <item>Normal</item>
@@ -15,5 +16,14 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
+    </string-array>
+
+    <string-array name="pref_visualtheme_title">
+        <item>Default</item>
+        <item>Old windows</item>
+    </string-array>
+    <string-array name="pref_visualtheme_value">
+        <item>0</item>
+        <item>1</item>
     </string-array>
 </resources>

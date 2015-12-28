@@ -21,9 +21,6 @@ public class MenuActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        //TileStyle.getInstance().setStyle(this,"default", 4, -140f, 1.1f, 0xFF667788); // DefaultBG
-        TileStyle.getInstance().setStyle(this, "default", 4, 0f, 1.0f, 0xFF3C3C3C); //
-
         menupanel = new MenuPanel(this);
         setContentView(menupanel);
 
@@ -32,6 +29,11 @@ public class MenuActivity extends Activity {
         sets.setDiscoveryMode(Integer.parseInt(preferences.getString("option_reveal", "0")));
         sets.setShowTime(preferences.getBoolean("option_time", true));
         sets.setFirstOpen(preferences.getBoolean("option_firstopen", true));
+
+        switch (preferences.getString("option_theme", "0")){
+            case "0": TileStyle.getInstance().setStyle(this, "default", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+            case "1": TileStyle.getInstance().setStyle(this, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
+        }
 
         if (new java.io.File(Settings.SAVE_STATE_PATH).exists()){
             loadGrid();

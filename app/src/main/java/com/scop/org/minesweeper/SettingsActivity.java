@@ -2,6 +2,7 @@ package com.scop.org.minesweeper;
 
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -9,6 +10,7 @@ import android.preference.PreferenceFragment;
 
 
 import com.scop.org.minesweeper.control.Settings;
+import com.scop.org.minesweeper.elements.TileStyle;
 
 import java.util.List;
 
@@ -31,11 +33,15 @@ public class SettingsActivity extends PreferenceActivity {
 
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction().replace(android.R.id.content,
-                new PrefsFragment()).commit();
+                new PrefsFragment(this)).commit();
     }
 
 
     public static class PrefsFragment extends PreferenceFragment {
+        private Context context;
+        public PrefsFragment(Context context){
+            this.context = context;
+        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +72,16 @@ public class SettingsActivity extends PreferenceActivity {
                 public boolean onPreferenceChange(Preference preference, Object value) {
                     int revealValue = Integer.parseInt(value.toString());
                     sets.setDiscoveryMode(revealValue);
+                    return true;
+                }
+            });
+            findPreference("option_theme").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object value) {
+                    switch (value.toString()){
+                        case "0": TileStyle.getInstance().setStyle(context, "default", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+                        case "1": TileStyle.getInstance().setStyle(context, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
+                    }
                     return true;
                 }
             });
