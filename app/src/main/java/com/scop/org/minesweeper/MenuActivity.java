@@ -26,7 +26,7 @@ public class MenuActivity extends Activity {
 
         SharedPreferences preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
         Settings sets = Settings.getInstance();
-        sets.setDiscoveryMode(Integer.parseInt(preferences.getString("option_reveal", "0")));
+        sets.setDiscoveryMode(Integer.parseInt(preferences.getString("option_reveal", "1")));
         sets.setShowTime(preferences.getBoolean("option_time", true));
         sets.setFirstOpen(preferences.getBoolean("option_firstopen", true));
 

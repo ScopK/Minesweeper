@@ -5,6 +5,7 @@ package com.scop.org.minesweeper.control;
  */
 public class Settings {
 
+    public static final int DISABLED=3;
     public static final int EASY=0;
     public static final int NORMAL=1;
     public static final int HARD=2;
@@ -24,6 +25,9 @@ public class Settings {
 
     public int getDiscoveryMode() {
         return discoveryMode;
+    }
+    public boolean isDiscoveryMode(int t) {
+        return discoveryMode==t;
     }
 
     public void setDiscoveryMode(int discoveryMode) {

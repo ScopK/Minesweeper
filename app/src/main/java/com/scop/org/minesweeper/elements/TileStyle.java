@@ -18,7 +18,6 @@ public class TileStyle {
     private Paint paint;
     private Random random;
     private int backgroundColor;
-    private float tileMargin;
 
     private TileStyle(){
         random = new Random();
@@ -49,7 +48,7 @@ public class TileStyle {
 
     private void setStyle(Bitmap tiles, int numUndiscoveredTiles, Bitmap marks, float color, float brightness) {
         int markSize = marks.getHeight();
-        bms = new Bitmap[11];
+        bms = new Bitmap[13];
         bms[0] = Bitmap.createBitmap(marks, 0         , 0, markSize, markSize);
         bms[1] = Bitmap.createBitmap(marks,   markSize, 0, markSize, markSize);
         bms[2] = Bitmap.createBitmap(marks, 2*markSize, 0, markSize, markSize);
@@ -61,6 +60,8 @@ public class TileStyle {
         bms[8] = Bitmap.createBitmap(marks, 8*markSize, 0, markSize, markSize);
         bms[9] = Bitmap.createBitmap(marks, 9*markSize, 0, markSize, markSize);
         bms[10]= Bitmap.createBitmap(marks,10*markSize, 0, markSize, markSize);
+        bms[11]= Bitmap.createBitmap(marks,11*markSize, 0, markSize, markSize);
+        bms[12]= Bitmap.createBitmap(marks,12*markSize, 0, markSize, markSize);
 
         int tileH = tiles.getHeight();
         int tileW = tiles.getWidth()/numUndiscoveredTiles;
@@ -69,8 +70,6 @@ public class TileStyle {
             defBms[i] = Bitmap.createBitmap(tiles, i*tileW, 0, tileW, tileH);
             ColorFilterHue.adjustHue(defBms[i], color, brightness);
         }
-
-        this.tileMargin = (markSize-tileH)/2f;
         //paintColored.setColorFilter(ColorFilterHue.adjustHue(radius, brightness));
     }
 
@@ -88,8 +87,5 @@ public class TileStyle {
 
     public int getBackgroundColor() {
         return backgroundColor;
-    }
-    public float getMargin(){
-        return this.tileMargin;
     }
 }

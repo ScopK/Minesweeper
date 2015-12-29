@@ -124,10 +124,11 @@ public class Grid implements Serializable {
     }
 
     // ACTIONS_
+    private int[] lastCoord;
     public void sTap(float pointX, float pointY){
         if (gameOver) return;
-        int[] c = getCoord(pointX, pointY);
-        Tile t = getTile(tiles,c[0], c[1]);
+        lastCoord = getCoord(pointX, pointY);
+        Tile t = getTile(tiles, lastCoord[0], lastCoord[1]);
         if (t==null) return;
         switch (t.getStatus()){
             case Tile.UNDISCOVERED:
@@ -140,9 +141,11 @@ public class Grid implements Serializable {
             case Tile.BOMB:
                 break;
             default:
-                revealing.clear();
-                if (!massReveal(t,c)){
-                    gameOver();
+                if (!Settings.getInstance().isDiscoveryMode(Settings.DISABLED)) {
+                    revealing.clear();
+                    if (!massReveal(t, lastCoord)) {
+                        gameOver();
+                    }
                 }
                 break;
         }
@@ -151,6 +154,10 @@ public class Grid implements Serializable {
     public void dTap(float pointX, float pointY){
         if (gameOver) return;
         int[] c = getCoord(pointX, pointY);
+        if (c[0]!=lastCoord[0] || c[1]!=lastCoord[1]){
+            sTap(pointX,pointY);
+            return;
+        }
         Tile t = getTile(tiles,c[0], c[1]);
         if (t==null) return;
         switch (t.getStatus()){
@@ -226,8 +233,11 @@ public class Grid implements Serializable {
     public void gameOver(){
         gameOver=true;
         for (Tile[] ts : tiles) for (Tile t : ts){
-            if (t.hasBomb()) {
+            int status = t.getStatus();
+            if (t.hasBomb() && status!=Tile.BOMB_END) {
                 t.setStatus(Tile.BOMB);
+            } else if (status==Tile.FLAGGED){
+                t.setStatus(Tile.FLAGGED_FAILED);
             }
         }
     }

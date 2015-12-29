@@ -10,7 +10,7 @@ import java.io.Serializable;
  * Created by Oscar on 27/11/2015.
  */
 public class Tile implements Serializable {
-    public static final int BITMAP_SIZE = 127;
+    public static final int BITMAP_SIZE = 128;
 
     public static final byte UNDISCOVERED = -1;
     public static final byte NEAR1 = 0;
@@ -22,8 +22,10 @@ public class Tile implements Serializable {
     public static final byte NEAR7 = 6;
     public static final byte NEAR8 = 7;
     public static final byte BOMB = 8;
-    public static final byte FLAGGED = 9;
-    public static final byte EMPTY = 10;
+    public static final byte BOMB_END = 9;
+    public static final byte FLAGGED = 10;
+    public static final byte FLAGGED_FAILED = 11;
+    public static final byte EMPTY = 12;
     private int status;
     private boolean hasBomb;
     public int bombsNear = 0;
@@ -72,7 +74,7 @@ public class Tile implements Serializable {
     public boolean reveal(){
         if (status==FLAGGED || status==UNDISCOVERED){
             if (hasBomb){
-                setStatus(BOMB);
+                setStatus(BOMB_END);
                 return false;
             }
         }
@@ -80,9 +82,8 @@ public class Tile implements Serializable {
     }
 
     public void draw(Canvas canvas, float parentX, float parentY){
-        if (status==FLAGGED || status==UNDISCOVERED){
-            float m = TileStyle.getInstance().getMargin();
-            canvas.drawBitmap(baseBitmap,m+parentX+x,m+parentY+y, paint);
+        if (status==FLAGGED || status==UNDISCOVERED || status==FLAGGED_FAILED){
+            canvas.drawBitmap(baseBitmap,parentX+x,parentY+y, paint);
         }
         if (base!=null){
             canvas.drawBitmap(base,parentX+x,parentY+y, paint);

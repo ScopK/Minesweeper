@@ -24,7 +24,8 @@ public class GridControl {
     public static final float MARGIN = 100;
 
     private Grid grid = null;
-    private float vWidth=-1, vHeight=-1, scale=-1, vWidthScaled = -1, vHeightScaled = -1;
+    private float vWidth=-1, vHeight=-1, vWidthScaled = -1, vHeightScaled = -1;
+    private float minScale=0.3f, scale=-1, maxScale=1f;
     private float dragXpos,dragYpos;
 
     private boolean isResizing = false;
@@ -62,6 +63,8 @@ public class GridControl {
         vHeight = h;
         if (this.scale==-1) {
             this.scale = w / (Tile.BITMAP_SIZE * 7f);
+            this.minScale = w / (Tile.BITMAP_SIZE * 14f);
+            this.maxScale = w / (Tile.BITMAP_SIZE * 4f);
             this.vWidthScaled = vWidth/scale;
             this.vHeightScaled = vHeight/scale;
             if (grid!=null) move();
@@ -128,7 +131,7 @@ public class GridControl {
     public void zoom(float z){
         float iScale = scale;
         this.scale *= z;
-        this.scale = Math.max(0.3f, Math.min(scale, 1f));
+        this.scale = Math.max(minScale, Math.min(scale, maxScale));
         this.vWidthScaled = vWidth/scale;
         this.vHeightScaled = vHeight/scale;
 
@@ -166,10 +169,10 @@ public class GridControl {
                     int dx = Math.round((X - dragXpos) / scale);
                     int dy = Math.round((Y - dragYpos) / scale);
 
-                    dragXpos = X;
-                    dragYpos = Y;
+                    if (isMoving || Math.abs(dx)+Math.abs(dy)>35){
+                        dragXpos = X;
+                        dragYpos = Y;
 
-                    if (isMoving || Math.abs(dx)+Math.abs(dy)>3){
                         move(dx, dy);
                         this.isMoving = true;
                         view.postInvalidate();
@@ -200,7 +203,6 @@ public class GridControl {
         }
     }
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-        float lastX, lastY;
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             if (grid.isGameOver()){
@@ -208,9 +210,9 @@ public class GridControl {
                 view.postInvalidate();
                 return true;
             }
-            lastX = e.getX()/scale;
-            lastY = e.getY()/scale;
-            grid.sTap(lastX, lastY);
+            float thisX = e.getX()/scale;
+            float thisY = e.getY()/scale;
+            grid.sTap(thisX, thisY);
             view.postInvalidate();
             return true;
         }
@@ -230,16 +232,9 @@ public class GridControl {
             if (e.getAction()!=MotionEvent.ACTION_UP) return false;
             if (isMoving) return false;
 
-            int bSize = Tile.BITMAP_SIZE/3;
             float thisX = e.getX()/scale;
             float thisY = e.getY()/scale;
-
-            if (Math.abs(thisX-lastX) < bSize && Math.abs(thisY-lastY) < bSize) {
-                grid.dTap(thisX, thisY);
-            } else {
-                //grid.sTap(lastX, lastY);
-                grid.sTap(thisX, thisY);
-            }
+            grid.dTap(thisX, thisY);
             view.postInvalidate();
             return true;
         }

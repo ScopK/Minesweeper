@@ -8,11 +8,13 @@
     <string name="pref_firstopen_desc">Open automatically a first empty tile, so there won\'t be a \'blind\' start.</string>
     <string name="pref_visualtheme">Visual Theme</string>
     <string-array name="pref_discoverymode_title">
+        <item>Disabled</item>
         <item>Easy</item>
         <item>Normal</item>
         <item>Hard</item>
     </string-array>
     <string-array name="pref_discoverymode_value">
+        <item>3</item>
         <item>0</item>
         <item>1</item>
         <item>2</item>

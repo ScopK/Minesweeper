@@ -7,7 +7,7 @@
         android:title="@string/pref_showtime" />
 
     <ListPreference
-        android:defaultValue="0"
+        android:defaultValue="1"
         android:entries="@array/pref_discoverymode_title"
         android:entryValues="@array/pref_discoverymode_value"
         android:key="option_reveal"
