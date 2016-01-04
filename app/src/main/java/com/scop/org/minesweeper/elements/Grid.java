@@ -19,20 +19,31 @@ import java.util.Random;
  * Created by Oscar on 27/11/2015.
  */
 public class Grid implements Serializable {
+    public static final int PLAYING = 0;
+    public static final int WIN = 1;
+    public static final int GAMEOVER = 2;
+
     private Tile[][] tiles;
     private int totalBombs;
+    private int flaggedBombs, correctFlaggedBombs;
+    private int undiscoveredTiles;
     public float x = 0,y = 0;
     public int w,h;
-    private boolean gameOver=false;
+    private int status;
+    private GridEventListener listener;
 
     private List<Tile> revealing = new ArrayList<>();
 
-    private Grid(int w, int h, int totalBombs, Tile[][] tiles, float x, float y){
+    private Grid(int w, int h, int totalBombs, int flaggedBombs, int correctFlaggedBombs, int undiscoveredTiles, Tile[][] tiles, float x, float y){
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        this.status = PLAYING;
         this.totalBombs = totalBombs;
+        this.flaggedBombs = flaggedBombs;
+        this.correctFlaggedBombs = correctFlaggedBombs;
+        this.undiscoveredTiles = undiscoveredTiles;
         this.tiles = tiles;
     }
 
@@ -44,8 +55,11 @@ public class Grid implements Serializable {
     }
 
     public void start(){
+        status = PLAYING;
+        flaggedBombs = 0;
+        correctFlaggedBombs = 0;
+        undiscoveredTiles = w*h;
         x=y=Integer.MIN_VALUE;;
-        gameOver=false;
         int tileSize = Tile.BITMAP_SIZE;
         tiles = new Tile[w][h];
         for (int i=0;i<w;i++) {
@@ -84,6 +98,10 @@ public class Grid implements Serializable {
                 }
             }
         }
+    }
+
+    public void setListener(GridEventListener listener){
+        this.listener = listener;
     }
 
     private int[] getCoord(float px, float py){
@@ -126,16 +144,30 @@ public class Grid implements Serializable {
     // ACTIONS_
     private int[] lastCoord;
     public void sTap(float pointX, float pointY){
-        if (gameOver) return;
+        if (isGameOver()) return;
         lastCoord = getCoord(pointX, pointY);
         Tile t = getTile(tiles, lastCoord[0], lastCoord[1]);
         if (t==null) return;
         switch (t.getStatus()){
             case Tile.UNDISCOVERED:
                 t.setStatus(Tile.FLAGGED);
+                flaggedBombs++;
+                if (t.hasBomb()){
+                    correctFlaggedBombs++;
+                }
+                if (correctFlaggedBombs==totalBombs && correctFlaggedBombs==flaggedBombs){
+                    gameWin();
+                }
                 break;
             case Tile.FLAGGED:
                 t.setStatus(Tile.UNDISCOVERED);
+                flaggedBombs--;
+                if (t.hasBomb()){
+                    correctFlaggedBombs--;
+                }
+                if (correctFlaggedBombs==totalBombs && correctFlaggedBombs==flaggedBombs){
+                    gameWin();
+                }
                 break;
             case Tile.EMPTY:
             case Tile.BOMB:
@@ -152,7 +184,7 @@ public class Grid implements Serializable {
     }
 
     public void dTap(float pointX, float pointY){
-        if (gameOver) return;
+        if (isGameOver()) return;
         int[] c = getCoord(pointX, pointY);
         if (c[0]!=lastCoord[0] || c[1]!=lastCoord[1]){
             sTap(pointX,pointY);
@@ -161,8 +193,15 @@ public class Grid implements Serializable {
         Tile t = getTile(tiles,c[0], c[1]);
         if (t==null) return;
         switch (t.getStatus()){
-            case Tile.UNDISCOVERED:
             case Tile.FLAGGED:
+                flaggedBombs--;
+                if (t.hasBomb()){
+                    correctFlaggedBombs--;
+                }
+                if (correctFlaggedBombs==totalBombs && correctFlaggedBombs==flaggedBombs){
+                    gameWin();
+                }
+            case Tile.UNDISCOVERED:
                 revealing.clear();
                 revealAppend(t);
                 if (!reveal()){
@@ -186,8 +225,10 @@ public class Grid implements Serializable {
     }
 
     private void revealAppend(Tile t){
-        if (!revealing.contains(t))
+        if (!revealing.contains(t)) {
+            this.undiscoveredTiles--;
             revealing.add(t);
+        }
     }
 
     private boolean reveal(Tile tile, int[] coord){
@@ -204,7 +245,7 @@ public class Grid implements Serializable {
                 }
             }
         } else {
-            tile.setStatus(Tile.NEAR1-1 + bombsNear);
+            tile.setStatus(Tile.NEAR1 - 1 + bombsNear);
         }
         return true;
     }
@@ -231,7 +272,7 @@ public class Grid implements Serializable {
     }
 
     public void gameOver(){
-        gameOver=true;
+        this.status = GAMEOVER;
         for (Tile[] ts : tiles) for (Tile t : ts){
             int status = t.getStatus();
             if (t.hasBomb() && status!=Tile.BOMB_END) {
@@ -240,10 +281,16 @@ public class Grid implements Serializable {
                 t.setStatus(Tile.FLAGGED_FAILED);
             }
         }
+        if (listener!=null) listener.onFinish(false);
     }
 
-    public void gameWon(){
-        gameOver=true;
+    public void gameWin(){
+        this.status = WIN;
+        if (listener!=null) listener.onFinish(true);
+    }
+
+    public int getStatus(){
+        return status;
     }
 
     //  DRAW_
@@ -270,10 +317,23 @@ public class Grid implements Serializable {
     }
 
     public boolean isGameOver() {
-        return this.gameOver;
+        return status!=PLAYING;
     }
-
-
+    public int getTotalBombs() {
+        return totalBombs;
+    }
+    public int getFlaggedBombs() {
+        return flaggedBombs;
+    }
+    public int getCorrectFlaggedBombs() {
+        return correctFlaggedBombs;
+    }
+    public int getTotalTiles() {
+        return w*h;
+    }
+    public int getUndiscoveredTiles() {
+        return undiscoveredTiles;
+    }
 
     public char[] getMap(float centerX, float centerY){
         char[] map = new char[w*h+10];
@@ -324,7 +384,8 @@ public class Grid implements Serializable {
         int x = convertByteToInt(bx);
         int y = convertByteToInt(by);
 
-        int totalBombs = 0;
+        int totalBombs=0, flaggedBombs=0, correctFlaggedBombs=0, undiscoveredTiles=0;
+
         int xx,yy;
         int tileSize = Tile.BITMAP_SIZE;
 
@@ -348,24 +409,33 @@ public class Grid implements Serializable {
                 case '6': t = new Tile(Tile.NEAR6  ,xx*tileSize,yy*tileSize); break;
                 case '7': t = new Tile(Tile.NEAR7  ,xx*tileSize,yy*tileSize); break;
                 case '8': t = new Tile(Tile.NEAR8  ,xx*tileSize,yy*tileSize); break;
-                case 'f': t = new Tile(Tile.FLAGGED,xx*tileSize,yy*tileSize); break;
+                case 'f':
+                    t = new Tile(Tile.FLAGGED,xx*tileSize,yy*tileSize);
+                    undiscoveredTiles++;
+                    flaggedBombs++;
+                    break;
                 case 'F':
                     t = new Tile(Tile.FLAGGED,xx*tileSize,yy*tileSize);
                     t.plantBomb();
+                    undiscoveredTiles++;
+                    correctFlaggedBombs++;
+                    flaggedBombs++;
                     totalBombs++;
                     break;
                 case 'B':
-                    t = new Tile(Tile.BOMB   ,xx*tileSize,yy*tileSize);
+                    t = new Tile(Tile.BOMB,xx*tileSize,yy*tileSize);
                     totalBombs++;
                     break;
                 case 'U':
                     t = new Tile(Tile.UNDISCOVERED,xx*tileSize,yy*tileSize);
                     t.plantBomb();
+                    undiscoveredTiles++;
                     totalBombs++;
                     break;
                 //case 'u':
                 default:
                     t = new Tile(Tile.UNDISCOVERED,xx*tileSize,yy*tileSize);
+                    undiscoveredTiles++;
                     break;
             }
 
@@ -381,7 +451,7 @@ public class Grid implements Serializable {
                 }
             }
         }
-        return new Grid(w,h,totalBombs,newTiles, x, y);
+        return new Grid(w,h,totalBombs,flaggedBombs,correctFlaggedBombs,undiscoveredTiles,newTiles, x, y);
     }
     private static int convertByteToInt(byte[] b){
         int value= 0;

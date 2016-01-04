@@ -20,10 +20,11 @@ import com.scop.org.minesweeper.control.Settings;
 /**
  * Created by Oscar on 24/12/2015.
  */
-public class GridControl {
+public class GridControl implements GridEventListener{
     public static final float MARGIN = 100;
 
     private Grid grid = null;
+    private GridHUD hud = null;
     private float vWidth=-1, vHeight=-1, vWidthScaled = -1, vHeightScaled = -1;
     private float minScale=0.3f, scale=-1, maxScale=1f;
     private float dragXpos,dragYpos;
@@ -47,10 +48,16 @@ public class GridControl {
 
     public void start(Grid grid) {
         this.grid = grid;
+        this.grid.setListener(this);
+        if (hud!=null){
+            hud.stopTimer();
+        }
+        this.hud = new GridHUD(grid,view);
         move();
     }
     public void restart() {
         grid.start();
+        hud.restartTimer();
         move();
     }
 
@@ -61,6 +68,7 @@ public class GridControl {
     public void setDimensions(float w, float h){
         vWidth = w;
         vHeight = h;
+        if (hud!=null) hud.setDimensions(w,h);
         if (this.scale==-1) {
             this.scale = w / (Tile.BITMAP_SIZE * 7f);
             this.minScale = w / (Tile.BITMAP_SIZE * 14f);
@@ -145,6 +153,7 @@ public class GridControl {
         canvas.scale(scale, scale);
         if (grid!=null) grid.draw(canvas,vWidthScaled, vHeightScaled);
         canvas.scale(1/scale, 1/scale);
+        if (hud!=null) hud.draw(canvas);
     }
 
     public void onTouchEvent(MotionEvent e){
@@ -188,6 +197,11 @@ public class GridControl {
                     break;
             }
         }
+    }
+
+    @Override
+    public void onFinish(boolean userWin) {
+        hud.stopTimer();
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
