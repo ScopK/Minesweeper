@@ -49,6 +49,12 @@ public class GamePanel extends View{
         }
     }
 
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        gridControl.onWindowVisibilityChanged(visibility);
+    }
+
     public void setAndStart(int w, int h, int b){
         gridControl.end();
         gridControl.start(new Grid(w, h, b));

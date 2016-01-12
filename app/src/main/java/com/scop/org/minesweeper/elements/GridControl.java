@@ -199,6 +199,18 @@ public class GridControl implements GridEventListener{
         }
     }
 
+    public void onWindowVisibilityChanged(int visibility) {
+        switch (visibility){
+            case View.VISIBLE:
+                if (hud!=null) hud.resumeTimer();
+                break;
+            case View.GONE:
+            case View.INVISIBLE:
+                if (hud!=null) hud.pauseTimer();
+                break;
+        }
+    }
+
     @Override
     public void onFinish(boolean userWin) {
         hud.stopTimer();
@@ -263,9 +275,10 @@ public class GridControl implements GridEventListener{
             FileOutputStream fos = new FileOutputStream (new File(Settings.SAVE_STATE_PATH));
             DataOutputStream dos = new DataOutputStream(fos);
 
-            char[] map = grid.getMap(vWidthScaled/2,vHeightScaled/2);
-            for (char c : map)
+            char[] map = grid.getMap(vWidthScaled/2,vHeightScaled/2,hud.getTime());
+            for (char c : map) {
                 dos.writeChar(c);
+            }
             dos.close();
             fos.close();
 
@@ -296,6 +309,7 @@ public class GridControl implements GridEventListener{
 
             end();
             start(Grid.getGridFromMap(map));
+            hud.setTime(grid.getStartingTime());
         } catch (IOException e) {
             e.printStackTrace();
         }

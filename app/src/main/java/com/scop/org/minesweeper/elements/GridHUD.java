@@ -49,18 +49,23 @@ public class GridHUD {
         canvas.drawText("Open: "+(tiles-grid.getUndiscoveredTiles())+"/"+tiles, 30, vHeight-30, textStyle);
 
         textStyle.setTextAlign(Paint.Align.RIGHT);
-        canvas.drawText(timeStr + "   " + grid.getFlaggedBombs() + "/" + grid.getTotalBombs(), vWidth - 30, vHeight - 30, textStyle);
+        canvas.drawText(timeStr + "   " + grid.getFlaggedBombs() + "/" + grid.getTotalBombs(), vWidth - 30, vHeight-30, textStyle);
     }
 
     public void startTimer(){
+        if (timer!=null){
+            timer.timerClose();
+        }
         timer = new Timer();
         timer.start();
     }
 
     public void resumeTimer(){
+        if (timer==null) return;
         timer.timeResume();
     }
     public void pauseTimer(){
+        if (timer==null) return;
         timer.timePause();
     }
     public void restartTimer() {
@@ -71,11 +76,15 @@ public class GridHUD {
         }
     }
     public void stopTimer() {
+        if (timer==null) return;
         timer.timerClose();
         timer=null;
     }
     public int getTime(){
         return timer.getTime();
+    }
+    public void setTime(int seconds){
+        timer.setTime(seconds);
     }
     public void timerNotify(int time){
         int s = time / 1000;
@@ -94,6 +103,13 @@ public class GridHUD {
         public int getTime(){
             return (int)((System.nanoTime()-initTime)/1000000);
         }
+        public void setTime(int seconds){
+            initTime = System.nanoTime()-seconds*1000000;
+            pausedTime=0;
+            showTime = Settings.getInstance().isShowTime();
+            if (!showTime)
+                GridHUD.this.timeStr = "";
+        }
         public void restart(){
             running = true;
             initTime=System.nanoTime();
@@ -101,13 +117,18 @@ public class GridHUD {
             showTime = Settings.getInstance().isShowTime();
         }
         public void timePause(){
-            pausedTime=System.nanoTime();
+            if (pausedTime==0){
+                pausedTime=System.nanoTime();
+            }
         }
         public void timeResume(){
-            initTime+= (System.nanoTime()-pausedTime);
+            if (pausedTime!=0) {
+                initTime += (System.nanoTime() - pausedTime);
+            }
             pausedTime=0;
             showTime = Settings.getInstance().isShowTime();
-            GridHUD.this.timeStr = "";
+            if (!showTime)
+                GridHUD.this.timeStr = "";
         }
         public void timerClose(){
             running = false;

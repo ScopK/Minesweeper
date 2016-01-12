@@ -25,8 +25,8 @@ public class Grid implements Serializable {
 
     private Tile[][] tiles;
     private int totalBombs;
-    private int flaggedBombs, correctFlaggedBombs;
-    private int undiscoveredTiles;
+    private int flaggedBombs, correctFlaggedBombs, undiscoveredTiles;
+    private int startingTime;
     public float x = 0,y = 0;
     public int w,h;
     private int status;
@@ -34,7 +34,7 @@ public class Grid implements Serializable {
 
     private List<Tile> revealing = new ArrayList<>();
 
-    private Grid(int w, int h, int totalBombs, int flaggedBombs, int correctFlaggedBombs, int undiscoveredTiles, Tile[][] tiles, float x, float y){
+    private Grid(int w, int h, int totalBombs, int flaggedBombs, int correctFlaggedBombs, int undiscoveredTiles, Tile[][] tiles, float x, float y, int startingTime){
         this.x = x;
         this.y = y;
         this.w = w;
@@ -45,6 +45,7 @@ public class Grid implements Serializable {
         this.correctFlaggedBombs = correctFlaggedBombs;
         this.undiscoveredTiles = undiscoveredTiles;
         this.tiles = tiles;
+        this.startingTime = startingTime;
     }
 
     public Grid(int w, int h, int bombs){
@@ -334,21 +335,26 @@ public class Grid implements Serializable {
     public int getUndiscoveredTiles() {
         return undiscoveredTiles;
     }
+    public int getStartingTime() {
+        return startingTime;
+    }
 
-    public char[] getMap(float centerX, float centerY){
+    public char[] getMap(float centerX, float centerY, int seconds){
         char[] map = new char[w*h+10];
         char c = 'E';
 
         int[] coord = getCoord(centerX, centerY);
         byte[] bx = ByteBuffer.allocate(4).putInt(coord[0]).array();
         byte[] by = ByteBuffer.allocate(4).putInt(coord[1]).array();
+        byte[] ss = ByteBuffer.allocate(4).putInt(seconds).array();
 
         map[0] = (char)w;
         map[1] = (char)h;
         map[2]=(char)bx[0]; map[3]=(char)bx[1]; map[4]=(char)bx[2]; map[5]=(char)bx[3];
         map[6]=(char)by[0]; map[7]=(char)by[1]; map[8]=(char)by[2]; map[9]=(char)by[3];
+        map[10]=(char)ss[0]; map[11]=(char)ss[1]; map[12]=(char)ss[2]; map[13]=(char)ss[3];
 
-        int count = 10;
+        int count = 14;
         for (int j=0;j<h;j++){
             for (int i=0;i<w;i++){
                 Tile t = tiles[i][j];
@@ -381,8 +387,11 @@ public class Grid implements Serializable {
         int h = map[1];
         byte[] bx = new byte[]{(byte)map[2],(byte)map[3],(byte)map[4],(byte)map[5]};
         byte[] by = new byte[]{(byte)map[6],(byte)map[7],(byte)map[8],(byte)map[9]};
+        byte[] ss = new byte[]{(byte)map[10],(byte)map[11],(byte)map[12],(byte)map[13]};
+
         int x = convertByteToInt(bx);
         int y = convertByteToInt(by);
+        int seconds = convertByteToInt(ss);
 
         int totalBombs=0, flaggedBombs=0, correctFlaggedBombs=0, undiscoveredTiles=0;
 
@@ -395,7 +404,7 @@ public class Grid implements Serializable {
         Tile[][] newTiles = new Tile[w][h];
 
         for (int i=0;i<fields;i++){
-            char c = map[i+10];
+            char c = map[i+14];
             xx = i%w;
             yy = i/w;
 
@@ -451,7 +460,7 @@ public class Grid implements Serializable {
                 }
             }
         }
-        return new Grid(w,h,totalBombs,flaggedBombs,correctFlaggedBombs,undiscoveredTiles,newTiles, x, y);
+        return new Grid(w,h,totalBombs,flaggedBombs,correctFlaggedBombs,undiscoveredTiles,newTiles, x, y, seconds);
     }
     private static int convertByteToInt(byte[] b){
         int value= 0;
