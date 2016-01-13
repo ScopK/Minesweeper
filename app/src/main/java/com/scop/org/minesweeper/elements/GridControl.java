@@ -287,7 +287,7 @@ public class GridControl implements GridEventListener{
         }
     }
 
-    public void loadingState(){
+    public boolean loadingState(){
         try {
             File f = new File(Settings.SAVE_STATE_PATH);
             FileInputStream fis = new FileInputStream (f);
@@ -295,8 +295,8 @@ public class GridControl implements GridEventListener{
 
             int w = dis.readChar();
             int h = dis.readChar();
-            int fields = w*h+8;
-            char[] map = new char[fields+10];
+            int fields = w*h+4*3+1;
+            char[] map = new char[fields+2];
             map[0] = (char)w;
             map[1] = (char)h;
             for (int i=0;i<fields;i++)
@@ -308,10 +308,15 @@ public class GridControl implements GridEventListener{
             f.delete();
 
             end();
-            start(Grid.getGridFromMap(map));
+            Grid g = Grid.getGridFromMap(map);
+            if (g==null)
+                return false;
+            start(g);
             hud.setTime(grid.getStartingTime());
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
     }
 }

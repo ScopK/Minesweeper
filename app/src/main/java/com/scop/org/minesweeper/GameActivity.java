@@ -36,7 +36,9 @@ public class GameActivity extends Activity {
             gamepanel = new GamePanel(this);
             setContentView(gamepanel);
             if (extras.getBoolean("l")){
-                gamepanel.loadState();
+                if (!gamepanel.loadState()){
+                    this.finish();
+                }
             } else {
                 gamepanel.setAndStart(extras.getInt("w"),extras.getInt("h"),extras.getInt("b"));
             }

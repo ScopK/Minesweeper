@@ -15,6 +15,7 @@ public class GridHUD {
     private Paint bg,textStyle;
 
     private Timer timer;
+    private int startingTime=0;
     protected String timeStr="";
 
     public GridHUD(Grid grid, View view) {
@@ -56,7 +57,11 @@ public class GridHUD {
         if (timer!=null){
             timer.timerClose();
         }
-        timer = new Timer();
+        if (startingTime==0) {
+            timer = new Timer();
+        } else {
+            timer = new Timer(startingTime);
+        }
         timer.start();
     }
 
@@ -84,10 +89,13 @@ public class GridHUD {
         return timer.getTime();
     }
     public void setTime(int seconds){
-        timer.setTime(seconds);
+        if (timer==null)
+            startingTime = seconds;
+        else
+            timer.setTime(seconds);
     }
     public void timerNotify(int time){
-        int s = time / 1000;
+        int s = time / 10;
         int m = s / 60;
         int h = m / 60;
         s %= 60;
@@ -96,15 +104,20 @@ public class GridHUD {
         view.postInvalidate(0, (int) vTop, (int) vWidth, (int) vHeight);
     }
 
-    public class Timer extends Thread{
-        long initTime,pausedTime;
+    private class Timer extends Thread{
+        long initTime=0,pausedTime=0;
+        int initDSecs=0;
         boolean running = true;
         boolean showTime = true;
-        public int getTime(){
-            return (int)((System.nanoTime()-initTime)/1000000);
+        public Timer(){}
+        public Timer(int dseconds){
+            this.initDSecs = dseconds;
         }
-        public void setTime(int seconds){
-            initTime = System.nanoTime()-seconds*1000000;
+        public int getTime(){
+            return (int)((System.nanoTime()-initTime)/100000000);
+        }
+        public void setTime(int dseconds){
+            initTime = System.nanoTime()-dseconds*100000000L;
             pausedTime=0;
             showTime = Settings.getInstance().isShowTime();
             if (!showTime)
@@ -136,7 +149,10 @@ public class GridHUD {
         @Override
         public void run() {
             super.run();
-            restart();
+            running = true;
+            initTime = System.nanoTime()-(initDSecs*100000000L);
+            pausedTime=0;
+            showTime = Settings.getInstance().isShowTime();
             while (running){
                 if (showTime) {
                     GridHUD.this.timerNotify(getTime());

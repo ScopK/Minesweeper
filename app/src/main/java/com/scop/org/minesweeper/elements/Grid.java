@@ -339,14 +339,14 @@ public class Grid implements Serializable {
         return startingTime;
     }
 
-    public char[] getMap(float centerX, float centerY, int seconds){
-        char[] map = new char[w*h+10];
+    public char[] getMap(float centerX, float centerY, int dseconds){
+        char[] map = new char[w*h+2+4*3+1];
         char c = 'E';
 
         int[] coord = getCoord(centerX, centerY);
         byte[] bx = ByteBuffer.allocate(4).putInt(coord[0]).array();
         byte[] by = ByteBuffer.allocate(4).putInt(coord[1]).array();
-        byte[] ss = ByteBuffer.allocate(4).putInt(seconds).array();
+        byte[] ss = ByteBuffer.allocate(4).putInt(dseconds).array();
 
         map[0] = (char)w;
         map[1] = (char)h;
@@ -354,7 +354,7 @@ public class Grid implements Serializable {
         map[6]=(char)by[0]; map[7]=(char)by[1]; map[8]=(char)by[2]; map[9]=(char)by[3];
         map[10]=(char)ss[0]; map[11]=(char)ss[1]; map[12]=(char)ss[2]; map[13]=(char)ss[3];
 
-        int count = 14;
+        int count = 2+4*3;
         for (int j=0;j<h;j++){
             for (int i=0;i<w;i++){
                 Tile t = tiles[i][j];
@@ -378,11 +378,13 @@ public class Grid implements Serializable {
                 }
                 map[count++] = c;
             }
+            map[count] = 0x01;
         }
         return map;
     }
 
     public static Grid getGridFromMap(char[] map){
+        if (map[map.length-1] != 0x01) return null;
         int w = map[0];
         int h = map[1];
         byte[] bx = new byte[]{(byte)map[2],(byte)map[3],(byte)map[4],(byte)map[5]};
@@ -391,7 +393,7 @@ public class Grid implements Serializable {
 
         int x = convertByteToInt(bx);
         int y = convertByteToInt(by);
-        int seconds = convertByteToInt(ss);
+        int dseconds = convertByteToInt(ss);
 
         int totalBombs=0, flaggedBombs=0, correctFlaggedBombs=0, undiscoveredTiles=0;
 
@@ -460,7 +462,7 @@ public class Grid implements Serializable {
                 }
             }
         }
-        return new Grid(w,h,totalBombs,flaggedBombs,correctFlaggedBombs,undiscoveredTiles,newTiles, x, y, seconds);
+        return new Grid(w,h,totalBombs,flaggedBombs,correctFlaggedBombs,undiscoveredTiles,newTiles, x, y, dseconds);
     }
     private static int convertByteToInt(byte[] b){
         int value= 0;

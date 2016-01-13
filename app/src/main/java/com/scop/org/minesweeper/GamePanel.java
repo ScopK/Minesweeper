@@ -65,8 +65,9 @@ public class GamePanel extends View{
         System.err.println("SAVED");
     }
 
-    public void loadState(){
-        gridControl.loadingState();
-        System.err.println("LOADED");
+    public boolean loadState(){
+        boolean b = gridControl.loadingState();
+        System.err.println(b?"LOADED":"LOADING FAILED");
+        return b;
     }
 }
