@@ -21,11 +21,10 @@ import com.scop.org.minesweeper.control.Settings;
  * Created by Oscar on 24/12/2015.
  */
 public class GridControl implements GridEventListener{
-    public static final float MARGIN = 100;
-
     private Grid grid = null;
     private GridHUD hud = null;
     private float vWidth=-1, vHeight=-1, vWidthScaled = -1, vHeightScaled = -1;
+    private float marginW = 100, marginH = 100;
     private float minScale=0.3f, scale=-1, maxScale=1f;
     private float dragXpos,dragYpos;
 
@@ -70,11 +69,13 @@ public class GridControl implements GridEventListener{
         vHeight = h;
         if (hud!=null) hud.setDimensions(w,h);
         if (this.scale==-1) {
-            this.scale = w / (Tile.BITMAP_SIZE * 7f);
+            this.scale = w / (Tile.BITMAP_SIZE * 9f);
             this.minScale = w / (Tile.BITMAP_SIZE * 14f);
             this.maxScale = w / (Tile.BITMAP_SIZE * 4f);
             this.vWidthScaled = vWidth/scale;
             this.vHeightScaled = vHeight/scale;
+            this.marginW = vWidthScaled/2;
+            this.marginH = vHeightScaled/2;
             if (grid!=null) move();
         }
     }
@@ -89,8 +90,8 @@ public class GridControl implements GridEventListener{
         float tileSize = Tile.BITMAP_SIZE;
         if (vWidth>0) {
             if (grid.x == Integer.MIN_VALUE){
-                float gridW = grid.w * tileSize + MARGIN;
-                float maxX = MARGIN;
+                float gridW = grid.w * tileSize + marginW;
+                float maxX = marginW;
                 float minX = -(gridW - vWidthScaled);
                 grid.x = (maxX + minX) / 2;
             } else {
@@ -100,8 +101,8 @@ public class GridControl implements GridEventListener{
 
         if (vHeight>0) {
             if (grid.y == Integer.MIN_VALUE){
-                float gridH = grid.h * tileSize + MARGIN;
-                float maxY = MARGIN;
+                float gridH = grid.h * tileSize + marginH;
+                float maxY = marginH;
                 float minY = -(gridH - vHeightScaled);
                 grid.y = (maxY + minY) / 2;
             }
@@ -114,22 +115,22 @@ public class GridControl implements GridEventListener{
     }
     private void limitMoving(){
         float tileSize = Tile.BITMAP_SIZE;
-        float gridW = grid.w*tileSize+MARGIN;
-        float gridH = grid.h*tileSize+MARGIN;
+        float gridW = grid.w*tileSize+marginW;
+        float gridH = grid.h*tileSize+marginH;
 
-        float maxX = MARGIN;
-        float maxY = MARGIN;
+        float maxX = marginW;
+        float maxY = marginH;
         float minX = -(gridW-vWidthScaled);
         float minY = -(gridH-vHeightScaled);
 
-        if (gridW+MARGIN < vWidthScaled){
+        if (gridW+marginW < vWidthScaled){
             grid.x=(maxX+minX)/2;
         } else {
             if (grid.x > maxX) grid.x = maxX;
             else if (grid.x < minX) grid.x = minX;
         }
 
-        if (gridH+MARGIN < vHeightScaled){
+        if (gridH+marginH < vHeightScaled){
             grid.y = (maxY+minY)/2;
         } else {
             if (grid.y > maxY) grid.y = maxY;
@@ -142,6 +143,8 @@ public class GridControl implements GridEventListener{
         this.scale = Math.max(minScale, Math.min(scale, maxScale));
         this.vWidthScaled = vWidth/scale;
         this.vHeightScaled = vHeight/scale;
+        this.marginW = vWidthScaled/2;
+        this.marginH = vHeightScaled/2;
 
         float dd = (1/scale - 1/iScale);
         float dX = dd*vWidth/2;
