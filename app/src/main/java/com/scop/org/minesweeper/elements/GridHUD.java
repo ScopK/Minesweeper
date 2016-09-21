@@ -75,6 +75,7 @@ public class GridHUD {
     }
     public void restartTimer() {
         if (timer==null){
+            startingTime=0;
             startTimer();
         } else {
             timer.restart();
@@ -125,8 +126,9 @@ public class GridHUD {
         }
         public void restart(){
             running = true;
-            initTime=System.nanoTime();
-            pausedTime=0;
+            initTime = System.nanoTime();
+            initDSecs = 0;
+            pausedTime = 0;
             showTime = Settings.getInstance().isShowTime();
         }
         public void timePause(){
