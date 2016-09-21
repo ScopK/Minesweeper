@@ -1,6 +1,7 @@
 package com.scop.org.minesweeper.elements;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Canvas;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -27,6 +28,7 @@ public class GridControl implements GridEventListener{
     private float marginW = 100, marginH = 100;
     private float minScale=0.3f, scale=-1, maxScale=1f;
     private float dragXpos,dragYpos;
+    private String save_state_path;
 
     private boolean isResizing = false;
     private boolean isMoving = false;
@@ -43,6 +45,7 @@ public class GridControl implements GridEventListener{
         this.scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         this.scaleDetector.setQuickScaleEnabled(false);
         this.gestureDetector = new GestureDetector(context, new GestureListener());
+        this.save_state_path = new ContextWrapper(context).getFilesDir().getPath()+"/"+Settings.FILENAME;
     }
 
     public void start(Grid grid) {
@@ -270,12 +273,12 @@ public class GridControl implements GridEventListener{
     }
     public void savingState(){
         if (grid== null || grid.isGameOver()){
-            new File(Settings.SAVE_STATE_PATH).delete();
+            new File(save_state_path).delete();
             return;
         }
         try {
-            new File(Settings.SAVE_STATE_PATH.substring(0,Settings.SAVE_STATE_PATH.lastIndexOf("/"))).mkdirs();
-            FileOutputStream fos = new FileOutputStream (new File(Settings.SAVE_STATE_PATH));
+            new File(save_state_path.substring(0,save_state_path.lastIndexOf("/"))).mkdirs();
+            FileOutputStream fos = new FileOutputStream (new File(save_state_path));
             DataOutputStream dos = new DataOutputStream(fos);
 
             char[] map = grid.getMap(vWidthScaled/2,vHeightScaled/2,hud.getTime());
@@ -292,7 +295,7 @@ public class GridControl implements GridEventListener{
 
     public boolean loadingState(){
         try {
-            File f = new File(Settings.SAVE_STATE_PATH);
+            File f = new File(save_state_path);
             FileInputStream fis = new FileInputStream (f);
             DataInputStream dis = new DataInputStream(fis);
 
@@ -305,7 +308,7 @@ public class GridControl implements GridEventListener{
             for (int i=0;i<fields;i++)
                 map[i+2] = dis.readChar();
 
-            fis.close();
+            dis.close();
             fis.close();
 
             f.delete();

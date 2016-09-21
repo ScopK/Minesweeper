@@ -46,9 +46,9 @@ public class GameActivity extends Activity {
     }
 
     @Override
-    protected void onStop() {
+    protected void onPause() {
         gamepanel.saveState();
-        super.onStop();
+        super.onPause();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.scop.org.minesweeper;
 
 import android.app.Activity;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -36,7 +37,8 @@ public class MenuActivity extends Activity {
             case "2": TileStyle.getInstance().setStyle(this, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
         }
 
-        if (new java.io.File(Settings.SAVE_STATE_PATH).exists()){
+        String fileSavePath = new ContextWrapper(this).getFilesDir().getPath()+"/"+Settings.FILENAME;
+        if (new java.io.File(fileSavePath).exists()){
             loadGrid();
         }
     }
