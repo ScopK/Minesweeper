@@ -17,10 +17,12 @@ public class GridHUD {
     private Timer timer;
     private int startingTime=0;
     protected String timeStr="";
+    protected boolean showTime = false;
 
     public GridHUD(Grid grid, View view) {
         this.grid = grid;
         this.view = view;
+        showTime = Settings.getInstance().isShowTime();
 
         bg = new Paint();
 
@@ -37,10 +39,17 @@ public class GridHUD {
     }
 
     public void draw(Canvas canvas) {
+        boolean showTime = this.showTime;
         switch(grid.getStatus()){
             case Grid.PLAYING: bg.setColor(0xA0000000); break;
-            case Grid.GAMEOVER: bg.setColor(0xA0FF0000); break;
-            case Grid.WIN: bg.setColor(0xA000FF00); break;
+            case Grid.GAMEOVER:
+                bg.setColor(0xA0FF0000);
+                showTime = true;
+                break;
+            case Grid.WIN:
+                bg.setColor(0xA000FF00);
+                showTime = true;
+                break;
         }
 
         canvas.drawRect(0, vTop, vWidth, vHeight, bg);
@@ -50,7 +59,11 @@ public class GridHUD {
         canvas.drawText("Open: "+(tiles-grid.getUndiscoveredTiles())+"/"+tiles, 30, vHeight-30, textStyle);
 
         textStyle.setTextAlign(Paint.Align.RIGHT);
-        canvas.drawText(timeStr + "   " + grid.getFlaggedBombs() + "/" + grid.getTotalBombs(), vWidth - 30, vHeight-30, textStyle);
+        if (showTime) {
+            canvas.drawText(timeStr + "   " + grid.getFlaggedBombs() + "/" + grid.getTotalBombs(), vWidth - 30, vHeight - 30, textStyle);
+        } else {
+            canvas.drawText(grid.getFlaggedBombs() + "/" + grid.getTotalBombs(), vWidth - 30, vHeight - 30, textStyle);
+        }
     }
 
     public void startTimer(){
@@ -66,6 +79,7 @@ public class GridHUD {
     }
 
     public void resumeTimer(){
+        showTime = Settings.getInstance().isShowTime();
         if (timer==null) return;
         timer.timeResume();
     }
@@ -84,7 +98,7 @@ public class GridHUD {
     public void stopTimer() {
         if (timer==null) return;
         timer.timerClose();
-        timer=null;
+        timer = null;
     }
     public int getTime(){
         return timer.getTime();
@@ -102,14 +116,15 @@ public class GridHUD {
         s %= 60;
         m %= 60;
         timeStr = (h == 0 ? "" : (h + ":")) + m + ":" + (s < 10 ? "0" + s : s);
-        view.postInvalidate(0, (int) vTop, (int) vWidth, (int) vHeight);
+        if (showTime) {
+            view.postInvalidate(0, (int) vTop, (int) vWidth, (int) vHeight);
+        }
     }
 
     private class Timer extends Thread{
         long initTime=0,pausedTime=0;
         int initDSecs=0;
         boolean running = true;
-        boolean showTime = true;
         public Timer(){}
         public Timer(int dseconds){
             this.initDSecs = dseconds;
@@ -120,16 +135,12 @@ public class GridHUD {
         public void setTime(int dseconds){
             initTime = System.nanoTime()-dseconds*100000000L;
             pausedTime=0;
-            showTime = Settings.getInstance().isShowTime();
-            if (!showTime)
-                GridHUD.this.timeStr = "";
         }
         public void restart(){
             running = true;
             initTime = System.nanoTime();
             initDSecs = 0;
             pausedTime = 0;
-            showTime = Settings.getInstance().isShowTime();
         }
         public void timePause(){
             if (pausedTime==0){
@@ -141,9 +152,6 @@ public class GridHUD {
                 initTime += (System.nanoTime() - pausedTime);
             }
             pausedTime=0;
-            showTime = Settings.getInstance().isShowTime();
-            if (!showTime)
-                GridHUD.this.timeStr = "";
         }
         public void timerClose(){
             running = false;
@@ -154,9 +162,8 @@ public class GridHUD {
             running = true;
             initTime = System.nanoTime()-(initDSecs*100000000L);
             pausedTime=0;
-            showTime = Settings.getInstance().isShowTime();
             while (running){
-                if (showTime) {
+                if (pausedTime==0){
                     GridHUD.this.timerNotify(getTime());
                 }
                 try {
