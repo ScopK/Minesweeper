@@ -79,8 +79,8 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object value) {
                     switch (value.toString()){
-                        case "0": TileStyle.getInstance().setStyle(context, "default", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-                        case "1": TileStyle.getInstance().setStyle(context, "default_dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+                        case "0": TileStyle.getInstance().setStyle(context, "def", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+                        case "1": TileStyle.getInstance().setStyle(context, "dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
                         case "2": TileStyle.getInstance().setStyle(context, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
                     }
                     return true;

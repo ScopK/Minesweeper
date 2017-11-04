@@ -32,8 +32,8 @@ public class MenuActivity extends Activity {
         sets.setFirstOpen(preferences.getBoolean("option_firstopen", true));
 
         switch (preferences.getString("option_theme", "0")){
-            case "0": TileStyle.getInstance().setStyle(this, "default", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-            case "1": TileStyle.getInstance().setStyle(this, "default_dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+            case "0": TileStyle.getInstance().setStyle(this, "def", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+            case "1": TileStyle.getInstance().setStyle(this, "dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
             case "2": TileStyle.getInstance().setStyle(this, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
         }
 

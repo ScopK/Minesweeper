@@ -36,32 +36,9 @@ public class TileStyle {
 
     public void setStyle(Context context, String setName, int numUndiscoveredTiles, float color, float brightness, int bgColor){
         this.backgroundColor = bgColor;
-        int id;
-        id = context.getResources().getIdentifier("tilemarks_"+setName, "drawable", context.getPackageName());
-        Bitmap marks = BitmapFactory.decodeResource(context.getResources(), id);
 
-        id = context.getResources().getIdentifier("tiles_"+setName, "drawable", context.getPackageName());
-        Bitmap tiles = BitmapFactory.decodeResource(context.getResources(), id);
 
-        this.setStyle(tiles,numUndiscoveredTiles,marks,color,brightness);
-    }
-
-    private void setStyle(Bitmap tiles, int numUndiscoveredTiles, Bitmap marks, float color, float brightness) {
-        int markSize = marks.getHeight();
-        bms = new Bitmap[13];
-        bms[0] = Bitmap.createBitmap(marks, 0         , 0, markSize, markSize);
-        bms[1] = Bitmap.createBitmap(marks,   markSize, 0, markSize, markSize);
-        bms[2] = Bitmap.createBitmap(marks, 2*markSize, 0, markSize, markSize);
-        bms[3] = Bitmap.createBitmap(marks, 3*markSize, 0, markSize, markSize);
-        bms[4] = Bitmap.createBitmap(marks, 4*markSize, 0, markSize, markSize);
-        bms[5] = Bitmap.createBitmap(marks, 5*markSize, 0, markSize, markSize);
-        bms[6] = Bitmap.createBitmap(marks, 6*markSize, 0, markSize, markSize);
-        bms[7] = Bitmap.createBitmap(marks, 7*markSize, 0, markSize, markSize);
-        bms[8] = Bitmap.createBitmap(marks, 8*markSize, 0, markSize, markSize);
-        bms[9] = Bitmap.createBitmap(marks, 9*markSize, 0, markSize, markSize);
-        bms[10]= Bitmap.createBitmap(marks,10*markSize, 0, markSize, markSize);
-        bms[11]= Bitmap.createBitmap(marks,11*markSize, 0, markSize, markSize);
-        bms[12]= Bitmap.createBitmap(marks,12*markSize, 0, markSize, markSize);
+        Bitmap tiles = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tiles_"+setName, "drawable", context.getPackageName()));
 
         int tileH = tiles.getHeight();
         int tileW = tiles.getWidth()/numUndiscoveredTiles;
@@ -70,8 +47,24 @@ public class TileStyle {
             defBms[i] = Bitmap.createBitmap(tiles, i*tileW, 0, tileW, tileH);
             ColorFilterHue.adjustHue(defBms[i], color, brightness);
         }
-        //paintColored.setColorFilter(ColorFilterHue.adjustHue(radius, brightness));
+
+
+        bms = new Bitmap[13];
+        bms[0] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_1_1", "drawable", context.getPackageName()));
+        bms[1] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_2_2", "drawable", context.getPackageName()));
+        bms[2] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_3_3", "drawable", context.getPackageName()));
+        bms[3] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_4_4", "drawable", context.getPackageName()));
+        bms[4] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_5_5", "drawable", context.getPackageName()));
+        bms[5] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_6_6", "drawable", context.getPackageName()));
+        bms[6] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_7_7", "drawable", context.getPackageName()));
+        bms[7] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_8_8", "drawable", context.getPackageName()));
+        bms[8] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_bomb", "drawable", context.getPackageName()));
+        bms[9] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_bomb_end", "drawable", context.getPackageName()));
+        bms[10]= BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_flag", "drawable", context.getPackageName()));
+        bms[11]= BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_flag_fail", "drawable", context.getPackageName()));
+        bms[12]= BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_empty", "drawable", context.getPackageName()));
     }
+
 
     public Bitmap getBitmap(int i){
         if (i==Tile.UNDISCOVERED){
