@@ -33,8 +33,9 @@ public class MenuActivity extends Activity {
 
         switch (preferences.getString("option_theme", "0")){
             case "0": TileStyle.getInstance().setStyle(this, "def", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-            case "1": TileStyle.getInstance().setStyle(this, "dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-            case "2": TileStyle.getInstance().setStyle(this, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
+            case "1": TileStyle.getInstance().setStyle(this, "dots", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+            case "2": TileStyle.getInstance().setStyle(this, "dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
+            case "3": TileStyle.getInstance().setStyle(this, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
         }
 
         String fileSavePath = new ContextWrapper(this).getFilesDir().getPath()+"/"+Settings.FILENAME;

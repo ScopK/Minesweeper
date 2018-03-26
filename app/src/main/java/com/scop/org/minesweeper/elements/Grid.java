@@ -65,7 +65,7 @@ public class Grid implements Serializable {
         tiles = new Tile[w][h];
         for (int i=0;i<w;i++) {
             for (int j = 0; j < h; j++) {
-                tiles[i][j] = new Tile(Tile.UNDISCOVERED,i*tileSize,j*tileSize);
+                tiles[i][j] = new Tile(Tile.UNDISCOVERED,i,j,i*tileSize,j*tileSize);
             }
         }
         Random random = new Random();
@@ -112,19 +112,13 @@ public class Grid implements Serializable {
         if (dY<0) dY = -1;
         return new int[]{(int)dX,(int)dY};
     }
-    private int[] getCoord(Tile t){
-        for (int i=0;i<tiles.length;i++){
-            for (int j=0;j<tiles[0].length;j++){
-                if (tiles[i][j]==t)
-                    return new int[]{i,j};
-            }
-        }
-        return null;
-    }
     private static Tile getTile(Tile[][] tilegrid,int cx, int cy){
         if (cx<0 || cy<0 || tilegrid.length<=cx || tilegrid[0].length<=cy)
             return null;
         return tilegrid[cx][cy];
+    }
+    private static List<Tile> getNeighbors(Tile[][] tilegrid, Tile t){
+        return getNeighbors(tilegrid, t.getCoords());
     }
     private static List<Tile> getNeighbors(Tile[][] tilegrid, int[] c){
         List<Tile> ts = new ArrayList<>();
@@ -152,6 +146,12 @@ public class Grid implements Serializable {
         switch (t.getStatus()){
             case Tile.UNDISCOVERED:
                 t.setStatus(Tile.FLAGGED);
+
+                List<Tile> ts = getNeighbors(tiles,t);
+                for (Tile tt : ts){
+                    tt.addFlaggedNear(+1);
+                }
+
                 flaggedBombs++;
                 if (t.hasBomb()){
                     correctFlaggedBombs++;
@@ -162,6 +162,12 @@ public class Grid implements Serializable {
                 break;
             case Tile.FLAGGED:
                 t.setStatus(Tile.UNDISCOVERED);
+
+                List<Tile> tss = getNeighbors(tiles,t);
+                for (Tile tt : tss){
+                    tt.addFlaggedNear(-1);
+                }
+
                 flaggedBombs--;
                 if (t.hasBomb()){
                     correctFlaggedBombs--;
@@ -199,10 +205,17 @@ public class Grid implements Serializable {
                 if (t.hasBomb()){
                     correctFlaggedBombs--;
                 }
+
+                List<Tile> tss = getNeighbors(tiles,t);
+                for (Tile tt : tss){
+                    tt.addFlaggedNear(-1);
+                }
+
                 if (correctFlaggedBombs==totalBombs && correctFlaggedBombs==flaggedBombs){
                     gameWin();
                 }
             case Tile.UNDISCOVERED:
+
                 revealing.clear();
                 revealAppend(t);
                 if (!reveal()){
@@ -218,7 +231,7 @@ public class Grid implements Serializable {
         boolean gameOver = false;
         while (revealing.size()!=0){
             Tile t = revealing.remove(0);
-            if (!reveal(t,getCoord(t))){
+            if (!reveal(t,t.getCoords())){
                 gameOver = true;
             }
         }
@@ -411,22 +424,22 @@ public class Grid implements Serializable {
             yy = i/w;
 
             switch(c){
-                case ' ': t = new Tile(Tile.EMPTY  ,xx*tileSize,yy*tileSize); break;
-                case '1': t = new Tile(Tile.NEAR1  ,xx*tileSize,yy*tileSize); break;
-                case '2': t = new Tile(Tile.NEAR2  ,xx*tileSize,yy*tileSize); break;
-                case '3': t = new Tile(Tile.NEAR3  ,xx*tileSize,yy*tileSize); break;
-                case '4': t = new Tile(Tile.NEAR4  ,xx*tileSize,yy*tileSize); break;
-                case '5': t = new Tile(Tile.NEAR5  ,xx*tileSize,yy*tileSize); break;
-                case '6': t = new Tile(Tile.NEAR6  ,xx*tileSize,yy*tileSize); break;
-                case '7': t = new Tile(Tile.NEAR7  ,xx*tileSize,yy*tileSize); break;
-                case '8': t = new Tile(Tile.NEAR8  ,xx*tileSize,yy*tileSize); break;
+                case ' ': t = new Tile(Tile.EMPTY  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '1': t = new Tile(Tile.NEAR1  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '2': t = new Tile(Tile.NEAR2  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '3': t = new Tile(Tile.NEAR3  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '4': t = new Tile(Tile.NEAR4  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '5': t = new Tile(Tile.NEAR5  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '6': t = new Tile(Tile.NEAR6  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '7': t = new Tile(Tile.NEAR7  ,xx,yy,xx*tileSize,yy*tileSize); break;
+                case '8': t = new Tile(Tile.NEAR8  ,xx,yy,xx*tileSize,yy*tileSize); break;
                 case 'f':
-                    t = new Tile(Tile.FLAGGED,xx*tileSize,yy*tileSize);
+                    t = new Tile(Tile.FLAGGED,xx,yy,xx*tileSize,yy*tileSize);
                     undiscoveredTiles++;
                     flaggedBombs++;
                     break;
                 case 'F':
-                    t = new Tile(Tile.FLAGGED,xx*tileSize,yy*tileSize);
+                    t = new Tile(Tile.FLAGGED,xx,yy,xx*tileSize,yy*tileSize);
                     t.plantBomb();
                     undiscoveredTiles++;
                     correctFlaggedBombs++;
@@ -434,18 +447,18 @@ public class Grid implements Serializable {
                     totalBombs++;
                     break;
                 case 'B':
-                    t = new Tile(Tile.BOMB,xx*tileSize,yy*tileSize);
+                    t = new Tile(Tile.BOMB,xx,yy,xx*tileSize,yy*tileSize);
                     totalBombs++;
                     break;
                 case 'U':
-                    t = new Tile(Tile.UNDISCOVERED,xx*tileSize,yy*tileSize);
+                    t = new Tile(Tile.UNDISCOVERED,xx,yy,xx*tileSize,yy*tileSize);
                     t.plantBomb();
                     undiscoveredTiles++;
                     totalBombs++;
                     break;
                 //case 'u':
                 default:
-                    t = new Tile(Tile.UNDISCOVERED,xx*tileSize,yy*tileSize);
+                    t = new Tile(Tile.UNDISCOVERED,xx,yy,xx*tileSize,yy*tileSize);
                     undiscoveredTiles++;
                     break;
             }
@@ -454,10 +467,24 @@ public class Grid implements Serializable {
         }
         for (int i=0;i<w;i++){
             for (int j=0;j<h;j++){
-                if (newTiles[i][j].hasBomb()){
+                Tile nt = newTiles[i][j];
+                if (nt.hasBomb()){
+                    List<Tile> ns = getNeighbors(newTiles,new int[]{i,j});
+                    if (nt.getStatus() == Tile.FLAGGED){
+                        for (Tile ti : ns){
+                            ti.hasBombNear();
+                            ti.addFlaggedNear(+1);
+                        }
+                    } else {
+                        for (Tile ti : ns){
+                            ti.hasBombNear();
+                        }
+                    }
+
+                } else if (nt.getStatus() == Tile.FLAGGED) {
                     List<Tile> ns = getNeighbors(newTiles,new int[]{i,j});
                     for (Tile ti : ns){
-                        ti.hasBombNear();
+                        ti.addFlaggedNear(+1);
                     }
                 }
             }

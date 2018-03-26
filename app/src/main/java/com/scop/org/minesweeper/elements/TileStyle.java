@@ -15,9 +15,12 @@ import java.util.Random;
 public class TileStyle {
     private static TileStyle tilestyle;
     private Bitmap[] bms,defBms;
+    private Bitmap[][] bms_ext;
     private Paint paint;
     private Random random;
     private int backgroundColor;
+    private boolean skinExt = true;
+
 
     private TileStyle(){
         random = new Random();
@@ -37,8 +40,8 @@ public class TileStyle {
     public void setStyle(Context context, String setName, int numUndiscoveredTiles, float color, float brightness, int bgColor){
         this.backgroundColor = bgColor;
 
-
-        Bitmap tiles = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tiles_"+setName, "drawable", context.getPackageName()));
+        int id = context.getResources().getIdentifier("tiles_"+setName, "drawable", context.getPackageName());
+        Bitmap tiles = BitmapFactory.decodeResource(context.getResources(), id);
 
         int tileH = tiles.getHeight();
         int tileW = tiles.getWidth()/numUndiscoveredTiles;
@@ -48,30 +51,52 @@ public class TileStyle {
             ColorFilterHue.adjustHue(defBms[i], color, brightness);
         }
 
+        bms_ext = new Bitmap[8][];
 
-        bms = new Bitmap[13];
-        bms[0] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_1_1", "drawable", context.getPackageName()));
-        bms[1] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_2_2", "drawable", context.getPackageName()));
-        bms[2] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_3_3", "drawable", context.getPackageName()));
-        bms[3] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_4_4", "drawable", context.getPackageName()));
-        bms[4] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_5_5", "drawable", context.getPackageName()));
-        bms[5] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_6_6", "drawable", context.getPackageName()));
-        bms[6] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_7_7", "drawable", context.getPackageName()));
-        bms[7] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_8_8", "drawable", context.getPackageName()));
-        bms[8] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_bomb", "drawable", context.getPackageName()));
-        bms[9] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_bomb_end", "drawable", context.getPackageName()));
-        bms[10]= BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_flag", "drawable", context.getPackageName()));
-        bms[11]= BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_flag_fail", "drawable", context.getPackageName()));
-        bms[12]= BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_empty", "drawable", context.getPackageName()));
+        boolean skinExt = true;
+
+        for (int i=0;i<8;i++){
+            int num = i+1;
+            bms_ext[i] = new Bitmap[num+2];
+
+            for (int j=0;j<num+2;j++){
+                id = context.getResources().getIdentifier("tile_skin_"+setName+"_"+num+"_"+j, "drawable", context.getPackageName());
+                if (id == 0){
+                    skinExt = false;
+                }
+                bms_ext[i][j] = BitmapFactory.decodeResource(context.getResources(), id);
+            }
+        }
+        this.skinExt = skinExt;
+
+        bms = new Bitmap[5];
+        bms[0] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_bomb", "drawable", context.getPackageName()));
+        bms[1] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_bomb_end", "drawable", context.getPackageName()));
+        bms[2] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_flag", "drawable", context.getPackageName()));
+        bms[3] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_flag_fail", "drawable", context.getPackageName()));
+        bms[4] = BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier("tile_skin_"+setName+"_empty", "drawable", context.getPackageName()));
     }
 
-
     public Bitmap getBitmap(int i){
+        return getBitmap(i,-1);
+    }
+    public Bitmap getBitmap(int i, int fl){
         if (i==Tile.UNDISCOVERED){
             int idx = random.nextInt(defBms.length);
             return defBms[idx];
         }
-        return bms[i];
+        if (i >= Tile.NEAR1 && i <= Tile.NEAR8){
+            i -= Tile.NEAR1;
+            if (fl < 0){
+                fl = i+1;
+            } else if(fl>i+1){
+                fl = i+2;
+            }
+
+            return skinExt? bms_ext[i][fl] : bms_ext[i][i+1];
+        } else {
+            return bms[i-Tile.NEAR8-1];
+        }
     }
 
     public Paint getPaint(){

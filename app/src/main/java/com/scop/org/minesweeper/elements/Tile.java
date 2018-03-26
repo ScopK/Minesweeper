@@ -28,13 +28,17 @@ public class Tile implements Serializable {
     public static final byte EMPTY = 12;
     private int status;
     private boolean hasBomb;
-    public int bombsNear = 0;
+    private int bombsNear = 0;
+    private int flaggedNear = 0;
 
     transient private Bitmap baseBitmap,base;
     transient private Paint paint;
-    private float x,y;
+    private float dx,dy;
+    private int x,y;
 
-    public Tile(int status, float x, float y){
+    public Tile(int status, int x, int y, float dx, float dy){
+        this.dx = dx;
+        this.dy = dy;
         this.x = x;
         this.y = y;
         bombsNear = 0;
@@ -54,7 +58,7 @@ public class Tile implements Serializable {
         if (status == UNDISCOVERED) {
             base = null;
         } else {
-            base = TileStyle.getInstance().getBitmap(status);
+            base = TileStyle.getInstance().getBitmap(status,flaggedNear);
         }
     }
 
@@ -71,6 +75,12 @@ public class Tile implements Serializable {
         return bombsNear;
     }
 
+    public void addFlaggedNear(int i){
+        this.flaggedNear += i;
+        if (this.status >= NEAR1 && this.status <= NEAR8)
+            base = TileStyle.getInstance().getBitmap(status,flaggedNear);
+    }
+
     public boolean reveal(){
         if (status==FLAGGED || status==UNDISCOVERED){
             if (hasBomb){
@@ -83,16 +93,20 @@ public class Tile implements Serializable {
 
     public void draw(Canvas canvas, float parentX, float parentY){
         if (status==FLAGGED || status==UNDISCOVERED || status==FLAGGED_FAILED){
-            canvas.drawBitmap(baseBitmap,parentX+x,parentY+y, paint);
+            canvas.drawBitmap(baseBitmap,parentX+dx,parentY+dy, paint);
         }
         if (base!=null){
-            canvas.drawBitmap(base,parentX+x,parentY+y, paint);
+            canvas.drawBitmap(base,parentX+dx,parentY+dy, paint);
         }
     }
 
     public void loadGraphics() {
-        baseBitmap = TileStyle.getInstance().getBitmap(UNDISCOVERED);
+        baseBitmap = TileStyle.getInstance().getBitmap(UNDISCOVERED,flaggedNear);
         setStatus(status);
         paint = TileStyle.getInstance().getPaint();
+    }
+
+    public int[] getCoords(){
+        return new int[]{x,y};
     }
 }

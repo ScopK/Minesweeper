@@ -22,7 +22,8 @@
 
     <string-array name="pref_visualtheme_title">
         <item>Default</item>
-        <item>Default (dots)</item>
+        <item>Dots</item>
+        <item>Dots (with help)</item>
         <item>Old windows</item>
     </string-array>
     <string-array name="pref_visualtheme_value">
