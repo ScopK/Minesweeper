@@ -15,9 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Created by Oscar on 27/11/2015.
- */
 public class Grid implements Serializable {
     public static final int PLAYING = 0;
     public static final int WIN = 1;

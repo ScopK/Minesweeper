@@ -6,9 +6,6 @@ import android.graphics.Paint;
 
 import java.io.Serializable;
 
-/**
- * Created by Oscar on 27/11/2015.
- */
 public class Tile implements Serializable {
     public static final int BITMAP_SIZE = 127;
 

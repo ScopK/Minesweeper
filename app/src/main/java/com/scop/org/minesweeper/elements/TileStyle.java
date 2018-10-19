@@ -9,9 +9,6 @@ import com.scop.org.minesweeper.elements.visual.ColorFilterHue;
 
 import java.util.Random;
 
-/**
- * Created by Oscar on 27/11/2015.
- */
 public class TileStyle {
     private static TileStyle tilestyle;
     private Bitmap[] bms,defBms;

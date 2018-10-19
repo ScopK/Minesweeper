@@ -3,62 +3,76 @@ package com.scop.org.minesweeper.elements;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
-/**
- * Created by Oscar on 26/12/2015.
- */
+import com.scop.org.minesweeper.control.ScreenProperties;
+
 public class Button {
-    private float width, height, x,y;
-    private String text, text2;
+    private static final float PADDING_H = ScreenProperties.dpiValue(10);
+    private static final float MARGIN_H = ScreenProperties.dpiValue(6);
+    private static final int FONTSIZE = 10;
+    private static final int FONTSIZE_SUB = 6;
+    private static final float PERCENT_MARGIN_W = 0.14f;
+
+    private float height, y;
     private int action;
 
-    Paint bgStyle, textStyle, textStyle2;
+    Paint bgStyle;
 
-    public Button(int action, String text, String text2, float x, float y, float width, float height, int bgcolor) {
+    private Text text1, text2;
+    private boolean doubleLine = false;
+
+    public Button(int action, String text, String subText, float y, int bgcolor) {
         this.action = action;
-        this.height = height;
-        this.text = text;
-        this.text2 = text2;
-        this.width = width;
-        this.x = x;
+        this.height = PADDING_H*2;
         this.y = y;
 
         bgStyle = new Paint();
         bgStyle.setColor(bgcolor);
 
-        textStyle = new Paint(Paint.FILTER_BITMAP_FLAG);
-        textStyle.setColor(Color.WHITE);
-        textStyle.setTextAlign(Paint.Align.CENTER);
-        textStyle.setTextSize(32);
-        textStyle.setTextScaleX(1.05f);
+	    text1 = new Text(ScreenProperties.WIDTH/2, (int)(y + PADDING_H), text, FONTSIZE)
+			    .setAlign(Paint.Align.CENTER)
+			    .setColor(Color.WHITE);
 
-        textStyle2 = new Paint(Paint.FILTER_BITMAP_FLAG);
-        textStyle2.setColor(0xFFDDDDDD);
-        textStyle2.setTextAlign(Paint.Align.CENTER);
-        textStyle2.setTextSize(20);
-        textStyle2.setTextScaleX(1.05f);
+	    float y2Pos = y + PADDING_H + MARGIN_H + text1.getDimensions().height();
+	    text2 = new Text(ScreenProperties.WIDTH/2, (int)y2Pos, subText, FONTSIZE_SUB)
+	            .setAlign(Paint.Align.CENTER)
+			    .setColor(0xDDFFFFFF);
+
+        this.height += text1.getDimensions().height();
+
+        if (subText != "") {
+	        doubleLine = true;
+            this.height += text2.getDimensions().height() + MARGIN_H;
+        }
     }
 
-    public boolean isPressed(float tx, float ty, float baseX, float baseY){
-        float x = this.x+baseX;
+    public boolean isPressed(float tx, float ty, float baseY){
+        float x = ScreenProperties.WIDTH*PERCENT_MARGIN_W;
+        float width = ScreenProperties.WIDTH-x*2;
         float y = this.y+baseY;
         return x<=tx && tx<=(x+width) && y<=ty && ty<=(y+height);
     }
 
-    public void draw(Canvas canvas, float baseX, float baseY){
-        float x = this.x+baseX;
-        float y = this.y+baseY;
-        float textSize = textStyle.getTextSize()/2;
-        canvas.drawRect(x, y, x + width, y + height, bgStyle);
-        if (text2.equals("")){
-            canvas.drawText(text, x + width / 2, y +textSize+ height / 2, textStyle);
+    public void draw(Canvas canvas){
+        float x = ScreenProperties.WIDTH*PERCENT_MARGIN_W;
+
+        //canvas.drawRect(x, y, ScreenProperties.WIDTH-x-x, y + height, bgStyle);
+	    canvas.drawRect(x, y, ScreenProperties.WIDTH-x, y + height, bgStyle);
+
+        if (doubleLine){
+        	text1.draw(canvas);
+	        text2.draw(canvas);
         } else {
-            canvas.drawText(text, x + width / 2, y + height / 2, textStyle);
-            canvas.drawText(text2, x + width / 2, y + 2 * textSize + height / 2, textStyle2);
-        }
+	        text1.draw(canvas);
+	    }
     }
 
     public int getAction() {
         return action;
+    }
+
+    public float getHeight(){
+    	return height;
     }
 }

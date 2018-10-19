@@ -2,9 +2,6 @@ package com.scop.org.minesweeper.control;
 
 import android.content.ContextWrapper;
 
-/**
- * Created by Oscar on 26/12/2015.
- */
 public class Settings {
 
     public static final int DISABLED=3;

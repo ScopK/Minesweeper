@@ -1,4 +1,30 @@
 <resources>
+    <string name="menu_load">Load</string>
+    <string name="menu_settings">Settings</string>
+
+    <string name="menu_game_name_1">Sandbox</string>
+    <string name="menu_game_sub_1">4x6 - 5 bombs",</string>
+
+    <string name="menu_game_name_2">Baby</string>
+    <string name="menu_game_sub_2">10x10 - 12 bombs</string>
+
+    <string name="menu_game_name_3">Atomic Baby</string>
+    <string name="menu_game_sub_3">10x10 - 25 bombs</string>
+
+    <string name="menu_game_name_4">Profi</string>
+    <string name="menu_game_sub_4">15x15 - 50 bombs</string>
+
+    <string name="menu_game_name_5">Mom, take me back</string>
+    <string name="menu_game_sub_5">25x25 - 100 bombs</string>
+
+    <string name="menu_game_name_6">Inferno</string>
+    <string name="menu_game_sub_6">50x50 - 503 bombs</string>
+
+    <string name="menu_game_name_7">Chuck Norris</string>
+    <string name="menu_game_sub_7">6x20 - 40 bombs</string>
+
+
+
     <string name="app_name">Minesweeper</string>
     <string name="new_game">New game</string>
     <string name="settings">Settings</string>

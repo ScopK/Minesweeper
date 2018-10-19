@@ -1,143 +1,177 @@
 package com.scop.org.minesweeper;
 
+import android.content.Context;
 import android.graphics.Canvas;
-import android.view.GestureDetector;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 
-import com.scop.org.minesweeper.elements.Button;
+
+import com.scop.org.minesweeper.control.ScreenProperties;
+import com.scop.org.minesweeper.elements.MenuOption;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Oscar on 25/12/2015.
- */
+
 public class MenuPanel extends View {
-    private static final int ACTION_LOAD = 0;
-    private static final int ACTION_SETTINGS = 1;
-    private static final int ACTION_GAME1 = 2;
-    private static final int ACTION_GAME2 = 3;
-    private static final int ACTION_GAME3 = 4;
-    private static final int ACTION_GAME4 = 5;
-    private static final int ACTION_GAME5 = 6;
-    private static final int ACTION_GAME6 = 7;
-    private static final int ACTION_GAME7 = 8;
+	List<MenuOption> options;
+	MenuActivity activity;
+
+	private float scrollPosition = 0;
+	private float maxScroll;
 
 
-    private MenuActivity parent;
-    private GestureDetector gestureDetector;
-    private List<Button> buttons = new ArrayList<>();
+	public MenuPanel(MenuActivity context) {
+		super(context);
+		activity = context;
 
-    private float x=0;
-    private float y=0;
-    private float heightNextButton = 0;
-    private float dragXpos,dragYpos;
+		addOptions();
+		updateWinValues();
+	}
 
-    public MenuPanel(MenuActivity parent) {
-        super(parent);
-        this.parent = parent;
-        this.gestureDetector = new GestureDetector(parent, new GestureDetector.SimpleOnGestureListener(){
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                if (buttons!=null){
-                    float mX = e.getX();
-                    float mY = e.getY();
+	public void updateWinValues(){
+		float maxHeight=0;
+		for (MenuOption option : options){
+			option.setWindowValues(ScreenProperties.WIDTH, ScreenProperties.HEIGHT, ScreenProperties.DPI_W, ScreenProperties.DPI_H);
+			Rect r = option.getRect(0);
+			if (r.bottom>maxHeight){
+				maxHeight = r.bottom;
+			}
+		}
+		maxHeight += MenuOption.FACTOR_MARGIN_OUT_SIZE*ScreenProperties.DPI_H;
+		maxScroll = ScreenProperties.HEIGHT-maxHeight;
+	}
 
-                    for (Button b : buttons) if (b.isPressed(mX,mY,x,y)){
-                        switch (b.getAction()){
-                            case ACTION_LOAD:
-                                MenuPanel.this.parent.loadGrid();
-                                break;
-                            case ACTION_SETTINGS:
-                                MenuPanel.this.parent.openSettings();
-                                break;
-                            case ACTION_GAME1:
-                                MenuPanel.this.parent.startGrid(4, 6, 5);
-                                break;
-                            case ACTION_GAME2:
-                                MenuPanel.this.parent.startGrid(10, 10, 12);
-                                break;
-                            case ACTION_GAME3:
-                                MenuPanel.this.parent.startGrid(10, 10, 25);
-                                break;
-                            case ACTION_GAME4:
-                                MenuPanel.this.parent.startGrid(15, 15, 50);
-                                break;
-                            case ACTION_GAME5:
-                                MenuPanel.this.parent.startGrid(25, 25, 100);
-                                break;
-                            case ACTION_GAME6:
-                                MenuPanel.this.parent.startGrid(50, 50, 503);
-                                break;
-                            case ACTION_GAME7:
-                                MenuPanel.this.parent.startGrid(6, 20, 40);
-                                break;
-                        }
-                        break;
-                    }
-                }
-                return true;
-            }
-        });
-    }
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		ScreenProperties.load(getContext());
+		updateWinValues();
+		super.onSizeChanged(w, h, oldw, oldh);
+	}
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        buttons.clear();
-        heightNextButton = 40;
-        addButton(ACTION_LOAD,      "Load", "",                               w, h, 0x99FF0000);
-        addButton(ACTION_GAME1,     "Sandbox", "4x6 - 5 bombs",               w, h, 0x99FFFF00);
-        addButton(ACTION_GAME2,     "Baby", "10x10 - 12 bombs",               w, h, 0x99FFFF00);
-        addButton(ACTION_GAME3,     "Atomic Baby", "10x10 - 25 bombs",        w, h, 0x99FFFF00);
-        addButton(ACTION_GAME4,     "Profi", "15x15 - 50 bombs",              w, h, 0x99FFFF00);
-        addButton(ACTION_GAME5,     "Mom, take me back", "25x25 - 100 bombs", w, h, 0x99FFFF00);
-        addButton(ACTION_GAME6,     "Inferno", "50x50 - 503 bombs",           w, h, 0x99FFFF00);
-        addButton(ACTION_GAME7,     "Chuck Norris", "6x20 - 40 bombs",        w, h, 0x99FFFF00);
-        addButton(ACTION_SETTINGS,  "Settings", "",                           w, h, 0x9900FFFF);
+	private MenuOption optionSelected=null;
+	private int lastY;
+	private boolean hasMoved = false;
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		int x,y;
+		switch(event.getActionMasked()){
+			case MotionEvent.ACTION_DOWN:
+				x = Math.round(event.getX());
+				lastY = Math.round(event.getY());
 
-        super.onSizeChanged(w, h, oldw, oldh);
-    }
+				optionSelected = null;
+				hasMoved = false;
+				for (MenuOption option : options) {
+					if (option.touchIsIn(x, lastY, scrollPosition)) {
+						option.setHover(true);
+						this.postInvalidate();
+						optionSelected = option;
+						break;
+					}
+				}
+				return true;
+			case MotionEvent.ACTION_UP:
+				if (!hasMoved) {
+					x = Math.round(event.getX());
+					y = Math.round(event.getY());
 
-    private void addButton(int action, String text,String text2, float w, float h, int bgcolor){
-        buttons.add(new Button(action,text,text2,w*.15f,heightNextButton,w*.7f  ,140, bgcolor));
-        heightNextButton+=180;
-    }
+					if (optionSelected != null && optionSelected.touchIsIn(x, y, scrollPosition)) {
+						optionSelected.setHover(false);
+						optionSelected.run();
+					}
+				} else {
+					if (optionSelected != null) {
+						optionSelected.setHover(false);
+					}
+				}
+				optionSelected = null;
+				return true;
+			case MotionEvent.ACTION_MOVE:
+				x = Math.round(event.getX());
+				y = Math.round(event.getY());
 
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        gestureDetector.onTouchEvent(e);
-        switch (e.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                //dragXpos = e.getX();
-                dragYpos = e.getY();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                //float X = e.getX();
-                float Y = e.getY();
+				float scrollPositionInitial = scrollPosition;
+				if (maxScroll<0) {
+					scrollPosition -= lastY - y;
+					lastY = y;
 
-                //x+= X - dragXpos;
-                y+= Y - dragYpos;
+					if (scrollPosition > 0) scrollPosition = 0;
+					else if (scrollPosition < maxScroll) scrollPosition = maxScroll;
+				}
 
-                float maxHeight = getHeight()-heightNextButton;
-                if (y>0 || maxHeight>0) y = 0;
-                else if (y<maxHeight) y=maxHeight;
+				if (scrollPositionInitial!=scrollPosition){
+					hasMoved = true;
+				}
 
-                //dragXpos = X;
-                dragYpos = Y;
-                invalidate();
-                break;
-        }
+				if (optionSelected!=null){
+					optionSelected.setHover(
+							optionSelected.touchIsIn(x, y, scrollPosition)
+					);
+				}
+				this.postInvalidate();
+				return true;
+		}
+		return super.onTouchEvent(event);
+	}
 
-        return true;
-    }
+	@Override
+	public void draw(Canvas canvas) {
+		super.draw(canvas);
 
-    @Override
-    public void draw(Canvas canvas) {
-        super.draw(canvas);
-        canvas.drawColor(0xFF3C3C3C);
-        for (Button b : buttons){
-            b.draw(canvas,x,y);
-        }
-    }
+		canvas.drawColor(0xFF242433);
+
+		for (MenuOption option : options){
+			option.draw(canvas,scrollPosition);
+		}
+	}
+
+	@Override
+	protected void onVisibilityChanged(View changedView, int visibility) {
+		super.onVisibilityChanged(changedView, visibility);
+		if (visibility == VISIBLE){
+			//int startString = State.getLastLoadedJSON()==null? R.string.menu_newgame : R.string.menu_continue;
+			//options.get(0).setText(activity.getString(startString));
+		}
+	}
+
+	public void addOptions(){
+		int counter = 0;
+		MenuActivity activity = (MenuActivity) getContext();
+
+		options = new ArrayList();
+
+		options.add(new MenuOption(activity.getString(R.string.menu_load), activity::loadGrid,
+				counter++,0xff579f41,0xff61a94b));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_1),()-> activity.startGrid(4, 6, 5),
+				counter++,0xff41769f,0xff4a7fa8));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_2),()-> activity.startGrid(10, 10, 12),
+				counter++,0xff41769f,0xff4a7fa8));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_3),()-> activity.startGrid(10, 10, 25),
+				counter++,0xff41769f,0xff4a7fa8));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_4),()-> activity.startGrid(15, 15, 50),
+				counter++,0xff41769f,0xff4a7fa8));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_5),()-> activity.startGrid(25, 25, 100),
+				counter++,0xff41769f,0xff4a7fa8));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_6),()-> activity.startGrid(50, 50, 503),
+				counter++,0xff41769f,0xff4a7fa8));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_7),()-> activity.startGrid(6, 20, 40),
+				counter++,0xff41769f,0xff4a7fa8));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_settings), activity::openSettings,
+				counter++, 0xff828282,0xff949494));
+
+	}
 }

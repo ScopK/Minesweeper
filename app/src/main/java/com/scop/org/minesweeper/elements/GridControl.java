@@ -18,9 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import com.scop.org.minesweeper.control.Settings;
 
-/**
- * Created by Oscar on 24/12/2015.
- */
 public class GridControl implements GridEventListener{
     private Grid grid = null;
     private GridHUD hud = null;

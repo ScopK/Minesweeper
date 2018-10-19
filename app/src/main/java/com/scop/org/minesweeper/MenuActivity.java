@@ -24,24 +24,6 @@ public class MenuActivity extends Activity {
 
         menupanel = new MenuPanel(this);
         setContentView(menupanel);
-
-        SharedPreferences preferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        Settings sets = Settings.getInstance();
-        sets.setDiscoveryMode(Integer.parseInt(preferences.getString("option_reveal", "1")));
-        sets.setShowTime(preferences.getBoolean("option_time", true));
-        sets.setFirstOpen(preferences.getBoolean("option_firstopen", true));
-
-        switch (preferences.getString("option_theme", "0")){
-            case "0": TileStyle.getInstance().setStyle(this, "def", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-            case "1": TileStyle.getInstance().setStyle(this, "dots", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-            case "2": TileStyle.getInstance().setStyle(this, "dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-            case "3": TileStyle.getInstance().setStyle(this, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
-        }
-
-        String fileSavePath = new ContextWrapper(this).getFilesDir().getPath()+"/"+Settings.FILENAME;
-        if (new java.io.File(fileSavePath).exists()){
-            loadGrid();
-        }
     }
 
     public void startGrid(int w, int h, int b){
@@ -50,12 +32,14 @@ public class MenuActivity extends Activity {
         intent.putExtra("h", h);
         intent.putExtra("b",b);
         startActivity(intent);
+        finish();
     }
 
     public void loadGrid(){
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("l",true);
         startActivity(intent);
+        finish();
     }
 
     public void openSettings(){

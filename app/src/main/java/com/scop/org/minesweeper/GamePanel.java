@@ -9,9 +9,6 @@ import com.scop.org.minesweeper.elements.Grid;
 import com.scop.org.minesweeper.elements.GridControl;
 import com.scop.org.minesweeper.elements.TileStyle;
 
-/**
- * Created by Oscar on 25/11/2015.
- */
 public class GamePanel extends View{
 
     private GridControl gridControl;
