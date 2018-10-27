@@ -134,12 +134,13 @@ public class MainLogic {
 		status = GameStatus.LOSE;
 
 		grid.getGrid().stream()
-				.filter(t -> t.hasBomb())
 				.forEach(t-> {
-					if (t.getStatus() == FLAG) {
+					if (t.hasBomb()) {
+						if (t.getStatus() == COVERED){
+							t.setStatus(BOMB);
+						}
+					} else if (t.getStatus() == FLAG) {
 						t.setStatus(FLAG_FAIL);
-					} else if (t.getStatus() != BOMB_FINAL){
-						t.setStatus(BOMB);
 					}
 				});
 		if (finishEvent!=null) finishEvent.accept(false);
