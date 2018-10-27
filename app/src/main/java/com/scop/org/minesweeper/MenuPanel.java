@@ -1,14 +1,9 @@
 package com.scop.org.minesweeper;
 
-import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 
 
 import com.scop.org.minesweeper.control.ScreenProperties;
@@ -37,14 +32,14 @@ public class MenuPanel extends View {
 	public void updateWinValues(){
 		float maxHeight=0;
 		for (MenuOption option : options){
-			option.setWindowValues(ScreenProperties.WIDTH, ScreenProperties.HEIGHT, ScreenProperties.DPI_W, ScreenProperties.DPI_H);
+			option.setWindowValues(ScreenProperties.WIDTH, ScreenProperties.HEIGHT_BAR_EXCLUDED, ScreenProperties.DPI_W, ScreenProperties.DPI_H);
 			Rect r = option.getRect(0);
 			if (r.bottom>maxHeight){
 				maxHeight = r.bottom;
 			}
 		}
 		maxHeight += MenuOption.FACTOR_MARGIN_OUT_SIZE*ScreenProperties.DPI_H;
-		maxScroll = ScreenProperties.HEIGHT-maxHeight;
+		maxScroll = ScreenProperties.HEIGHT_BAR_EXCLUDED -maxHeight;
 	}
 
 	@Override

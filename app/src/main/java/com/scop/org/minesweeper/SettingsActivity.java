@@ -10,9 +10,11 @@ import android.preference.PreferenceFragment;
 
 
 import com.scop.org.minesweeper.control.Settings;
-import com.scop.org.minesweeper.elements.TileStyle;
-
-import java.util.List;
+import com.scop.org.minesweeper.control.GridDrawer;
+import com.scop.org.minesweeper.skins.DefaultDotSkin;
+import com.scop.org.minesweeper.skins.DefaultNumberSkin;
+import com.scop.org.minesweeper.skins.DotHelpSkin;
+import com.scop.org.minesweeper.skins.NostalgiaSkin;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -79,10 +81,10 @@ public class SettingsActivity extends PreferenceActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object value) {
                     switch (value.toString()){
-                        case "0": TileStyle.getInstance().setStyle(context, "def", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-                        case "1": TileStyle.getInstance().setStyle(context, "dots", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-                        case "2": TileStyle.getInstance().setStyle(context, "dot", 4, 0f, 1.0f, 0xFF3C3C3C); break;
-                        case "3": TileStyle.getInstance().setStyle(context, "win", 1, 0f, 1.0f, 0xFFC0C0C0); break;
+                        case "0": GridDrawer.setSkin(context, DefaultNumberSkin.class); break;
+                        case "1": GridDrawer.setSkin(context, DefaultDotSkin.class); break;
+                        case "2": GridDrawer.setSkin(context, DotHelpSkin.class); break;
+                        case "3": GridDrawer.setSkin(context, NostalgiaSkin.class); break;
                     }
                     return true;
                 }

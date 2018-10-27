@@ -2,13 +2,12 @@ package com.scop.org.minesweeper;
 
 import android.app.Activity;
 import android.content.Intent;
-
 import android.os.Bundle;
 import android.view.KeyEvent;
-
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.scop.org.minesweeper.elements.Grid;
 
 
 /**
@@ -35,13 +34,16 @@ public class GameActivity extends Activity {
         } else {
             gamepanel = new GamePanel(this);
             setContentView(gamepanel);
-            if (extras.getBoolean("l")){
-                if (!gamepanel.loadState()){
-                    this.finish();
-                }
-            } else {
-                gamepanel.setAndStart(extras.getInt("w"),extras.getInt("h"),extras.getInt("b"));
-            }
+
+	        if (extras.getBoolean("l")){
+		        if (!gamepanel.loadState()){
+			        this.finish();
+		        }
+	        } else {
+		        Grid grid = (Grid) extras.getSerializable("g");
+		        gamepanel.setNewGrid(grid);
+		        gamepanel.postInvalidate();
+	        }
         }
     }
 
@@ -64,6 +66,7 @@ public class GameActivity extends Activity {
     public void onBackPressed() {
         Intent intent = new Intent(this, MenuActivity.class);
         startActivity(intent);
+	    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         finish();
     }
 }

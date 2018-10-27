@@ -3,6 +3,9 @@ package com.scop.org.minesweeper.elements;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+
+import com.scop.org.minesweeper.control.ScreenProperties;
+
 import java.util.function.Consumer;
 
 /**
@@ -16,11 +19,11 @@ public class MenuOption {
 
 	private int color = 0xff000000, hoverColor = 0xff666666;
 
-	private static final float FACTOR_FONT_SIZE = .18f;
-	private static final float FACTOR_MARGIN_IN_SIZE = .16f;
-	public  static final float FACTOR_MARGIN_OUT_SIZE = .4f;
-	private static final float FACTOR_MARGIN_BTW_SIZE = .2f;
-	private static final float FACTOR_BORDER_SIZE = .01f;
+	private static final float FACTOR_FONT_SIZE = 11f;
+	private static final float FACTOR_MARGIN_IN_SIZE = 16f;
+	public  static final float FACTOR_MARGIN_OUT_SIZE = 20f;
+	private static final float FACTOR_MARGIN_BTW_SIZE = 10f;
+	private static final float FACTOR_BORDER_SIZE = 1f;
 
 	/**
 	 * Constructor. Sets the parameters of the button
@@ -100,11 +103,11 @@ public class MenuOption {
 	 */
 	public void setWindowValues(int w, int h, float dpiW, float dpiH){
 		this.w = w;
-		this.fontSize = FACTOR_FONT_SIZE * dpiW;
-		this.marginInSize = FACTOR_MARGIN_IN_SIZE * dpiW;
-		this.marginOutSize = FACTOR_MARGIN_OUT_SIZE * dpiW;
-		this.marginBtwSize = FACTOR_MARGIN_BTW_SIZE * dpiW;
-		this.borderSize = FACTOR_BORDER_SIZE * dpiW;
+		this.fontSize = ScreenProperties.fontSizeAdapted(FACTOR_FONT_SIZE);
+		this.marginInSize = ScreenProperties.dpiValue(FACTOR_MARGIN_IN_SIZE);
+		this.marginOutSize = ScreenProperties.dpiValue(FACTOR_MARGIN_OUT_SIZE);
+		this.marginBtwSize = ScreenProperties.dpiValue(FACTOR_MARGIN_BTW_SIZE);
+		this.borderSize = ScreenProperties.dpiValue(FACTOR_BORDER_SIZE);
 
 		Paint textPaint = new Paint();
 		textPaint.setTextSize(fontSize);

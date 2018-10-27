@@ -1,497 +1,116 @@
 package com.scop.org.minesweeper.elements;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
+import com.scop.org.minesweeper.generators.GridGenerator;
 
-import com.scop.org.minesweeper.GamePanel;
-import com.scop.org.minesweeper.control.Settings;
-import com.scop.org.minesweeper.elements.visual.ColorFilterHue;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Grid implements Serializable {
-    public static final int PLAYING = 0;
-    public static final int WIN = 1;
-    public static final int GAMEOVER = 2;
 
-    private Tile[][] tiles;
-    private int totalBombs;
-    private int flaggedBombs, correctFlaggedBombs, undiscoveredTiles;
-    private int startingTime;
-    public float x = 0,y = 0;
-    public int w,h;
-    private int status;
-    private GridEventListener listener;
+	private List<Tile> grid;
+	private int w;
+	private int h;
+	private int bombs;
+	private Class<? extends GridGenerator> generatorClass;
 
-    private List<Tile> revealing = new ArrayList<>();
+	private Grid(){}
 
-    private Grid(int w, int h, int totalBombs, int flaggedBombs, int correctFlaggedBombs, int undiscoveredTiles, Tile[][] tiles, float x, float y, int startingTime){
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.status = PLAYING;
-        this.totalBombs = totalBombs;
-        this.flaggedBombs = flaggedBombs;
-        this.correctFlaggedBombs = correctFlaggedBombs;
-        this.undiscoveredTiles = undiscoveredTiles;
-        this.tiles = tiles;
-        this.startingTime = startingTime;
-    }
+	public Grid(int w, int h, int bombs, Class<? extends GridGenerator> generatorClass){
+		this.h = h;
+		this.w = w;
+		this.bombs = bombs;
+		this.generatorClass = generatorClass;
 
-    public Grid(int w, int h, int bombs){
-        this.totalBombs = bombs;
-        this.w=w;
-        this.h=h;
-        start();
-    }
+		grid = new ArrayList<>();
 
-    public void start(){
-        status = PLAYING;
-        flaggedBombs = 0;
-        correctFlaggedBombs = 0;
-        undiscoveredTiles = w*h;
-        x=y=Integer.MIN_VALUE;;
-        int tileSize = Tile.BITMAP_SIZE;
-        tiles = new Tile[w][h];
-        for (int i=0;i<w;i++) {
-            for (int j = 0; j < h; j++) {
-                tiles[i][j] = new Tile(Tile.UNDISCOVERED,i,j,i*tileSize,j*tileSize);
-            }
-        }
-        Random random = new Random();
-        int x,y,rnd,max = w*h;
-        for (int i=0;i<totalBombs;i++) {
-            rnd = random.nextInt(max);
-            x = rnd%w;
-            y = rnd/w;
-            if (tiles[x][y].hasBomb()){
-                i--;
-                continue;
-            }
-            tiles[x][y].plantBomb();
-            List<Tile> ns = getNeighbors(tiles,new int[]{x,y});
-            for (Tile t : ns){
-                t.hasBombNear();
-            }
-        }
-        if (Settings.getInstance().isFirstOpen()) {
-            boolean found = false;
-            while (!found) {
-                rnd = random.nextInt(max);
-                x = rnd % w;
-                y = rnd / w;
-                if (!tiles[x][y].hasBomb() && tiles[x][y].getBombsNear() == 0) {
-                    revealAppend(tiles[x][y]);
-                    reveal();
-                    this.x = x;
-                    this.y = y;
-                    found = true;
-                }
-            }
-        }
-    }
+		try {
+			GridGenerator gen = generatorClass.newInstance();
+			gen.generateNewGrid(this, bombs);
 
-    public void setListener(GridEventListener listener){
-        this.listener = listener;
-    }
+		} catch (IllegalAccessException | InstantiationException e) {
+			e.printStackTrace();
+		}
+	}
 
-    private int[] getCoord(float px, float py){
-        float dX = (-this.x+px)/Tile.BITMAP_SIZE;
-        float dY = (-this.y+py)/Tile.BITMAP_SIZE;
-        if (dX<0) dX = -1;
-        if (dY<0) dY = -1;
-        return new int[]{(int)dX,(int)dY};
-    }
-    private static Tile getTile(Tile[][] tilegrid,int cx, int cy){
-        if (cx<0 || cy<0 || tilegrid.length<=cx || tilegrid[0].length<=cy)
-            return null;
-        return tilegrid[cx][cy];
-    }
-    private static List<Tile> getNeighbors(Tile[][] tilegrid, Tile t){
-        return getNeighbors(tilegrid, t.getCoords());
-    }
-    private static List<Tile> getNeighbors(Tile[][] tilegrid, int[] c){
-        List<Tile> ts = new ArrayList<>();
-        Tile t;
-        if ((t = getTile(tilegrid,c[0]-1,c[1]+1)) != null) ts.add(t);
-        if ((t = getTile(tilegrid,c[0]-1,c[1])) != null) ts.add(t);
-        if ((t = getTile(tilegrid,c[0]-1,c[1]-1)) != null) ts.add(t);
+	// GETTERS-SETTERS
 
-        if ((t = getTile(tilegrid,c[0]+1,c[1]+1)) != null) ts.add(t);
-        if ((t = getTile(tilegrid,c[0]+1,c[1])) != null) ts.add(t);
-        if ((t = getTile(tilegrid,c[0]+1,c[1]-1)) != null) ts.add(t);
+	public int getW() {
+		return w;
+	}
 
-        if ((t = getTile(tilegrid,c[0],c[1]+1)) != null) ts.add(t);
-        if ((t = getTile(tilegrid,c[0],c[1]-1)) != null) ts.add(t);
-        return ts;
-    }
+	public int getH() {
+		return h;
+	}
 
-    // ACTIONS_
-    private int[] lastCoord;
-    public void sTap(float pointX, float pointY){
-        if (isGameOver()) return;
-        lastCoord = getCoord(pointX, pointY);
-        Tile t = getTile(tiles, lastCoord[0], lastCoord[1]);
-        if (t==null) return;
-        switch (t.getStatus()){
-            case Tile.UNDISCOVERED:
-                t.setStatus(Tile.FLAGGED);
+	public List<Tile> getGrid() {
+		return grid;
+	}
 
-                List<Tile> ts = getNeighbors(tiles,t);
-                for (Tile tt : ts){
-                    tt.addFlaggedNear(+1);
-                }
+	public int getBombs() {
+		return bombs;
+	}
 
-                flaggedBombs++;
-                if (t.hasBomb()){
-                    correctFlaggedBombs++;
-                }
-                if (correctFlaggedBombs==totalBombs && correctFlaggedBombs==flaggedBombs){
-                    gameWin();
-                }
-                break;
-            case Tile.FLAGGED:
-                t.setStatus(Tile.UNDISCOVERED);
+	public String getGeneratorClass(){
+		return generatorClass.getName();
+	}
 
-                List<Tile> tss = getNeighbors(tiles,t);
-                for (Tile tt : tss){
-                    tt.addFlaggedNear(-1);
-                }
+	public Grid startNewGame(){
+		return new Grid(w, h, bombs, generatorClass);
+	}
 
-                flaggedBombs--;
-                if (t.hasBomb()){
-                    correctFlaggedBombs--;
-                }
-                if (correctFlaggedBombs==totalBombs && correctFlaggedBombs==flaggedBombs){
-                    gameWin();
-                }
-                break;
-            case Tile.EMPTY:
-            case Tile.BOMB:
-                break;
-            default:
-                if (!Settings.getInstance().isDiscoveryMode(Settings.DISABLED)) {
-                    revealing.clear();
-                    if (!massReveal(t, lastCoord)) {
-                        gameOver();
-                    }
-                }
-                break;
-        }
-    }
 
-    public void dTap(float pointX, float pointY){
-        if (isGameOver()) return;
-        int[] c = getCoord(pointX, pointY);
-        if (c[0]!=lastCoord[0] || c[1]!=lastCoord[1]){
-            sTap(pointX,pointY);
-            return;
-        }
-        Tile t = getTile(tiles,c[0], c[1]);
-        if (t==null) return;
-        switch (t.getStatus()){
-            case Tile.FLAGGED:
-                flaggedBombs--;
-                if (t.hasBomb()){
-                    correctFlaggedBombs--;
-                }
+	@SuppressWarnings("unchecked")
+	public static Grid jsonGrid(JSONObject obj) throws JSONException {
+		try {
+			Grid grid = new Grid();
 
-                List<Tile> tss = getNeighbors(tiles,t);
-                for (Tile tt : tss){
-                    tt.addFlaggedNear(-1);
-                }
+			grid.h = obj.getInt("h");
+			grid.w = obj.getInt("w");
+			grid.generatorClass = (Class<? extends GridGenerator>) Class.forName(obj.getString("g"));
 
-                if (correctFlaggedBombs==totalBombs && correctFlaggedBombs==flaggedBombs){
-                    gameWin();
-                }
-            case Tile.UNDISCOVERED:
+			List<Tile> tiles = new ArrayList<>();
+			int bombs = 0;
+			String stringGrid = obj.getString("ts");
+			for (int i=0; i<stringGrid.length(); i++){
+				Tile t = null;
 
-                revealing.clear();
-                revealAppend(t);
-                if (!reveal()){
-                    gameOver();
-                }
-                break;
-            default:
-                break;
-        }
-    }
+				switch (stringGrid.charAt(i)){
+					case 'B': t = new Tile(i%grid.w, i/grid.w, Tile.Status.BOMB); break;
+					case ' ': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A0); break;
+					case '1': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A1); break;
+					case '2': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A2); break;
+					case '3': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A3); break;
+					case '4': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A4); break;
+					case '5': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A5); break;
+					case '6': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A6); break;
+					case '7': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A7); break;
+					case '8': t = new Tile(i%grid.w, i/grid.w, Tile.Status.A8); break;
+					case 'f': t = new Tile(i%grid.w, i/grid.w, Tile.Status.FLAG); break;
+					case 'c': t = new Tile(i%grid.w, i/grid.w, Tile.Status.COVERED); break;
+					case 'F':
+						t = new Tile(i%grid.w, i/grid.w, Tile.Status.FLAG);
+						t.plantBomb();
+						bombs++;
+						break;
+					case 'C':
+						t = new Tile(i%grid.w, i/grid.w, Tile.Status.COVERED);
+						t.plantBomb();
+						bombs++;
+						break;
+				}
+				if (t != null) tiles.add(t);
+			}
+			grid.bombs = bombs;
+			grid.grid = tiles;
+			return grid;
 
-    private boolean reveal(){
-        boolean gameOver = false;
-        while (revealing.size()!=0){
-            Tile t = revealing.remove(0);
-            if (!reveal(t,t.getCoords())){
-                gameOver = true;
-            }
-        }
-        return !gameOver;
-    }
-
-    private void revealAppend(Tile t){
-        if (!revealing.contains(t)) {
-            this.undiscoveredTiles--;
-            revealing.add(t);
-        }
-    }
-
-    private boolean reveal(Tile tile, int[] coord){
-        if (!tile.reveal())
-            return false;
-
-        int bombsNear = tile.getBombsNear();
-        if (bombsNear==0){
-            tile.setStatus(Tile.EMPTY);
-            List<Tile> ts = getNeighbors(tiles,coord);
-            for (Tile t : ts){
-                if (t.isStatus(Tile.UNDISCOVERED)) {
-                    revealAppend(t);
-                }
-            }
-        } else {
-            tile.setStatus(Tile.NEAR1 - 1 + bombsNear);
-        }
-        return true;
-    }
-
-    private boolean massReveal(Tile tile, int[] coord){
-        List<Tile> ts = getNeighbors(tiles,coord);
-        int hardLevel = Settings.getInstance().getDiscoveryMode();
-        if (hardLevel<Settings.HARD) {
-            int countFlagged = 0;
-            for (Tile t : ts){
-                if (t.getStatus()==Tile.FLAGGED) countFlagged++;
-            }
-            if (hardLevel==Settings.EASY  &&  tile.getStatus()+1-Tile.NEAR1 != countFlagged ||
-                hardLevel==Settings.NORMAL && tile.getStatus()+1-Tile.NEAR1 > countFlagged){
-                return true;
-            }
-        }
-        for (Tile t : ts){
-            if (t.isStatus(Tile.UNDISCOVERED)) {
-                revealAppend(t);
-            }
-        }
-        return reveal();
-    }
-
-    public void gameOver(){
-        this.status = GAMEOVER;
-        for (Tile[] ts : tiles) for (Tile t : ts){
-            int status = t.getStatus();
-            if (t.hasBomb() && status!=Tile.BOMB_END) {
-                t.setStatus(Tile.BOMB);
-            } else if (status==Tile.FLAGGED){
-                t.setStatus(Tile.FLAGGED_FAILED);
-            }
-        }
-        if (listener!=null) listener.onFinish(false);
-    }
-
-    public void gameWin(){
-        this.status = WIN;
-        if (listener!=null) listener.onFinish(true);
-    }
-
-    public int getStatus(){
-        return status;
-    }
-
-    //  DRAW_
-    public void draw(Canvas canvas,float screenW, float screenH){
-        int tileSize = Tile.BITMAP_SIZE;
-
-        float posX = x-tileSize;
-        float posY = y;
-        for (int i=0;i<tiles.length;i++){
-            posX+=tileSize;
-            for (int j=0;j<tiles[0].length;j++){
-                if (j==0) posY = y;
-                else      posY+=tileSize;
-
-                if (posX<-tileSize-5) continue;
-                else if (posX>screenW+5) continue;
-
-                if (posY<-tileSize-5) continue;
-                else if (posY>screenH+5) continue;
-
-                tiles[i][j].draw(canvas,x,y);
-            }
-        }
-    }
-
-    public boolean isGameOver() {
-        return status!=PLAYING;
-    }
-    public int getTotalBombs() {
-        return totalBombs;
-    }
-    public int getFlaggedBombs() {
-        return flaggedBombs;
-    }
-    public int getCorrectFlaggedBombs() {
-        return correctFlaggedBombs;
-    }
-    public int getTotalTiles() {
-        return w*h;
-    }
-    public int getUndiscoveredTiles() {
-        return undiscoveredTiles;
-    }
-    public int getStartingTime() {
-        return startingTime;
-    }
-
-    public char[] getMap(float centerX, float centerY, int dseconds){
-        char[] map = new char[w*h+2+4*3+1];
-        char c = 'E';
-
-        int[] coord = getCoord(centerX, centerY);
-        byte[] bx = ByteBuffer.allocate(4).putInt(coord[0]).array();
-        byte[] by = ByteBuffer.allocate(4).putInt(coord[1]).array();
-        byte[] ss = ByteBuffer.allocate(4).putInt(dseconds).array();
-
-        map[0] = (char)w;
-        map[1] = (char)h;
-        map[2]=(char)bx[0]; map[3]=(char)bx[1]; map[4]=(char)bx[2]; map[5]=(char)bx[3];
-        map[6]=(char)by[0]; map[7]=(char)by[1]; map[8]=(char)by[2]; map[9]=(char)by[3];
-        map[10]=(char)ss[0]; map[11]=(char)ss[1]; map[12]=(char)ss[2]; map[13]=(char)ss[3];
-
-        int count = 2+4*3;
-        for (int j=0;j<h;j++){
-            for (int i=0;i<w;i++){
-                Tile t = tiles[i][j];
-                switch(t.getStatus()){
-                    case Tile.BOMB:  c = 'B'; break;
-                    case Tile.EMPTY: c = ' '; break;
-                    case Tile.NEAR1: c = '1'; break;
-                    case Tile.NEAR2: c = '2'; break;
-                    case Tile.NEAR3: c = '3'; break;
-                    case Tile.NEAR4: c = '4'; break;
-                    case Tile.NEAR5: c = '5'; break;
-                    case Tile.NEAR6: c = '6'; break;
-                    case Tile.NEAR7: c = '7'; break;
-                    case Tile.NEAR8: c = '8'; break;
-                    case Tile.FLAGGED:
-                        c = t.hasBomb()?'F':'f';
-                        break;
-                    case Tile.UNDISCOVERED:
-                        c = t.hasBomb()?'U':'u';
-                        break;
-                }
-                map[count++] = c;
-            }
-            map[count] = 0x01;
-        }
-        return map;
-    }
-
-    public static Grid getGridFromMap(char[] map){
-        if (map[map.length-1] != 0x01) return null;
-        int w = map[0];
-        int h = map[1];
-        byte[] bx = new byte[]{(byte)map[2],(byte)map[3],(byte)map[4],(byte)map[5]};
-        byte[] by = new byte[]{(byte)map[6],(byte)map[7],(byte)map[8],(byte)map[9]};
-        byte[] ss = new byte[]{(byte)map[10],(byte)map[11],(byte)map[12],(byte)map[13]};
-
-        int x = convertByteToInt(bx);
-        int y = convertByteToInt(by);
-        int dseconds = convertByteToInt(ss);
-
-        int totalBombs=0, flaggedBombs=0, correctFlaggedBombs=0, undiscoveredTiles=0;
-
-        int xx,yy;
-        int tileSize = Tile.BITMAP_SIZE;
-
-        int fields = w*h;
-
-        Tile t;
-        Tile[][] newTiles = new Tile[w][h];
-
-        for (int i=0;i<fields;i++){
-            char c = map[i+14];
-            xx = i%w;
-            yy = i/w;
-
-            switch(c){
-                case ' ': t = new Tile(Tile.EMPTY  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '1': t = new Tile(Tile.NEAR1  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '2': t = new Tile(Tile.NEAR2  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '3': t = new Tile(Tile.NEAR3  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '4': t = new Tile(Tile.NEAR4  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '5': t = new Tile(Tile.NEAR5  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '6': t = new Tile(Tile.NEAR6  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '7': t = new Tile(Tile.NEAR7  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case '8': t = new Tile(Tile.NEAR8  ,xx,yy,xx*tileSize,yy*tileSize); break;
-                case 'f':
-                    t = new Tile(Tile.FLAGGED,xx,yy,xx*tileSize,yy*tileSize);
-                    undiscoveredTiles++;
-                    flaggedBombs++;
-                    break;
-                case 'F':
-                    t = new Tile(Tile.FLAGGED,xx,yy,xx*tileSize,yy*tileSize);
-                    t.plantBomb();
-                    undiscoveredTiles++;
-                    correctFlaggedBombs++;
-                    flaggedBombs++;
-                    totalBombs++;
-                    break;
-                case 'B':
-                    t = new Tile(Tile.BOMB,xx,yy,xx*tileSize,yy*tileSize);
-                    totalBombs++;
-                    break;
-                case 'U':
-                    t = new Tile(Tile.UNDISCOVERED,xx,yy,xx*tileSize,yy*tileSize);
-                    t.plantBomb();
-                    undiscoveredTiles++;
-                    totalBombs++;
-                    break;
-                //case 'u':
-                default:
-                    t = new Tile(Tile.UNDISCOVERED,xx,yy,xx*tileSize,yy*tileSize);
-                    undiscoveredTiles++;
-                    break;
-            }
-
-            newTiles[xx][yy] = t;
-        }
-        for (int i=0;i<w;i++){
-            for (int j=0;j<h;j++){
-                Tile nt = newTiles[i][j];
-                if (nt.hasBomb()){
-                    List<Tile> ns = getNeighbors(newTiles,new int[]{i,j});
-                    if (nt.getStatus() == Tile.FLAGGED){
-                        for (Tile ti : ns){
-                            ti.hasBombNear();
-                            ti.addFlaggedNear(+1);
-                        }
-                    } else {
-                        for (Tile ti : ns){
-                            ti.hasBombNear();
-                        }
-                    }
-
-                } else if (nt.getStatus() == Tile.FLAGGED) {
-                    List<Tile> ns = getNeighbors(newTiles,new int[]{i,j});
-                    for (Tile ti : ns){
-                        ti.addFlaggedNear(+1);
-                    }
-                }
-            }
-        }
-        return new Grid(w,h,totalBombs,flaggedBombs,correctFlaggedBombs,undiscoveredTiles,newTiles, x, y, dseconds);
-    }
-    private static int convertByteToInt(byte[] b){
-        int value= 0;
-        for(int i=0; i<b.length; i++)
-            value = (value << 8) | (b[i]&0xFF);
-        return value;
-    }
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

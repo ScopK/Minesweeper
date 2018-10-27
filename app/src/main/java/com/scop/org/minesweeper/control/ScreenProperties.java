@@ -8,7 +8,7 @@ import android.view.WindowManager;
 
 
 public class ScreenProperties {
-	public static int WIDTH, HEIGHT;
+	public static int WIDTH, HEIGHT, HEIGHT_BAR_EXCLUDED;
 	public static float DPI_W, DPI_H, DPI;
 
 	private static float fontSizeBase;
@@ -26,7 +26,7 @@ public class ScreenProperties {
 			display.getMetrics(metrics);
 
 			WIDTH = size.x;
-			HEIGHT = size.y;
+			HEIGHT = HEIGHT_BAR_EXCLUDED = size.y;
 			DPI_W = metrics.xdpi;
 			DPI_H = metrics.ydpi;
 			DPI = (DPI_W+DPI_H)/2f;
@@ -40,7 +40,7 @@ public class ScreenProperties {
 			if (resourceId > 0) {
 				statusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
 			}
-			HEIGHT -= statusBarHeight;
+			HEIGHT_BAR_EXCLUDED -= statusBarHeight;
 		}
 
 	}

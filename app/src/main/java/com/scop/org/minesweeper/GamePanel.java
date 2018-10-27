@@ -1,17 +1,42 @@
 package com.scop.org.minesweeper;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Canvas;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import com.scop.org.minesweeper.control.Settings;
+import com.scop.org.minesweeper.utils.GridUtils;
+import com.scop.org.minesweeper.control.MainLogic;
+import com.scop.org.minesweeper.control.CanvasWrapper;
+import com.scop.org.minesweeper.control.GridDrawer;
 import com.scop.org.minesweeper.elements.Grid;
-import com.scop.org.minesweeper.elements.GridControl;
-import com.scop.org.minesweeper.elements.TileStyle;
+import com.scop.org.minesweeper.elements.Tile;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class GamePanel extends View{
 
-    private GridControl gridControl;
+	private MainLogic logic = null;
+	private Hud hud;
+    private ScaleGestureDetector scaleDetector;
+    private GestureDetector gestureDetector;
+
+	private float dragXPos = 0;
+	private float dragYPos = 0;
+
+	private boolean isResizing = false;
+	private boolean isMoving = false;
 
     public GamePanel(Context context) {
         super(context);
@@ -19,50 +44,208 @@ public class GamePanel extends View{
         //make gamePanel focusable so it can handle events
         setFocusable(true);
 
-        // init grid:
-        gridControl = new GridControl(context,this);
+	    this.scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+	    this.scaleDetector.setQuickScaleEnabled(false);
+	    this.gestureDetector = new GestureDetector(context, new GestureListener());
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        gridControl.setDimensions(w, h);
-        super.onSizeChanged(w, h, oldw, oldh);
+    public void setNewGrid(Grid grid){
+	    setGrid(new MainLogic(grid), 0);
+
+	    if (Settings.getInstance().isFirstOpen()) {
+	    	Tile t = GridUtils.findSafeOpenTile(grid);
+	    	logic.reveal(t);
+	    	CanvasWrapper.focus(t);
+	    }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gridControl.onTouchEvent(event);
-        return true;//super.onTouchEvent(event);
-    }
+	public void setGrid(MainLogic logic, int seconds){
+		this.logic = logic;
+		if (hud != null) {
+			hud.stopTimer();
+		}
+		hud = new Hud(logic, this);
+		hud.setTime(seconds);
+		hud.startTimer();
+		logic.setFinishEvent(userWin -> hud.stopTimer());
+
+		CanvasWrapper.setContentDimensions(logic.getGrid().getW()*GridDrawer.getTileSize(),
+				logic.getGrid().getH()*GridDrawer.getTileSize());
+	}
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
+	    CanvasWrapper xCanvas = new CanvasWrapper(canvas);
 
-        if (canvas!=null){
-            canvas.drawColor(TileStyle.getInstance().getBackgroundColor());
-            //canvas.drawRGB(60, 60, 60);
-            gridControl.draw(canvas);
-        }
+        if (logic != null)
+            GridDrawer.draw(xCanvas, logic.getGrid());
+
+	    xCanvas.end();
+
+	    if (hud != null) {
+		    hud.draw(canvas);
+	    }
     }
 
     @Override
-    protected void onWindowVisibilityChanged(int visibility) {
-        super.onWindowVisibilityChanged(visibility);
-        gridControl.onWindowVisibilityChanged(visibility);
-    }
+	public boolean onTouchEvent(MotionEvent e) {
+		gestureDetector.onTouchEvent(e);
+		scaleDetector.onTouchEvent(e);
 
-    public void setAndStart(int w, int h, int b){
-        gridControl.end();
-        gridControl.start(new Grid(w, h, b));
-    }
+	    if (!scaleDetector.isInProgress()) {
+		    int action = e.getActionMasked();
+		    switch (action) {
+			    case MotionEvent.ACTION_DOWN:
+				    dragXPos = e.getX();
+				    dragYPos = e.getY();
+				    break;
 
-    public void saveState(){
-        gridControl.savingState();
-    }
+			    case MotionEvent.ACTION_MOVE:
+				    if (this.isResizing)
+					    return true;
 
-    public boolean loadState(){
-        boolean b = gridControl.loadingState();
-        return b;
-    }
+				    float X = e.getX();
+				    float Y = e.getY();
+
+				    int dx = Math.round(X - dragXPos);
+				    int dy = Math.round(Y - dragYPos);
+
+				    if (isMoving || Math.abs(dx)+Math.abs(dy)>35){
+					    dragXPos = X;
+					    dragYPos = Y;
+
+					    CanvasWrapper.translate(dx, dy);
+
+					    this.isMoving = true;
+					    postInvalidate();
+				    }
+				    break;
+
+			    case MotionEvent.ACTION_OUTSIDE:
+			    case MotionEvent.ACTION_UP:
+				    this.isMoving = false;
+				    this.isResizing = false;
+				    break;
+			    case MotionEvent.ACTION_CANCEL:
+				    break;
+		    }
+	    }
+		return true;
+	}
+
+	@Override
+	public void onWindowVisibilityChanged(int visibility) {
+		switch (visibility){
+			case View.VISIBLE:
+				if (hud!=null) hud.resumeTimer();
+				break;
+			case View.GONE:
+			case View.INVISIBLE:
+				if (hud!=null) hud.pauseTimer();
+				break;
+		}
+	}
+
+	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+		@Override
+		public boolean onScale(ScaleGestureDetector detector) {
+			isResizing = true;
+
+			float ratio = detector.getScaleFactor();
+			CanvasWrapper.zoom(ratio);
+
+			postInvalidate();
+			return true;
+		}
+	}
+	private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+    	private Tile lastTileSingleClicked = null;
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			if (logic.isGameOver()){
+				// restart:
+				setNewGrid(logic.getGrid().startNewGame());
+				postInvalidate();
+				return true;
+			}
+
+			Tile t = GridUtils.getTileByScreenCoords(logic.getGrid(), e.getX(), e.getY());
+			if (t != null){
+				lastTileSingleClicked = t;
+				logic.mainAction(t);
+			}
+			postInvalidate();
+			return true;
+		}
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e){
+			return true;
+		}
+		@Override
+		public boolean onDoubleTapEvent(MotionEvent e) {
+			if (e.getAction()!=MotionEvent.ACTION_UP) return false;
+			if (isMoving) return false;
+
+			Tile t = GridUtils.getTileByScreenCoords(logic.getGrid(), e.getX(), e.getY());
+			if (t != null){
+				if (lastTileSingleClicked == t) {
+					logic.alternativeAction(t);
+				} else {
+					logic.mainAction(t);
+				}
+			}
+			postInvalidate();
+			return true;
+		}
+	}
+
+
+
+
+	public void saveState(){
+    	String saveStatePath = new ContextWrapper(getContext()).getFilesDir().getPath()+"/"+Settings.FILENAME;
+
+		if (logic == null || logic.isGameOver()){
+			new File(saveStatePath).delete();
+			return;
+		}
+		try {
+			JSONObject obj = GridUtils.getJsonStatus(logic.getGrid(), hud.getTime());
+
+			PrintWriter out = new PrintWriter(saveStatePath);
+			out.print(obj.toString());
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean loadState(){
+		String saveStatePath = new ContextWrapper(getContext()).getFilesDir().getPath()+"/"+Settings.FILENAME;
+
+		if (new File(saveStatePath).exists()) {
+
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(saveStatePath));
+				String line = br.readLine();
+				br.close();
+
+				JSONObject obj = new JSONObject(line);
+
+				Grid bareGrid = Grid.jsonGrid(obj);
+				MainLogic logic = GridUtils.calculateLogicFromBareGrid(bareGrid);
+
+				setGrid(logic, obj.getInt("t"));
+				CanvasWrapper.set((float)obj.getDouble("x"), (float)obj.getDouble("y"), (float)obj.getDouble("s"));
+
+				return true;
+
+			} catch (JSONException | IOException e){
+				System.err.println("Couldn't load \""+saveStatePath+"\"");
+			}
+		}
+		return false;
+	}
 }
