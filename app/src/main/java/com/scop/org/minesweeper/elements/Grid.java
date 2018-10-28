@@ -24,12 +24,13 @@ public class Grid implements Serializable {
 		this.w = w;
 		this.bombs = bombs;
 		this.generatorClass = generatorClass;
+	}
 
+	public void generate(GridGenerator.FinishCallback callback){
 		grid = new ArrayList<>();
-
 		try {
 			GridGenerator gen = generatorClass.newInstance();
-			gen.generateNewGrid(this, bombs);
+			gen.generateNewGrid(this, bombs, callback);
 
 		} catch (IllegalAccessException | InstantiationException e) {
 			e.printStackTrace();
@@ -58,8 +59,10 @@ public class Grid implements Serializable {
 		return generatorClass.getName();
 	}
 
-	public Grid startNewGame(){
-		return new Grid(w, h, bombs, generatorClass);
+	public Grid startNewGame(GridGenerator.FinishCallback callback){
+		Grid g = new Grid(w, h, bombs, generatorClass);
+		g.generate(callback);
+		return g;
 	}
 
 
@@ -112,5 +115,19 @@ public class Grid implements Serializable {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public Grid clone(){
+		Grid grid = new Grid();
+
+		grid.w = w;
+		grid.h = h;
+		grid.bombs = bombs;
+		grid.generatorClass = generatorClass;
+		grid.grid = new ArrayList<>();
+
+		this.grid.forEach(t-> grid.grid.add(t.clone()));
+
+		return grid;
 	}
 }

@@ -2,11 +2,13 @@ package com.scop.org.minesweeper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.scop.org.minesweeper.control.ScreenProperties;
 import com.scop.org.minesweeper.elements.Grid;
 
 

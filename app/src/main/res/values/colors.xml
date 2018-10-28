@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="black_overlay">#66000000</color>
+    <color name="white_splash">#DDFFFFFF</color>
 
     <color name="colorBgIcon">#242433</color>
 </resources>

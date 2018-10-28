@@ -10,8 +10,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GridUtils {
@@ -20,14 +22,20 @@ public class GridUtils {
 
 	public static List<Tile> getNeighbors(Grid grid, Tile tile){
 		List<Tile> tiles = grid.getGrid();
-		List<Tile> neighbors = new ArrayList<>();
+		return getNeighborsIdx(grid, tile).stream()
+				.map(tiles::get)
+				.collect(Collectors.toList());
+	}
+
+	public static List<Integer> getNeighborsIdx(Grid grid, Tile tile){
+		List<Integer> neighbors = new ArrayList<>();
 		int w = grid.getW(),
 			h = grid.getH(),
 			idx = tile.getY()*w + tile.getX();
 
 		// Test (w=7, h=3):
 		// 0  1  2  3  4  5  6
-        // 7  8  9 10 11 12 13
+		// 7  8  9 10 11 12 13
 		//14 15 16 17 18 19 20
 
 		boolean checkLeft = idx%w != 0;
@@ -36,32 +44,32 @@ public class GridUtils {
 		boolean checkBottom = idx < w*(h-1);
 
 		if (checkLeft) {
-			neighbors.add(tiles.get(idx-1)); // L
+			neighbors.add(idx-1); // L
 
 			if (checkTop) {
-				neighbors.add(tiles.get(idx-w)); // T
-				neighbors.add(tiles.get(idx-w-1)); // TL
+				neighbors.add(idx-w); // T
+				neighbors.add(idx-w-1); // TL
 			}
 			if (checkBottom) {
-				neighbors.add(tiles.get(idx+w)); // B
-				neighbors.add(tiles.get(idx+w-1)); // BL
+				neighbors.add(idx+w); // B
+				neighbors.add(idx+w-1); // BL
 			}
 		}
 		if (checkRight) {
-			neighbors.add(tiles.get(idx+1)); // R
+			neighbors.add(idx+1); // R
 
 			if (checkTop) {
-				if (!checkLeft) neighbors.add(tiles.get(idx-w)); // T
-				neighbors.add(tiles.get(idx-w+1)); // TR
+				if (!checkLeft) neighbors.add(idx-w); // T
+				neighbors.add(idx-w+1); // TR
 			}
 			if (checkBottom) {
-				if (!checkLeft) neighbors.add(tiles.get(idx+w)); // B
-				neighbors.add(tiles.get(idx+w+1)); // BR
+				if (!checkLeft) neighbors.add(idx+w); // B
+				neighbors.add(idx+w+1); // BR
 			}
 		}
 		else if (!checkLeft) {
-			if (checkTop)    neighbors.add(tiles.get(idx-w)); // T
-			if (checkBottom) neighbors.add(tiles.get(idx+w)); // B
+			if (checkTop)    neighbors.add(idx-w); // T
+			if (checkBottom) neighbors.add(idx+w); // B
 		}
 		return neighbors;
 	}
@@ -97,6 +105,20 @@ public class GridUtils {
 		} while (t.hasBomb() || t.getBombsNear() > 0 || t.getStatus() != Tile.Status.COVERED);
 
 		return t;
+	}
+
+	public static int findSafeOpenTileIdx(Grid grid) {
+		Random rnd = new Random();
+		List<Tile> tiles = grid.getGrid();
+		Tile t;
+		int idx;
+		do {
+			idx = rnd.nextInt(tiles.size());
+			t = tiles.get(idx);
+
+		} while (t.hasBomb() || t.getBombsNear() > 0 || t.getStatus() != Tile.Status.COVERED);
+
+		return idx;
 	}
 
 	public static int getTileNumber(Tile tile){
@@ -174,7 +196,7 @@ public class GridUtils {
 				GridUtils.getNeighbors(grid, t).forEach(Tile::hasBombNear);
 			}
 
-			if (t.getStatus() != Tile.Status.COVERED) {
+			if (!t.isCovered()) {
 				logic.addRevealedTiles();
 			}
 			if (t.getStatus() == Tile.Status.FLAG){

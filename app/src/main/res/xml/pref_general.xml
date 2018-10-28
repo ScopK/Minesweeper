@@ -1,7 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:key="option_time"
         android:summary=""
         android:title="@string/pref_showtime" />
@@ -13,6 +13,7 @@
         android:key="option_reveal"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
+        android:summary="@string/pref_discoverymode_desc"
         android:title="@string/pref_discoverymode" />
 
     <SwitchPreference

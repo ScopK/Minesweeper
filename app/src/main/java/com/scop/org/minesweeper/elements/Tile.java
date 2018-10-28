@@ -1,6 +1,8 @@
 package com.scop.org.minesweeper.elements;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Tile implements Serializable {
@@ -13,6 +15,9 @@ public class Tile implements Serializable {
 	private boolean hasBomb = false;
 	private int flaggedNear = 0;
 	private int bombsNear = 0;
+	private List<Character> customFlag = null;
+
+	private Tile(){}
 
 	public Tile(int x, int y, Status status){
 		this.x = x;
@@ -25,7 +30,14 @@ public class Tile implements Serializable {
 	}
 
 	public void plantBomb(){
-		hasBomb = true;
+		plantBomb(true);
+	}
+	public void plantBomb(boolean value){
+		hasBomb = value;
+	}
+
+	public void defuseBomb(){
+		hasBomb = false;
 	}
 
 	public void addFlaggedNear(){
@@ -56,6 +68,10 @@ public class Tile implements Serializable {
 		bombsNear++;
 	}
 
+	public void doesntHaveBombNear() {
+		bombsNear--;
+	}
+
 	public int getBombsNear() {
 		return bombsNear;
 	}
@@ -66,6 +82,24 @@ public class Tile implements Serializable {
 
 	public int getY() {
 		return y;
+	}
+
+	public boolean hasCustomFlag(char customFlag) {
+		if (this.customFlag == null)
+			return false;
+		return this.customFlag.contains(customFlag);
+	}
+
+	public void removeCustomFlag(char customFlag) {
+		if (this.customFlag != null) {
+			this.customFlag.remove((Character)customFlag);
+		}
+	}
+
+	public void setCustomFlag(char customFlag) {
+		if (this.customFlag == null)
+			this.customFlag = new ArrayList<>();
+		this.customFlag.add(customFlag);
 	}
 
 	@Override
@@ -93,5 +127,31 @@ public class Tile implements Serializable {
 	@Override
 	public int hashCode() {
 		return Objects.hash(x, y, hasBomb, bombsNear, super.hashCode());
+	}
+
+	public Tile clone(){
+		Tile tile = new Tile();
+
+		tile.x = x;
+		tile.y = y;
+		tile.status = status;
+		tile.hasBomb = hasBomb;
+		tile.flaggedNear = flaggedNear;
+		tile.bombsNear = bombsNear;
+		tile.customFlag = customFlag;
+
+		return tile;
+	}
+
+	public boolean isCovered(){
+		return status == Status.COVERED || status == Status.FLAG;
+	}
+
+	public boolean isUncovered(){
+		return !isCovered();
+	}
+
+	public boolean isNumberVisible(){
+		return !isCovered() && status != Status.A0;
 	}
 }

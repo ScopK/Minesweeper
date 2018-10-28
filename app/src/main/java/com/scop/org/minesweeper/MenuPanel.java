@@ -1,5 +1,6 @@
 package com.scop.org.minesweeper;
 
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.view.MotionEvent;
@@ -7,7 +8,10 @@ import android.view.View;
 
 
 import com.scop.org.minesweeper.control.ScreenProperties;
+import com.scop.org.minesweeper.elements.Grid;
 import com.scop.org.minesweeper.elements.MenuOption;
+import com.scop.org.minesweeper.generators.RandomCheckedGenerator;
+import com.scop.org.minesweeper.generators.RandomGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,6 +171,9 @@ public class MenuPanel extends View {
 
 		options.add(new MenuOption(activity.getString(R.string.menu_settings), activity::openSettings,
 				counter++, 0xff828282,0xff949494));
+
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_6)+" AI",()-> activity.startGrid(50, 50, 603, RandomCheckedGenerator.class),
+				counter++,0xff579f41,0xff61a94b));
 
 	}
 }

@@ -42,7 +42,6 @@ public class ScreenProperties {
 			}
 			HEIGHT_BAR_EXCLUDED -= statusBarHeight;
 		}
-
 	}
 
 	public static float dpiValue(float v){

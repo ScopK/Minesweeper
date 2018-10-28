@@ -3,6 +3,7 @@
     package="com.scop.org.minesweeper">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -11,10 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".LoadingActivity"
+            android:label="@string/loading_splash_text"
+            android:theme="@style/FullscreenTheme"></activity>
+        <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -22,9 +28,9 @@
             android:name=".GameActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme"></activity>
-        <activity android:name=".MenuActivity"></activity>
-        <activity android:name=".SettingsActivity" ></activity>
+            android:theme="@style/FullscreenTheme" />
+        <activity android:name=".MenuActivity" />
+        <activity android:name=".SettingsActivity" />
     </application>
 
 </manifest>

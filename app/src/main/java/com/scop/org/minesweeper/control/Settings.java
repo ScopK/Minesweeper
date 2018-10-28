@@ -8,6 +8,7 @@ public class Settings {
     public static final int EASY=0;
     public static final int NORMAL=1;
     public static final int HARD=2;
+    public static final int AUTOMATIC=4;
     public static final String FILENAME="state.save";
 
     private boolean showTime, firstOpen;

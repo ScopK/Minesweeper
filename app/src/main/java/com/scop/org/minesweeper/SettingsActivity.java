@@ -3,12 +3,14 @@ package com.scop.org.minesweeper;
 
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 
 
+import com.scop.org.minesweeper.control.ScreenProperties;
 import com.scop.org.minesweeper.control.Settings;
 import com.scop.org.minesweeper.control.GridDrawer;
 import com.scop.org.minesweeper.skins.DefaultDotSkin;
@@ -91,5 +93,4 @@ public class SettingsActivity extends PreferenceActivity {
             });
         }
     }
-
 }

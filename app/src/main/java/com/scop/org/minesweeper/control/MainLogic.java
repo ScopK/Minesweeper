@@ -4,6 +4,8 @@ import com.scop.org.minesweeper.utils.GridUtils;
 import com.scop.org.minesweeper.elements.Grid;
 import com.scop.org.minesweeper.elements.Tile;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.scop.org.minesweeper.elements.Tile.Status.*;
@@ -38,6 +40,11 @@ public class MainLogic {
 				if (tile.hasBomb()){
 					correctFlaggedBombs++;
 				}
+				if (Settings.getInstance().isDiscoveryMode(Settings.AUTOMATIC)){
+					GridUtils.getNeighbors(grid, tile).stream()
+							.filter(t -> t.isNumberVisible() && t.getFlaggedNear() == t.getBombsNear())
+							.forEach(this::fastReveal);
+				}
 				checkWin();
 				break;
 			case FLAG:
@@ -48,6 +55,11 @@ public class MainLogic {
 				flaggedBombs--;
 				if (tile.hasBomb()){
 					correctFlaggedBombs--;
+				}
+				if (Settings.getInstance().isDiscoveryMode(Settings.AUTOMATIC)){
+					GridUtils.getNeighbors(grid, tile).stream()
+							.filter(t -> t.isNumberVisible() && t.getFlaggedNear() == t.getBombsNear())
+							.forEach(this::fastReveal);
 				}
 				checkWin();
 				break;
@@ -68,7 +80,7 @@ public class MainLogic {
 					case Settings.HARD:
 						executeMassReveal = true;
 						break;
-					case Settings.DISABLED:
+					default:
 						break;
 				}
 				if (executeMassReveal) {
@@ -78,11 +90,10 @@ public class MainLogic {
 				}
 				break;
 		}
-
 	}
 
-	public void alternativeAction(Tile tile){
-		if (isGameOver()) return;
+	public boolean alternativeAction(Tile tile){
+		if (isGameOver()) return false;
 
 		switch (tile.getStatus()){
 			case FLAG:
@@ -92,12 +103,14 @@ public class MainLogic {
 				if (tile.hasBomb()){
 					correctFlaggedBombs--;
 				}
-				checkWin();
 
 			case COVERED:
-				reveal(tile);
-				break;
+				if (Settings.getInstance().isDiscoveryMode(Settings.AUTOMATIC)) fastReveal(tile);
+				else                                                            reveal(tile);
+				checkWin();
+				return true;
 		}
+		return false;
 	}
 
 	public void reveal(Tile tile){
@@ -120,7 +133,32 @@ public class MainLogic {
 					break;
 			}
 		}
+	}
 
+	public void fastReveal(Tile tile){
+		revealedTiles++;
+		if (tile.hasBomb()){
+			tile.setStatus(BOMB_FINAL);
+			gameOver();
+		} else {
+			boolean massReveal = true;
+			switch (tile.getBombsNear()) {
+				case 0:
+					tile.setStatus(A0);
+					break;
+				default:
+					tile.setStatus(
+							GridUtils.getTileStatus(tile.getBombsNear())
+					);
+					massReveal = tile.getBombsNear() == tile.getFlaggedNear();
+					break;
+			}
+			if (massReveal) {
+				GridUtils.getNeighbors(grid, tile).stream()
+						.filter(t-> t.getStatus() == COVERED)
+						.forEach(this::fastReveal);
+			}
+		}
 	}
 
 	public void checkWin(){
@@ -189,5 +227,13 @@ public class MainLogic {
 
 	public void addCorrectFlaggedBombs(){
 		correctFlaggedBombs++;
+	}
+
+	public boolean isAllCovered(){
+		Optional<Tile> tileNotCovered = grid.getGrid()
+				.parallelStream()
+				.filter(t -> t.getStatus() != Tile.Status.COVERED)
+				.findAny();
+		return !tileNotCovered.isPresent();
 	}
 }

@@ -1,14 +1,18 @@
 package com.scop.org.minesweeper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Canvas;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.scop.org.minesweeper.control.Settings;
+import com.scop.org.minesweeper.utils.ActivityController;
 import com.scop.org.minesweeper.utils.GridUtils;
 import com.scop.org.minesweeper.control.MainLogic;
 import com.scop.org.minesweeper.control.CanvasWrapper;
@@ -24,13 +28,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 public class GamePanel extends View{
 
 	private MainLogic logic = null;
 	private Hud hud;
-    private ScaleGestureDetector scaleDetector;
-    private GestureDetector gestureDetector;
+	private ScaleGestureDetector scaleDetector;
+	private GestureDetector gestureDetector;
+	private Vibrator vibrator;
 
 	private float dragXPos = 0;
 	private float dragYPos = 0;
@@ -38,26 +44,33 @@ public class GamePanel extends View{
 	private boolean isResizing = false;
 	private boolean isMoving = false;
 
-    public GamePanel(Context context) {
-        super(context);
+	public GamePanel(Context context) {
+		super(context);
 
-        //make gamePanel focusable so it can handle events
-        setFocusable(true);
+		//make gamePanel focusable so it can handle events
+		setFocusable(true);
 
-	    this.scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-	    this.scaleDetector.setQuickScaleEnabled(false);
-	    this.gestureDetector = new GestureDetector(context, new GestureListener());
-    }
+		this.vibrator = (Vibrator) GamePanel.this.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+		this.scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+		this.scaleDetector.setQuickScaleEnabled(false);
+		this.gestureDetector = new GestureDetector(context, new GestureListener());
+		this.gestureDetector.setIsLongpressEnabled(true);
+	}
 
-    public void setNewGrid(Grid grid){
-	    setGrid(new MainLogic(grid), 0);
+	public void setNewGrid(Grid grid){
+		setGrid(new MainLogic(grid), 0);
 
-	    if (Settings.getInstance().isFirstOpen()) {
-	    	Tile t = GridUtils.findSafeOpenTile(grid);
-	    	logic.reveal(t);
-	    	CanvasWrapper.focus(t);
-	    }
-    }
+		if (Settings.getInstance().isFirstOpen() && logic.isAllCovered()) {
+			Tile t = GridUtils.findSafeOpenTile(grid);
+			logic.reveal(t);
+			CanvasWrapper.focus(t);
+		} else {
+			Optional<Tile> t = grid.getGrid().stream().filter(ti->ti.getStatus() == Tile.Status.A0).findFirst();
+			if (t.isPresent()) {
+				CanvasWrapper.focus(t.get());
+			}
+		}
+	}
 
 	public void setGrid(MainLogic logic, int seconds){
 		this.logic = logic;
@@ -73,64 +86,64 @@ public class GamePanel extends View{
 				logic.getGrid().getH()*GridDrawer.getTileSize());
 	}
 
-    @Override
-    public void draw(Canvas canvas) {
-        super.draw(canvas);
-	    CanvasWrapper xCanvas = new CanvasWrapper(canvas);
+	@Override
+	public void draw(Canvas canvas) {
+		super.draw(canvas);
+		CanvasWrapper xCanvas = new CanvasWrapper(canvas);
 
-        if (logic != null)
-            GridDrawer.draw(xCanvas, logic.getGrid());
+		if (logic != null)
+			GridDrawer.draw(xCanvas, logic.getGrid());
 
-	    xCanvas.end();
+		xCanvas.end();
 
-	    if (hud != null) {
-		    hud.draw(canvas);
-	    }
-    }
+		if (hud != null) {
+			hud.draw(canvas);
+		}
+	}
 
-    @Override
+	@Override
 	public boolean onTouchEvent(MotionEvent e) {
 		gestureDetector.onTouchEvent(e);
 		scaleDetector.onTouchEvent(e);
 
-	    if (!scaleDetector.isInProgress()) {
-		    int action = e.getActionMasked();
-		    switch (action) {
-			    case MotionEvent.ACTION_DOWN:
-				    dragXPos = e.getX();
-				    dragYPos = e.getY();
-				    break;
+		if (!scaleDetector.isInProgress()) {
+			int action = e.getActionMasked();
+			switch (action) {
+				case MotionEvent.ACTION_DOWN:
+					dragXPos = e.getX();
+					dragYPos = e.getY();
+					break;
 
-			    case MotionEvent.ACTION_MOVE:
-				    if (this.isResizing)
-					    return true;
+				case MotionEvent.ACTION_MOVE:
+					if (this.isResizing)
+						return true;
 
-				    float X = e.getX();
-				    float Y = e.getY();
+					float X = e.getX();
+					float Y = e.getY();
 
-				    int dx = Math.round(X - dragXPos);
-				    int dy = Math.round(Y - dragYPos);
+					int dx = Math.round(X - dragXPos);
+					int dy = Math.round(Y - dragYPos);
 
-				    if (isMoving || Math.abs(dx)+Math.abs(dy)>35){
-					    dragXPos = X;
-					    dragYPos = Y;
+					if (isMoving || Math.abs(dx)+Math.abs(dy)>35){
+						dragXPos = X;
+						dragYPos = Y;
 
-					    CanvasWrapper.translate(dx, dy);
+						CanvasWrapper.translate(dx, dy);
 
-					    this.isMoving = true;
-					    postInvalidate();
-				    }
-				    break;
+						this.isMoving = true;
+						postInvalidate();
+					}
+					break;
 
-			    case MotionEvent.ACTION_OUTSIDE:
-			    case MotionEvent.ACTION_UP:
-				    this.isMoving = false;
-				    this.isResizing = false;
-				    break;
-			    case MotionEvent.ACTION_CANCEL:
-				    break;
-		    }
-	    }
+				case MotionEvent.ACTION_OUTSIDE:
+				case MotionEvent.ACTION_UP:
+					this.isMoving = false;
+					this.isResizing = false;
+					break;
+				case MotionEvent.ACTION_CANCEL:
+					break;
+			}
+		}
 		return true;
 	}
 
@@ -160,52 +173,50 @@ public class GamePanel extends View{
 		}
 	}
 	private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-    	private Tile lastTileSingleClicked = null;
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			if (isMoving) return;
+
+			Tile t = GridUtils.getTileByScreenCoords(logic.getGrid(), e.getX(), e.getY());
+			if (t != null){
+				boolean succeeded = logic.alternativeAction(t);
+
+				if (succeeded) {
+					vibrator.vibrate(VibrationEffect.createOneShot(1, 1));//VibrationEffect.DEFAULT_AMPLITUDE));
+				}
+			}
+			postInvalidate();
+		}
 
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
-			if (logic.isGameOver()){
+			if (logic.isGameOver()) {
 				// restart:
-				setNewGrid(logic.getGrid().startNewGame());
+				ActivityController.loadGrid(logic.getGrid(), (Activity) getContext());
 				postInvalidate();
 				return true;
 			}
 
 			Tile t = GridUtils.getTileByScreenCoords(logic.getGrid(), e.getX(), e.getY());
-			if (t != null){
-				lastTileSingleClicked = t;
+			if (t != null) {
 				logic.mainAction(t);
 			}
 			postInvalidate();
 			return true;
 		}
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e){
-			return true;
-		}
+
 		@Override
 		public boolean onDoubleTapEvent(MotionEvent e) {
 			if (e.getAction()!=MotionEvent.ACTION_UP) return false;
 			if (isMoving) return false;
-
-			Tile t = GridUtils.getTileByScreenCoords(logic.getGrid(), e.getX(), e.getY());
-			if (t != null){
-				if (lastTileSingleClicked == t) {
-					logic.alternativeAction(t);
-				} else {
-					logic.mainAction(t);
-				}
-			}
-			postInvalidate();
-			return true;
+			return this.onSingleTapUp(e);
 		}
 	}
 
 
-
-
 	public void saveState(){
-    	String saveStatePath = new ContextWrapper(getContext()).getFilesDir().getPath()+"/"+Settings.FILENAME;
+		String saveStatePath = new ContextWrapper(getContext()).getFilesDir().getPath()+"/"+Settings.FILENAME;
 
 		if (logic == null || logic.isGameOver()){
 			new File(saveStatePath).delete();
