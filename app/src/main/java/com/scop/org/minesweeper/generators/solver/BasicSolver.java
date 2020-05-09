@@ -49,6 +49,7 @@ public class BasicSolver extends Solver {
 			}
 		}
 
+
 		return changesMade;
 	}
 }

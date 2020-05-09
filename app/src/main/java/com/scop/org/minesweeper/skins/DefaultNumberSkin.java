@@ -25,7 +25,7 @@ public class DefaultNumberSkin extends MainSkin {
 			numbers.put(i+"_"+i,getBitmap(context, "tile_skin_def_"+i+"_"+i));
 		}
 
-		tileSize = symbols[0].getHeight();
+		tileSize = symbols[0].getHeight()-1;
 
 		Bitmap mainCover = getBitmap(context, R.drawable.tiles_def);
 		int coverH = mainCover.getHeight();

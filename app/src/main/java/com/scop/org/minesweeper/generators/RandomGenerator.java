@@ -10,7 +10,7 @@ import java.util.Random;
 public class RandomGenerator implements GridGenerator {
 
 	@Override
-	public void generateNewGrid(Grid grid, int bombs, FinishCallback cb) {
+	public void generateNewGrid(final Grid grid, int bombs, FinishCallback cb) {
 		new Thread(){
 			@Override
 			public void run(){

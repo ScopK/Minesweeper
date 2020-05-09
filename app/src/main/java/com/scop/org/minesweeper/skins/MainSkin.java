@@ -13,7 +13,7 @@ public abstract class MainSkin {
 	protected boolean helpEnabled = false;
 	protected Bitmap[] symbols = new Bitmap[4];
 	protected HashMap<String,Bitmap> numbers = new HashMap<>();
-	protected int tileSize = 128;
+	protected int tileSize = 128-1;
 	protected Paint defaultPaint = new Paint();
 	protected int alternative;
 

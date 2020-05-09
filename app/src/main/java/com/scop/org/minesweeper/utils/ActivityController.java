@@ -10,7 +10,7 @@ import com.scop.org.minesweeper.elements.Grid;
 public class ActivityController {
 
 	public static void loadGrid(Grid grid, Activity activity) {
-		boolean showLoading = grid.getGeneratorClass().contains("RandomCheckedGenerator");
+		boolean showLoading = grid.getGeneratorClass().contains("CheckedGenerator");
 
 		if (showLoading) {
 			grid.generate(()->{

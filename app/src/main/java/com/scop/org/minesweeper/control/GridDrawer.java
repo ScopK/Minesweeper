@@ -88,7 +88,9 @@ public class GridDrawer {
 
 	public static void draw(CanvasWrapper canvasW, Grid g) {
 		canvasW.getCanvas().drawColor(skin.getBgColor());
-		g.getGrid().forEach(t->draw(canvasW,t));
+		for (Tile t : g.getGrid()) {
+			draw(canvasW, t);
+		}
 	}
 
 	public static int getTileSize(){

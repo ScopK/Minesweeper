@@ -4,6 +4,7 @@ import com.scop.org.minesweeper.control.MainLogic;
 import com.scop.org.minesweeper.control.Settings;
 import com.scop.org.minesweeper.elements.Grid;
 import com.scop.org.minesweeper.elements.Tile;
+import com.scop.org.minesweeper.generators.solver.AdvancedSolver;
 import com.scop.org.minesweeper.generators.solver.BasicSolver;
 import com.scop.org.minesweeper.generators.solver.DeepSolver;
 import com.scop.org.minesweeper.generators.solver.PossibleSolver;
@@ -17,11 +18,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RandomCheckedGenerator extends RandomGenerator {
-	private int selectedSafeTile;
-
+	protected int selectedSafeTile;
+	protected Sketch sketch;
 
 	@Override
-	public void generateNewGrid(Grid grid, int bombs, FinishCallback cb) {
+	public void generateNewGrid(final Grid grid, int bombs, FinishCallback cb) {
 		new Thread(){
 			@Override
 			public void run(){
@@ -87,7 +88,7 @@ public class RandomCheckedGenerator extends RandomGenerator {
 		Tile t = grid.getGrid().get(selectedSafeTile);
 		ml.reveal(t);
 
-		Sketch sketch = new Sketch(grid);
+		sketch = new Sketch(grid);
 
 		Solver.setSolver(ml,sketch);
 
@@ -95,10 +96,12 @@ public class RandomCheckedGenerator extends RandomGenerator {
 		solvers.add(new BasicSolver());
 		solvers.add(new PossibleSolver());
 		solvers.add(new DeepSolver());
+		solvers.add(new AdvancedSolver());
 
 		while(
 			solvers.stream().anyMatch(Solver::analyze)
 		);
+
 		return Solver.getLeftBombs();
 	}
 }

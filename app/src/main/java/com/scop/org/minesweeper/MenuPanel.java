@@ -11,6 +11,7 @@ import com.scop.org.minesweeper.control.ScreenProperties;
 import com.scop.org.minesweeper.elements.Grid;
 import com.scop.org.minesweeper.elements.MenuOption;
 import com.scop.org.minesweeper.generators.RandomCheckedGenerator;
+import com.scop.org.minesweeper.generators.RandomCheckedTestGenerator;
 import com.scop.org.minesweeper.generators.RandomGenerator;
 
 import java.util.ArrayList;
@@ -163,8 +164,8 @@ public class MenuPanel extends View {
 		options.add(new MenuOption(activity.getString(R.string.menu_game_name_5),()-> activity.startGrid(25, 25, 100),
 				counter++,0xff41769f,0xff4a7fa8));
 
-		options.add(new MenuOption(activity.getString(R.string.menu_game_name_6),()-> activity.startGrid(50, 50, 503),
-				counter++,0xff41769f,0xff4a7fa8));
+		options.add(new MenuOption(activity.getString(R.string.menu_game_name_6),()-> activity.startGrid(50, 50, 603, RandomCheckedGenerator.class),
+				counter++,0xff579f41,0xff61a94b));
 
 		options.add(new MenuOption(activity.getString(R.string.menu_game_name_7),()-> activity.startGrid(6, 20, 40),
 				counter++,0xff41769f,0xff4a7fa8));
@@ -172,7 +173,7 @@ public class MenuPanel extends View {
 		options.add(new MenuOption(activity.getString(R.string.menu_settings), activity::openSettings,
 				counter++, 0xff828282,0xff949494));
 
-		options.add(new MenuOption(activity.getString(R.string.menu_game_name_6)+" AI",()-> activity.startGrid(50, 50, 603, RandomCheckedGenerator.class),
+		options.add(new MenuOption("TEST",()-> activity.startGrid(50, 50, 603, RandomCheckedTestGenerator.class),
 				counter++,0xff579f41,0xff61a94b));
 
 	}

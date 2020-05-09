@@ -25,7 +25,7 @@ public class NostalgiaSkin extends MainSkin {
 			numbers.put(i+"_"+i,getBitmap(context, "tile_skin_win_"+i+"_"+i));
 		}
 
-		tileSize = symbols[0].getHeight();
+		tileSize = symbols[0].getHeight()-1;
 
 		Bitmap mainCover = getBitmap(context, R.drawable.tiles_win);
 		int coverH = mainCover.getHeight();

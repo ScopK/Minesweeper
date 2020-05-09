@@ -77,6 +77,7 @@ public class DeepSolver extends Solver {
 				}
 			}
 		}
+
 		return changesMade;
 	}
 

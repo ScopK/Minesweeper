@@ -27,7 +27,7 @@ public class DotHelpSkin extends MainSkin {
 			}
 		}
 
-		tileSize = symbols[0].getHeight();
+		tileSize = symbols[0].getHeight()-1;
 		helpEnabled = true;
 
 		Bitmap mainCover = getBitmap(context, R.drawable.tiles_def);
