@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=yes"/>
+	<meta charset="utf-8"/>
+	<title>Minesweeper itfeeds</title>
+</head>
+<body>
+	<div id="gameover" class="db" style="display:none">
+		<div>Gameover. Press <i>R</i> to restart</div>
+		<button class="btn-closedialogs" style="margin-top:10px">Close</button>
+	</div>
+
+
+	<div id='main-container'>
+	</div>
+
+<script type="text/javascript">
+	(function(){
+		let script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = 'ms.min.js';
+		script.onload = ev => {
+			loadMS(30, 16, 99);
+		}
+
+		document.body.appendChild(script);
+	})();
+</script>
+</body>
+</html>
