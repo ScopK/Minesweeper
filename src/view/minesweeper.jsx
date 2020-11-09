@@ -7,7 +7,7 @@ import Grid from './Grid.jsx';
 window.loadMS = (w,h,b) => {
 
 	ReactDOM.render(
-		<Grid w={w} h={h} bombs={b} firstReveal={true} auto={true} />,
+		<Grid w={w} h={h} bombs={b} firstReveal={true} auto={false} />,
 		document.getElementById('main-container')
 	);
 

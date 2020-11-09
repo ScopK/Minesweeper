@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	entry: [
-		'./src/minesweeper.jsx',
+		'./src/view/minesweeper.jsx',
 		'./style/minesweeper.less'
 	],
 	output: {
