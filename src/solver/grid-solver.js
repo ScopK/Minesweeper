@@ -1,3 +1,5 @@
+import { STATUS_DEFAULT } from '../status';
+
 import basicSolver from './algorithms/BasicSolver';
 import possibleSolver from './algorithms/PossibleSolver';
 import deepSolver from './algorithms/DeepSolver';
@@ -5,10 +7,8 @@ import advancedSolver from './algorithms/AdvancedSolver';
 
 import Sketch from './Sketch';
 
-export default function solve(tiles, wh) {
-	wh = {h:wh.h, w:wh.w};
-
-	let sketch = new Sketch(tiles, wh);
+export default function solve(tiles, w, h) {
+	let sketch = new Sketch(tiles, {h:h, w:w});
 
 	let solvers = [
 		basicSolver,
@@ -21,7 +21,11 @@ export default function solve(tiles, wh) {
 
 	//copyObject(scheme.tiles, scheme.originalTiles);
 
-	return true;
+	let solved = sketch.tiles.filter(t => t.status == STATUS_DEFAULT).length == 0;
+
+	if (solved) tiles.forEach(tile => tile.status = STATUS_DEFAULT);
+
+	return solved;
 }
 
 

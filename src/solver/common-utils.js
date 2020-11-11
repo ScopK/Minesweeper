@@ -4,7 +4,7 @@ import { STATUS_DEFAULT, STATUS_NEAR, STATUS_FLAGGED, statusRevealed } from '../
 
 // SUPPORT FUNCTIONS
 export function getNeighbors(sketch, tile, filter = false) {
-	let neighbors = controlGetNeighbors(tile.p, sketch.wh)
+	let neighbors = controlGetNeighbors(tile.p, sketch.wh.w, sketch.wh.h)
 			.map(n => sketch.tiles[n]);
 	return filter? neighbors.filter(t => filter(t)) : neighbors;
 }
@@ -43,7 +43,7 @@ export function markBomb(sketch, tile){
 
 
 export function reveal(sketch, tile){
-	revealMass(sketch.originalTiles, tile.p, sketch.wh);
+	revealMass(sketch.originalTiles, tile.p, sketch.wh.w, sketch.wh.h);
 	tileUpdate(sketch, tile);
 }
 

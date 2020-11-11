@@ -3,8 +3,9 @@ import React from 'react';
 import solve from '../solver/grid-solver';
 
 import Tile from './Tile.jsx';
-import { fillNear, getNeighbors, revealMass } from '../control';
+import { getNeighbors, revealMass } from '../control';
 import { STATUS_DEFAULT, STATUS_BOMB, STATUS_BOMB_END, STATUS_FLAGGED, STATUS_FLAGGED_FAILED, statusRevealed } from '../status';
+import { generateGrid } from '../grid-generator';
 
 const EVENT_END_GAME = 0;
 const EVENT_REVEALED_TILE = 1;
@@ -18,57 +19,10 @@ export default class Grid extends React.Component {
 	constructor(props) {
 		super(...arguments);
 
-		props.bombsIdx = [];
+		let [tiles, firstOpen] = generateGrid(this.props.generator, props.w, props.h, props.bombs, this.props.firstReveal);
 
 		this.gameStatus = GAME_STATUS_PLAYING;
-
-		this.state = {
-			tiles: []
-		};
-
-		let { w, h, bombsIdx, bombs } = props;
-		let { tiles } = this.state;
-		let max = w * h;
-
-		do {
-			bombsIdx = [];
-			bombs = props.bombs;
-
-			while (bombs > 0) {
-				let pos = Math.floor(Math.random() * max)
-				if (bombsIdx.indexOf(pos) < 0){
-					bombsIdx.push(pos);
-					bombs--;
-				}
-			}
-
-			for (let i=0; i<w; i++) {
-				for (let j=0; j<h; j++) {
-
-					let pos = tiles.length;
-
-					tiles.push({
-						x: i,
-						y: j,
-						p: pos,
-						bomb: bombsIdx.indexOf(pos) >= 0,
-						alt: Math.floor(Math.random()*4)+1,
-						status: STATUS_DEFAULT,
-					});
-				}
-			}
-
-			fillNear(tiles, props);
-
-			if (props.firstReveal) {
-				revealMass(
-						tiles,
-						this.firstOpen = this.findFirstReveal(),
-						props
-					);
-			}
-
-		} while (!solve(tiles, props));
+		this.state = { tiles: tiles	};
 	}
 
 	render(){
@@ -96,11 +50,11 @@ export default class Grid extends React.Component {
 
 	handleClick(position, event) {
 		if (this.gameStatus != GAME_STATUS_PLAYING) {
-			//this.reset();
 			window.location.reload();
 			return;
 		}
 
+		const props = this.props;
 		const tiles = this.state.tiles;
 		const tile = tiles[position];
 		const status = tile.status;
@@ -112,20 +66,19 @@ export default class Grid extends React.Component {
 		} else if (!statusRevealed(tile.status)) {
 			tile.status = STATUS_FLAGGED;
 
-			if (this.props.auto) {
-				this.autoStack = getNeighbors(position, this.props);
+			if (props.auto) {
+				this.autoStack = getNeighbors(position, props.w, props.h);
 				if (!this.revealAuto()){
 					this.gameOver();
 				}
 			}
 
 		} else {
-			let neighbors = getNeighbors(position, this.props);
-			//let flagged = neighbors.map(n => tiles[n]).reduce((acc,t) => t.status==STATUS_FLAGGED? acc+1 : acc, 0);
+			let neighbors = getNeighbors(position, props.w, props.h);
 			let flagged = neighbors.map(n => tiles[n]).filter(t => t.status==STATUS_FLAGGED).length;
 
 			if (flagged >= tile.near) {
-				if (!revealMass(tiles, position, this.props, true)){
+				if (!revealMass(tiles, position, props.w, props.h, true)){
 					this.gameOver();
 				}
 			}
@@ -137,16 +90,25 @@ export default class Grid extends React.Component {
 	handleContextMenu(position, event) {
 		event.preventDefault();
 
+		const props = this.props;
 		const tiles = this.state.tiles;
 		const tile = tiles[position];
 		let status = tile.status;
 
 		if (status == STATUS_FLAGGED || this.gameStatus != GAME_STATUS_PLAYING) {
+
+			if (props.auto) {
+				this.autoStack = getNeighbors(position, props.w, props.h);
+				if (!this.revealAuto()){
+					this.gameOver();
+				}
+			}
+
 			return;
 		}
 
 		if (!statusRevealed(status)) {
-			if (!revealMass(tiles, position, this.props)) {
+			if (!revealMass(tiles, position, this.props.w, this.props.h)) {
 				this.gameOver();
 			}
 
@@ -155,13 +117,14 @@ export default class Grid extends React.Component {
 	}
 
 	revealAuto() {
+		let props = this.props;
 		let tiles = this.state.tiles;
 
 		let revealId = Math.random();
 		let lost = 0;
 		let position;
 
-		while ( (position = this.autoStack.pop()) != undefined) {
+		while ( (position = this.autoStack.shift()) != undefined) {
 			let tile = tiles[position];
 
 
@@ -169,7 +132,7 @@ export default class Grid extends React.Component {
 
 				let flagged = 0
 
-				let coveredNeighbors = getNeighbors(position, this.props).filter(n => {
+				let coveredNeighbors = getNeighbors(position, props.w, props.h).filter(n => {
 					let tile = tiles[n];
 					if (tile.status==STATUS_FLAGGED) flagged++;
 					else if (tile.status==STATUS_DEFAULT) return true;
@@ -178,7 +141,7 @@ export default class Grid extends React.Component {
 				if (statusRevealed(tile.status) && flagged >= tile.near) {
 					tile.revealId = revealId;
 
-					if (!revealMass(tiles, position, this.props, true)) {
+					if (!revealMass(tiles, position, props.w, props.h, true)) {
 						this.autoStack = [];
 						return false;
 					}
@@ -207,9 +170,9 @@ export default class Grid extends React.Component {
 	}
 
 	findFirstReveal() {
-		const max = this.props.h * this.props.w;
+		const props = this.props;
+		const max = props.h * props.w;
 		const tiles = this.state.tiles;
-
 
 		let newArray = [];
 		for (let i=0; i<max; i++) {
@@ -231,13 +194,13 @@ export default class Grid extends React.Component {
 
 			if (!tiles[rnd].bomb) {
 				tmpPos0 = rnd;
-				let neighbors = getNeighbors(rnd, this.props);
+				let neighbors = getNeighbors(rnd, props.w, props.h);
 				let hasBombs = neighbors.map(n => tiles[n].bomb).find(_=>_==true);
 
 				if (!hasBombs) {
 					tmpPos1 = rnd;
 
-					let hasBombs2 = neighbors.flatMap(n=>getNeighbors(n, this.props)).map(n => tiles[n].bomb).find(_=>_==true);
+					let hasBombs2 = neighbors.flatMap(n=>getNeighbors(n, props.w, props.h)).map(n => tiles[n].bomb).find(_=>_==true);
 					if (!hasBombs2) {
 						pos = rnd;
 						break;
@@ -246,21 +209,6 @@ export default class Grid extends React.Component {
 			}
 		}
 		return pos;
-	}
-
-	reset() {
-		this.state.tiles.forEach(tile => {
-			tile.status = STATUS_DEFAULT;
-		});
-
-
-		if (this.props.firstReveal) {
-			this.revealMass(this.firstOpen);
-		}
-
-		this.gameStatus = GAME_STATUS_PLAYING;
-
-		this.setState({ tiles: this.state.tiles });
 	}
 }
 
