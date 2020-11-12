@@ -10,15 +10,11 @@
 
 *{
 	user-select: none;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
 }
 body{
 	background-color:#333;
 	margin:0;
-	//overflow:hidden;
-	overflow-x: hidden;
+	overflow:hidden;
 	font-family: Sans-Serif;
 	font-size: small;
 }
@@ -70,10 +66,10 @@ button:hover{
 }
 #grid-container{
 	background-color:#3C3C3C;
-	/*border:1px solid black;*/
-	padding:100px;
+	border-bottom:1px solid black;
+	padding:150px;
 	box-shadow:0px 3px 3px -2px black;
-	margin: auto;
+	margin:350px;
 }
 #grid-scroll{
 	position:relative;
@@ -120,7 +116,7 @@ button:hover{
 			.move-mg-position-x(13);
 		}
 		&.n0 > span { .move-mg-position-x(12); }
-		&.n1 > span { .move-mg-position-x(0);   }
+		&.n1 > span { .move-mg-position-x(0);  }
 		&.n2 > span { .move-mg-position-x(1);  }
 		&.n3 > span { .move-mg-position-x(2);  }
 		&.n4 > span { .move-mg-position-x(3);  }

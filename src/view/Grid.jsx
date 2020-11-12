@@ -3,7 +3,9 @@ import React from 'react';
 import solve from '../solver/grid-solver';
 
 import Tile from './Tile.jsx';
+import { TILE_SIZE } from './Tile.jsx';
 import { getNeighbors, revealMass } from '../control';
+import dragged from '../drag-scroll';
 import { STATUS_DEFAULT, STATUS_BOMB, STATUS_BOMB_END, STATUS_FLAGGED, STATUS_FLAGGED_FAILED, statusRevealed } from '../status';
 import { generateGrid } from '../grid-generator';
 
@@ -27,7 +29,7 @@ export default class Grid extends React.Component {
 
 	render(){
 		return (
-			<div id="grid-container" className={this.props.skin || 'default'} style={{width: "1500px", height: "800px"}}>
+			<div id="grid-container" className={this.props.skin || 'default'} style={{width: `${TILE_SIZE*this.props.w}px`, height: `${TILE_SIZE*this.props.h}px`}}>
 				<div id="grid-scroll">
 					{
 						this.state.tiles.map(tile=>
@@ -49,6 +51,10 @@ export default class Grid extends React.Component {
 	}
 
 	handleClick(position, event) {
+		if (dragged(true)) {
+			return;
+		}
+
 		if (this.gameStatus != GAME_STATUS_PLAYING) {
 			window.location.reload();
 			return;

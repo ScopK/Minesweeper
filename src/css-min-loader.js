@@ -1,5 +1,7 @@
 module.exports = function(source) {
-	return source.split("\n")
+	return source
+		.replace(/\/\*.*?\*\//gs, '')
+		.split("\n")
 		.map(line => line.trim())
 		.filter(line => line.length > 0)
 		.map(line => line.replace(/:\s+/g, ':'))
