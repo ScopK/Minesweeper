@@ -1,3 +1,7 @@
 node_modules/
 
 view/ms.min.js
+
+solverc/solverc
+solverc/target/*/*.[do]
+solverc/.*
