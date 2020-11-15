@@ -30,12 +30,9 @@ bool GridSolver::solve(const uint32_t &width, const uint32_t &height, Grid &grid
 	Solver::setData(width, height, grid);
 	executionNumber++;
 
-	uint32_t count = 0;
+	//uint32_t count = 0;
 	bool changesMade;
 	do {
-		if (count > 100){
-			changesMade = false;
-		}
 		changesMade = false;
 
 		for (Solver* solver : solvers) {
@@ -47,15 +44,6 @@ bool GridSolver::solve(const uint32_t &width, const uint32_t &height, Grid &grid
 
 			if (changesMade) break;
 		}
-		/*
-		for (int i=0; !changesMade && i<NUM_SOLVERS; i++) {
-			#ifdef __CALCULATE_TIME__
-			changesMade = solvers[i]->timedAnalyze();
-			#else
-			changesMade = solvers[i]->analyze();
-			#endif
-		}
-		*/
 
 		//std::cout << "Iteration #" << executionNumber << "." << ++count << std::endl;
 	} while (changesMade);
@@ -267,6 +255,8 @@ bool PossibleSolver::analyze()
 				for (Tile* optionTile : *option) optionTile->setFlagged(true);
 				bool remove = !isPossible(tile);
 				for (Tile* optionTile : *option) optionTile->setFlagged(false);
+
+				if (remove) delete option;
 				return remove;
 			});
 
@@ -283,6 +273,7 @@ bool PossibleSolver::analyze()
 					}
 				}
 				changesMade = true;
+				delete option;
 
 			} else {
 				TileList sureBombs = tilesInEveryOption(options);
@@ -342,7 +333,9 @@ bool PossibleSolver::isPossible(Tile* &tile) {
 TileList PossibleSolver::tilesInEveryOption(std::list<TileList*> &options)
 {
 	if (options.size() == 1) {
-		return *options.front();
+		TileList option = *options.front();
+		delete options.front();
+		return option;
 	}
 
 	TileList tiles;
@@ -364,6 +357,11 @@ TileList PossibleSolver::tilesInEveryOption(std::list<TileList*> &options)
 			if (foundInEveryOption) {
 				tiles.push_back(tile);
 			}
+		}
+
+		delete firstOption;
+		for (TileList* option : options) {
+			delete option;
 		}
 	}
 

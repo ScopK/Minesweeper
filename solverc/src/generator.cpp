@@ -26,7 +26,11 @@ uint32_t Generator::generateSolvableGrid(const uint32_t &height, const uint32_t 
 
 void Generator::generateRandomGrid(const uint32_t &width, const uint32_t &height, const uint32_t &bombs, Grid &grid)
 {
+	for (Grid::iterator it = grid.begin(); it != grid.end(); it++) {
+		delete it->second;
+	}
 	grid.clear();
+
 	uint32_t max = width*height;
 
 	for(uint32_t i=0; i<max; i++) {

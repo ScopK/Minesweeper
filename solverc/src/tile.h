@@ -21,7 +21,9 @@ class Tile
 {
 public:
 	Tile(uint32_t _position);
-	virtual ~Tile(){};
+	virtual ~Tile(){
+		delete neighbors;
+	};
 
 	const uint32_t getPosition() const { return position; }
 	bool isRevealed() const { return revealed; }
