@@ -23,11 +23,12 @@ Solver* GridSolver::solvers[] = {
 };
 
 uint32_t GridSolver::executionNumber(0);
+uint32_t GridSolver::resultFound(false);
 
 
-bool GridSolver::solve(const uint32_t &width, const uint32_t &height, Grid &grid)
+SolverResult_T GridSolver::solve(const uint32_t &width, const uint32_t &height, Grid &grid)
 {
-	Solver::setData(width, height, grid);
+	SolverData sd = Solver::setData(width, height, grid);
 	executionNumber++;
 
 	//uint32_t count = 0;
@@ -37,15 +38,16 @@ bool GridSolver::solve(const uint32_t &width, const uint32_t &height, Grid &grid
 
 		for (Solver* solver : solvers) {
 			#ifdef __CALCULATE_TIME__
-			changesMade = solver->timedAnalyze();
+			changesMade = solver->timedAnalyze(sd);
 			#else
-			changesMade = solver->analyze();
+			changesMade = solver->analyze(sd);
 			#endif
 
 			if (changesMade) break;
 		}
 
 		//std::cout << "Iteration #" << executionNumber << "." << ++count << std::endl;
+		if (resultFound) return SKIP;
 	} while (changesMade);
 
 
@@ -59,8 +61,11 @@ bool GridSolver::solve(const uint32_t &width, const uint32_t &height, Grid &grid
 	}
 
 	//Util::printGrid(width, height, grid);
+	if (solved) {
+		resultFound = true;
+	}
 
-	return solved;
+	return solved? RESOLVED: FAILED;
 }
 
 #ifdef __CALCULATE_TIME__
@@ -77,19 +82,12 @@ void GridSolver::printTimes()
 // ############## SOLVER GENERAL FUNCTIONS
 // ######################################
 
-TileList Solver::revealed;
-TileList Solver::numbered;
-
-uint32_t Solver::width(0);
-uint32_t Solver::height(0);
-Grid* Solver::grid;
-
 #ifdef __CALCULATE_TIME__
-bool Solver::timedAnalyze()
+bool Solver::timedAnalyze(SolverData &sd)
 {
 	auto start_time = std::chrono::high_resolution_clock::now();
 
-	bool result = analyze();
+	bool result = analyze(sd);
 
 	totalExecutions++;
 	auto end_time = std::chrono::high_resolution_clock::now();
@@ -102,26 +100,27 @@ bool Solver::timedAnalyze()
 }
 #endif
 
-void Solver::setData(const uint32_t &width, const uint32_t &height, Grid &grid)
+SolverData Solver::setData(const uint32_t &width, const uint32_t &height, Grid &grid)
 {
-	Solver::width = width;
-	Solver::height = height;
-	Solver::grid = &grid;
-
-	revealed.clear();
-	numbered.clear();
+	SolverData sd = {
+		width,
+		height,
+		&grid
+	};
 
 	for (Grid::iterator it = grid.begin(); it != grid.end(); it++) {
 		Tile* tile = it->second;
 		if (tile->isRevealed()) {
 			tile->setSolverRevealed(true);
-			revealed.push_back(tile);
+			sd.revealed.push_back(tile);
 
 			if (tile->getNearBombs() > 0) {
-				numbered.push_back(tile);
+				sd.numbered.push_back(tile);
 			}
 		}
 	}
+
+	return sd;
 }
 
 TileList Solver::getNeighbors(Tile* &tile, bool (*f)(Tile*))
@@ -138,7 +137,7 @@ TileList Solver::getNeighborsCovered(Tile* &tile)
 	});
 }
 
-void Solver::markBomb(Tile* &tile)
+void Solver::markBomb(SolverData &sd, Tile* &tile)
 {
 	if (tile->isFlagged()) return;
 
@@ -160,7 +159,7 @@ void Solver::markBomb(Tile* &tile)
 
 			if (neighTile->getNearBombs() == 0) {
 				if (neighTile->isRevealed()) {
-					numbered.remove(neighTile);
+					sd.numbered.remove(neighTile);
 				}
 
 				neighTile->setSolverNotes(EMPTY);
@@ -169,29 +168,29 @@ void Solver::markBomb(Tile* &tile)
 	}
 }
 
-void Solver::reveal(Tile* &tile)
+void Solver::reveal(SolverData &sd, Tile* &tile)
 {
 	uint32_t position(tile->getPosition());
 
-	Util::revealMass(width, height, position, *grid);
-	tileUpdate(tile);
+	Util::revealMass(sd.width, sd.height, position, *sd.grid);
+	tileUpdate(sd,tile);
 }
 
-void Solver::tileUpdate(Tile* &tile)
+void Solver::tileUpdate(SolverData &sd, Tile* &tile)
 {
 	if (!tile->isSolverRevealed() && tile->isRevealed()) {
 		tile->setSolverRevealed(true);
 
-		revealed.push_back(tile);
+		sd.revealed.push_back(tile);
 
 		if (tile->getNearBombs() > 0) {
-			numbered.push_back(tile);
+			sd.numbered.push_back(tile);
 		}
 
 		TileList neighbor = *tile->getNeighbors();
 
 		for (Tile* neighTile : neighbor) {
-			tileUpdate(neighTile);
+			tileUpdate(sd, neighTile);
 		}
 	}
 }
@@ -200,17 +199,17 @@ void Solver::tileUpdate(Tile* &tile)
 // ########################## BASIC SOLVER
 // ######################################
 
-bool BasicSolver::analyze()
+bool BasicSolver::analyze(SolverData &sd)
 {
 	bool changesMade = false;
 
-	revealed.remove_if([&changesMade](Tile* tile){
+	sd.revealed.remove_if([&sd, &changesMade](Tile* tile){
 		if (tile->getNearBombs() > 0) {
 			TileList nearCovered = getNeighborsCovered(tile);
 
 			if (nearCovered.size() == tile->getNearBombs()) {
 				for (Tile* nearTile : nearCovered) {
-					markBomb(nearTile);
+					markBomb(sd, nearTile);
 				}
 				changesMade = true;
 			}
@@ -220,7 +219,7 @@ bool BasicSolver::analyze()
 			TileList nearCovered = *tile->getNeighbors();
 			for (Tile* nearTile : nearCovered) {
 				if (!nearTile->isRevealed() && !nearTile->isFlagged()) {
-					reveal(nearTile);
+					reveal(sd, nearTile);
 					changesMade = true;
 				}
 			}
@@ -239,11 +238,11 @@ bool BasicSolver::analyze()
 // ######################################
 
 
-bool PossibleSolver::analyze()
+bool PossibleSolver::analyze(SolverData &sd)
 {
 	bool changesMade = false;
 
-	TileList numberedCopy(numbered);
+	TileList numberedCopy(sd.numbered);
 
 	for (Tile* tile : numberedCopy) {
 		TileList nearCovered = getNeighborsCovered(tile);
@@ -264,12 +263,12 @@ bool PossibleSolver::analyze()
 			if (options.size() == 1) {
 				TileList* option = options.front();
 				for (Tile* optionTile : *option) {
-					markBomb(optionTile);
+					markBomb(sd, optionTile);
 				}
 				for (Tile* nearTile : nearCovered) {
 					bool found = std::find(option->begin(), option->end(), nearTile) != option->end();
 					if (!found) {
-						reveal(nearTile);
+						reveal(sd, nearTile);
 					}
 				}
 				changesMade = true;
@@ -278,7 +277,7 @@ bool PossibleSolver::analyze()
 			} else {
 				TileList sureBombs = tilesInEveryOption(options);
 				for (Tile* sureBombTile : sureBombs) {
-					markBomb(sureBombTile);
+					markBomb(sd, sureBombTile);
 				}
 				if (!changesMade) changesMade = !sureBombs.empty();
 			}
@@ -373,13 +372,13 @@ TileList PossibleSolver::tilesInEveryOption(std::list<TileList*> &options)
 // ########################### DEEP SOLVER
 // ######################################
 
-bool DeepSolver::analyze()
+bool DeepSolver::analyze(SolverData &sd)
 {
 	bool changesMade = false;
 
-	//TileList numberedCopy(numbered);
+	//TileList numberedCopy(sd.numbered);
 
-	for (Tile* tile : numbered) {
+	for (Tile* tile : sd.numbered) {
 		if (tile->getNearBombs() > 0) { // REDUNDANT???
 			TileList nearCovered = getNeighborsCovered(tile);
 
@@ -409,7 +408,7 @@ bool DeepSolver::analyze()
 								for (Tile* t : nearCovered) {
 									bool found = std::find(neighNearCovered.begin(), neighNearCovered.end(), t) != neighNearCovered.end();
 
-									if (!found) markBomb(t);
+									if (!found) markBomb(sd, t);
 								}
 								// no breaking case:
 
@@ -418,7 +417,7 @@ bool DeepSolver::analyze()
 								for (Tile* t : neighNearCovered) {
 									bool found = std::find(nearCovered.begin(), nearCovered.end(), t) != nearCovered.end();
 
-									if (!found) reveal(t);
+									if (!found) reveal(sd, t);
 								}
 								changesMade = true;
 								break;
@@ -468,17 +467,17 @@ DeepSolverMatchResult_T DeepSolver::matchLogic(const uint8_t &near, const uint8_
 // ####################### ADVANCED SOLVER
 // ######################################
 
-bool AdvancedSolver::analyze()
+bool AdvancedSolver::analyze(SolverData &sd)
 {
 	bool changesMade = false;
 
 	std::set<Tile*> toReveal;
 
-	for (Tile* tile : numbered) {
+	for (Tile* tile : sd.numbered) {
 		TileList nearCovered = getNeighborsCovered(tile);
 
 		if (!nearCovered.empty()) {
-			TileList matching(numbered);
+			TileList matching(sd.numbered);
 			matching.remove(tile);
 
 			for (Tile* nearCoveredTile : nearCovered) {
@@ -511,7 +510,7 @@ bool AdvancedSolver::analyze()
 	}
 
 	for (Tile* tile : toReveal) {
-		reveal(tile);
+		reveal(sd, tile);
 		changesMade = true;
 	}
 

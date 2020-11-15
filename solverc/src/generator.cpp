@@ -9,10 +9,10 @@
 
 uint32_t Generator::generateSolvableGrid(const uint32_t &height, const uint32_t &width, const uint32_t &bombs, Grid &grid)
 {
-	bool solved = false;
+	SolverResult_T solved = FAILED;
 
 	uint32_t startPoint;
-	while (!solved) {
+	while (solved == FAILED) {
 		generateRandomGrid(width, height, bombs, grid);
 		startPoint = Util::findStartingTile(width, height, grid);
 
@@ -21,7 +21,7 @@ uint32_t Generator::generateSolvableGrid(const uint32_t &height, const uint32_t 
 	}
 	//GridSolver::printTimes();
 
-	return startPoint;
+	return solved == SKIP? -1 : startPoint;
 }
 
 void Generator::generateRandomGrid(const uint32_t &width, const uint32_t &height, const uint32_t &bombs, Grid &grid)
