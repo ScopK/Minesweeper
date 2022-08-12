@@ -26,7 +26,10 @@ class GameActivity : Activity() {
             finish();
         } else {
             setContentView(gamePanel)
-            window.insetsController?.hide(WindowInsets.Type.statusBars())
+            window.insetsController?.apply {
+                hide(WindowInsets.Type.statusBars())
+                hide(WindowInsets.Type.navigationBars())
+            }
 
             if (extras.getBoolean("l")) {
                 if (!gamePanel.loadState()) {
