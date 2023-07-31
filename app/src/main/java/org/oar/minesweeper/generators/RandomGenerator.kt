@@ -2,21 +2,24 @@ package org.oar.minesweeper.generators
 
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
 import java.util.*
 import java.util.function.Consumer
 
 open class RandomGenerator : GridGenerator {
-    override fun generateNewGrid(grid: Grid, bombs: Int, onFinish: Runnable) {
+    override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
         Thread {
-            generateNewRandomGrid(grid, bombs)
-            onFinish.run()
+            generateNewRandomGrid(grid)
+            onFinish(GridStartOptions())
         }.start()
     }
 
-    protected fun generateNewRandomGrid(grid: Grid, bombs: Int) {
-        val w = grid.w
-        val h = grid.h
+    protected fun generateNewRandomGrid(grid: Grid) {
+        val w = grid.width
+        val h = grid.height
+        val bombs = grid.bombs
+
         grid.tiles.clear()
         for (j in 0 until h) {
             for (i in 0 until w) {
@@ -35,7 +38,7 @@ open class RandomGenerator : GridGenerator {
                 continue
             }
             grid.tiles[idx].plantBomb()
-            getNeighbors(grid, grid.tiles[idx]).forEach(Consumer { obj: Tile -> obj.hasBombNear() })
+            getNeighbors(grid, grid.tiles[idx]).forEach { it.hasBombNear() }
             i++
         }
     }

@@ -109,7 +109,9 @@ class MainLogic(
     }
 
     fun reveal(tile: Tile) {
-        revealedTiles++
+        if (tile.isCovered) {
+            revealedTiles++
+        }
         if (tile.hasBomb) {
             tile.status = Tile.Status.BOMB_FINAL
             gameOver()
@@ -118,7 +120,7 @@ class MainLogic(
                 0 -> {
                     tile.status = Tile.Status.A0
                     getNeighbors(grid, tile)
-                        .filter { tile2 -> tile2.status === Tile.Status.COVERED }
+                        .filter { it.status === Tile.Status.COVERED }
                         .forEach { reveal(it) }
                 }
                 else -> tile.status = getTileStatus(tile.bombsNear)
@@ -127,7 +129,9 @@ class MainLogic(
     }
 
     fun fastReveal(tile: Tile) {
-        revealedTiles++
+        if (tile.isCovered) {
+            revealedTiles++
+        }
         if (tile.hasBomb) {
             tile.status = Tile.Status.BOMB_FINAL
             gameOver()
@@ -142,7 +146,7 @@ class MainLogic(
             }
             if (massReveal) {
                 getNeighbors(grid, tile)
-                    .filter { tile2 -> tile2.status === Tile.Status.COVERED }
+                    .filter { it.status === Tile.Status.COVERED }
                     .forEach { fastReveal(it) }
             }
         }

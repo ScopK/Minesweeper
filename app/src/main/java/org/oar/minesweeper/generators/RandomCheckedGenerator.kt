@@ -6,51 +6,53 @@ import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.generators.solver.Sketch
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.control.MainLogic
-import org.oar.minesweeper.control.Settings
+import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
 import org.oar.minesweeper.generators.solver.Solver
 import org.oar.minesweeper.generators.solver.BasicSolver
 import org.oar.minesweeper.generators.solver.PossibleSolver
 import org.oar.minesweeper.generators.solver.DeepSolver
 import org.oar.minesweeper.generators.solver.AdvancedSolver
-import java.util.ArrayList
-import java.util.function.Consumer
 
 open class RandomCheckedGenerator : RandomGenerator() {
+
+    companion object {
+        private const val MAX_SWAPPING_RETRY = 5
+    }
+
     protected var selectedSafeTile = 0
     private var sketch: Sketch? = null
-    override fun generateNewGrid(grid: Grid, bombs: Int, onFinish: Runnable) {
+    override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
         Thread {
-            generateNewRandomGrid(grid, bombs)
+            generateNewRandomGrid(grid)
             selectedSafeTile = findSafeOpenTileIdx(grid)
 
             var originalGrid = grid
             var numBombsLeft = 1
+            var retrySwapping = MAX_SWAPPING_RETRY
 
             while (numBombsLeft != 0) {
                 val bombsLeft = solve(originalGrid.clone())
                 numBombsLeft = bombsLeft?.size ?: Int.MAX_VALUE
 
                 if (numBombsLeft > 0) {
-                    if (numBombsLeft < bombs / 20) {
+                    if (numBombsLeft < grid.bombs / 20 && retrySwapping > 0) {
+                        retrySwapping--
                         swapBombs(grid, bombsLeft!!)
                         originalGrid = grid
 
                     } else {
-                        generateNewRandomGrid(grid, bombs)
+                        generateNewRandomGrid(grid)
                         originalGrid = grid
                         selectedSafeTile = findSafeOpenTileIdx(grid)
+                        retrySwapping = MAX_SWAPPING_RETRY
                     }
                 }
             }
 
-            if (Settings.firstOpen) {
-                val ml = MainLogic(grid)
-                val t: Tile = grid.tiles[selectedSafeTile]
-                ml.reveal(t)
-            }
-
-            onFinish.run()
+            onFinish(
+                GridStartOptions(selectedSafeTile)
+            )
         }.start()
     }
 

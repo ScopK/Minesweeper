@@ -9,6 +9,5 @@ object Settings {
     const val FILENAME = "state.save"
 
     var showTime = false
-    var firstOpen = false
     var discoveryMode = 0
 }

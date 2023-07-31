@@ -1,35 +1,31 @@
 package org.oar.minesweeper
 
 import android.R
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowInsets
+import androidx.appcompat.app.AppCompatActivity
 import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.generators.GridGenerator
-import org.oar.minesweeper.generators.RandomGenerator
+import org.oar.minesweeper.elements.GridConfiguration
+import org.oar.minesweeper.elements.GridSettings
 import org.oar.minesweeper.utils.ActivityController
-import kotlin.reflect.KClass
 
-class MenuActivity : Activity() {
+class MenuActivity : AppCompatActivity() {
     private val menuPanel: MenuPanel by lazy { MenuPanel(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(menuPanel)
         window.insetsController?.hide(WindowInsets.Type.statusBars())
     }
 
-    @JvmOverloads
     fun startGrid(
-        w: Int,
-        h: Int,
-        b: Int,
-        generatorClass: KClass<out GridGenerator> = RandomGenerator::class
+        config: GridConfiguration,
+        settings: GridSettings
     ) {
-        val grid = Grid(w, h, b, generatorClass.java)
+        val grid = Grid(config, settings)
         ActivityController.loadGrid(grid, this)
     }
 

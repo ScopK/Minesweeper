@@ -2,7 +2,10 @@ package org.oar.minesweeper.utils
 
 import android.R
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import org.oar.minesweeper.GameActivity
 import org.oar.minesweeper.LoadingActivity
 import org.oar.minesweeper.elements.Grid
@@ -22,10 +25,16 @@ object ActivityController {
             grid.generate {
                 val intent = Intent(activity, GameActivity::class.java)
                 intent.putExtra("grid", grid)
+                intent.putExtra("options", it)
                 activity.startActivity(intent)
                 activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                 activity.finish()
             }
         }
+    }
+
+    @ColorInt
+    fun Context.findColor(@ColorRes colorRes: Int): Int {
+        return this.resources.getColor(colorRes, null);
     }
 }

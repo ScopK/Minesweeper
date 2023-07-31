@@ -41,13 +41,6 @@ class SettingsActivity : AppCompatActivity() {
                     true
                 }
 
-            findPreference<Preference>("option_firstopen")!!.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { _, value ->
-                    val firstOpen = value as Boolean
-                    sets.firstOpen = firstOpen
-                    true
-                }
-
             findPreference<Preference>("option_reveal")!!.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { _, value ->
                     val revealValue = value.toString().toInt()

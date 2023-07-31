@@ -23,7 +23,6 @@ class SplashActivity : AppCompatActivity() {
         Settings.apply {
             discoveryMode = preferences.getString("option_reveal", "1")?.toInt() ?: 1
             showTime = preferences.getBoolean("option_time", true)
-            firstOpen = preferences.getBoolean("option_firstopen", true)
         }
 
         when (preferences.getString("option_theme", "0")){

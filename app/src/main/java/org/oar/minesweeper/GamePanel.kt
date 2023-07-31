@@ -19,8 +19,8 @@ import org.oar.minesweeper.control.GridDrawer.draw
 import org.oar.minesweeper.control.GridDrawer.tileSize
 import org.oar.minesweeper.control.MainLogic
 import org.oar.minesweeper.control.Settings
-import org.oar.minesweeper.control.Settings.firstOpen
 import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
 import org.oar.minesweeper.utils.ActivityController.loadGrid
 import org.oar.minesweeper.utils.GridUtils.calculateLogicFromBareGrid
@@ -51,13 +51,16 @@ class GamePanel(context: Context) : View(context) {
     }
 
 
-    fun setNewGrid(grid: Grid) {
+    fun setNewGrid(grid: Grid, options: GridStartOptions) {
         setGrid(MainLogic(grid), 0)
 
-        if (firstOpen && logic!!.allCovered) {
-            val t = findSafeOpenTile(grid)
-            logic!!.reveal(t)
-            CanvasWrapper.focus(t)
+        if (grid.gridSettings.firstOpen && logic!!.allCovered) {
+            val tile = options.firstTileReveal
+                ?.let { grid.tiles[it] }
+                ?: findSafeOpenTile(grid)
+
+            logic!!.reveal(tile)
+            CanvasWrapper.focus(tile)
         } else {
             grid.tiles.firstOrNull { tile -> tile.status === Tile.Status.A0 }
                 ?.also { CanvasWrapper.focus(it) }
@@ -68,22 +71,22 @@ class GamePanel(context: Context) : View(context) {
         this.logic = logic
 
         hud?.stopTimer()
-        hud = Hud(logic, this).apply {
+        hud = Hud(logic, this, context).apply {
             time = seconds
             startTimer()
         }
 
         logic.setFinishEvent { hud?.stopTimer() }
         CanvasWrapper.setContentDimensions(
-            (logic.grid.w * tileSize).toFloat(),
-            (logic.grid.h * tileSize).toFloat())
+            (logic.grid.width * tileSize).toFloat(),
+            (logic.grid.height * tileSize).toFloat())
     }
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         val xCanvas = CanvasWrapper(canvas)
 
-        if (logic != null) draw(xCanvas, logic!!.grid)
+        logic?.also { draw(xCanvas, it.grid) }
 
         xCanvas.end()
         hud?.draw(canvas)
@@ -210,7 +213,7 @@ class GamePanel(context: Context) : View(context) {
                 }
 
                 val obj = JSONObject(line)
-                val bareGrid = Grid.jsonGrid(obj)
+                val bareGrid = Grid.jsonGrid(context, obj)
                 val logic = calculateLogicFromBareGrid(bareGrid)
                 setGrid(logic, obj.getInt("t"))
                 CanvasWrapper.setValues(

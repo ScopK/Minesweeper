@@ -1,14 +1,13 @@
 package org.oar.minesweeper
 
 import android.graphics.Canvas
-import org.oar.minesweeper.control.ScreenProperties.load
-import org.oar.minesweeper.elements.MenuOption
-import org.oar.minesweeper.control.ScreenProperties
 import android.view.MotionEvent
 import android.view.View
-import org.oar.minesweeper.generators.RandomCheckedGenerator
-import org.oar.minesweeper.generators.RandomCheckedTestGenerator
-import java.util.ArrayList
+import org.oar.minesweeper.control.ScreenProperties
+import org.oar.minesweeper.control.ScreenProperties.load
+import org.oar.minesweeper.elements.GridConfiguration
+import org.oar.minesweeper.elements.MenuOption
+import org.oar.minesweeper.ui.StartGridDialogFragment
 import kotlin.math.roundToInt
 
 class MenuPanel(
@@ -29,7 +28,7 @@ class MenuPanel(
         for (option in options) {
             option.setWindowValues(
                 ScreenProperties.WIDTH,
-                ScreenProperties.HEIGHT_BAR_EXCLUDED,
+                ScreenProperties.HEIGHT,
                 ScreenProperties.DPI_W,
                 ScreenProperties.DPI_H)
 
@@ -39,7 +38,7 @@ class MenuPanel(
             }
         }
         maxHeight += MenuOption.FACTOR_MARGIN_OUT_SIZE * ScreenProperties.DPI_H
-        maxScroll = ScreenProperties.HEIGHT_BAR_EXCLUDED - maxHeight
+        maxScroll = ScreenProperties.HEIGHT - maxHeight
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -56,8 +55,8 @@ class MenuPanel(
         val y: Int
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                x = Math.round(event.x)
-                lastY = Math.round(event.y)
+                x = event.x.roundToInt()
+                lastY = event.y.roundToInt()
                 optionSelected = null
                 hasMoved = false
                 for (option in options) {
@@ -130,37 +129,96 @@ class MenuPanel(
     fun addOptions() {
         var counter = -1
         val activity = context as MenuActivity
-        options.clear()
-        options.add(MenuOption(activity.getString(R.string.menu_load), activity::loadGrid,
-                ++counter, -0xa860bf, -0x9e56b5))
 
-        options.add(MenuOption(activity.getString(R.string.menu_game_name_1), { activity.startGrid(4, 6, 5) },
-                ++counter, -0xbe8961, -0xb58058))
+        listOf(
+            MenuOption(
+                context,
+                R.string.menu_load,
+                R.color.buttonGreen,
+                R.color.buttonGreenH,
+                activity::loadGrid,
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_game_name_1,
+                R.color.buttonBlue,
+                R.color.buttonBlueH,
+                startProcess(4,6,5),
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_game_name_2,
+                R.color.buttonBlue,
+                R.color.buttonBlueH,
+                startProcess(10, 10, 12),
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_game_name_3,
+                R.color.buttonBlue,
+                R.color.buttonBlueH,
+                startProcess(10, 10, 25),
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_game_name_4,
+                R.color.buttonBlue,
+                R.color.buttonBlueH,
+                startProcess(15, 15, 50),
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_game_name_5,
+                R.color.buttonBlue,
+                R.color.buttonBlueH,
+                startProcess(25, 25, 100),
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_game_name_6,
+                R.color.buttonBlue,
+                R.color.buttonBlueH,
+                startProcess(50, 50, 603),
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_game_name_7,
+                R.color.buttonBlue,
+                R.color.buttonBlueH,
+                startProcess(6, 20, 40),
+                ++counter
+            ),
+            MenuOption(
+                context,
+                R.string.menu_settings,
+                R.color.buttonGray,
+                R.color.buttonGrayH,
+                activity::openSettings,
+                ++counter
+            )
+        ).also {
+            options.clear()
+            options.addAll(it)
+        }
+    }
 
-        options.add(MenuOption(activity.getString(R.string.menu_game_name_2), { activity.startGrid(10, 10, 12) },
-                ++counter, -0xbe8961, -0xb58058))
+    private fun startProcess(width: Int, height: Int, bombs: Int) =
+        startProcess(GridConfiguration(width, height, bombs))
 
-        options.add(MenuOption(activity.getString(R.string.menu_game_name_3), { activity.startGrid(10, 10, 25) },
-                ++counter, -0xbe8961, -0xb58058))
-
-        options.add(MenuOption(activity.getString(R.string.menu_game_name_4), { activity.startGrid(15, 15, 50) },
-                ++counter, -0xbe8961, -0xb58058))
-
-        options.add(MenuOption(activity.getString(R.string.menu_game_name_5), { activity.startGrid(25, 25, 100) },
-                ++counter, -0xbe8961, -0xb58058))
-
-        options.add(MenuOption(activity.getString(R.string.menu_game_name_6),
-                { activity.startGrid(50, 50, 603, RandomCheckedGenerator::class) },
-                ++counter, -0xa860bf, -0x9e56b5))
-
-        options.add(MenuOption(activity.getString(R.string.menu_game_name_7), { activity.startGrid(6, 20, 40) },
-                ++counter, -0xbe8961, -0xb58058))
-
-        options.add(MenuOption(activity.getString(R.string.menu_settings), activity::openSettings,
-                ++counter, -0x7d7d7e, -0x6b6b6c))
-
-        options.add(MenuOption("TEST",
-                { activity.startGrid(50, 50, 603, RandomCheckedTestGenerator::class) },
-                ++counter, -0xa860bf, -0x9e56b5))
+    private fun startProcess(gridConfig: GridConfiguration): Runnable {
+        return Runnable {
+            StartGridDialogFragment(
+                activity,
+                gridConfig,
+                { activity.startGrid(gridConfig, it) }
+            ).show(activity.supportFragmentManager, null)
+        }
     }
 }

@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.Window
 import android.view.WindowInsets
 import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.elements.GridStartOptions
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -36,8 +37,9 @@ class GameActivity : Activity() {
                     finish()
                 }
             } else {
-                val grid: Grid = extras.getSerializable("grid") as Grid
-                gamePanel.setNewGrid(grid)
+                val grid = extras.getSerializable("grid") as Grid
+                val options = extras.getSerializable("options") as GridStartOptions
+                gamePanel.setNewGrid(grid, options)
                 gamePanel.postInvalidate()
             }
         }

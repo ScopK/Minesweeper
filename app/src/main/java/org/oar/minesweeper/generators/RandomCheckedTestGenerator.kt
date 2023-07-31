@@ -1,22 +1,23 @@
 package org.oar.minesweeper.generators
 
 import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import java.util.function.Consumer
 
 class RandomCheckedTestGenerator : RandomCheckedGenerator() {
-    override fun generateNewGrid(grid: Grid, bombs: Int, onFinish: Runnable) {
+    override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
         Thread {
             val test = false
             if (test) {
-                test1(grid, bombs)
+                test1(grid)
                 selectedSafeTile = 24
                 solve(grid)
 
             } else {
-                generateNewRandomGrid(grid, bombs)
+                generateNewRandomGrid(grid)
                 selectedSafeTile = findSafeOpenTileIdx(grid)
 
                 var numBombsLeft = 0
@@ -26,18 +27,22 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
                     numBombsLeft = bombsLeft?.size ?: 0
 
                     if (numBombsLeft == 0) {
-                        generateNewRandomGrid(grid, bombs)
+                        generateNewRandomGrid(grid)
                         selectedSafeTile = findSafeOpenTileIdx(grid)
                     }
                 }
             }
-            onFinish.run()
+            onFinish(
+                GridStartOptions(selectedSafeTile)
+            )
         }.start()
     }
 
-    private fun test1(grid: Grid, bombs: Int) {
-        val w = grid.w
-        val h = grid.h
+    private fun test1(grid: Grid) {
+        val w = grid.width
+        val h = grid.height
+        val bombs = grid.bombs
+
         val tiles = grid.tiles
         tiles.clear()
         for (j in 0 until h) {

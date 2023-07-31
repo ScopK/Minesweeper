@@ -33,7 +33,10 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" />
-        <activity android:name=".MenuActivity" />
+        <activity
+            android:name=".MenuActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullscreenTheme" />
         <activity android:name=".SettingsActivity" />
     </application>
 

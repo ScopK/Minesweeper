@@ -1,31 +1,31 @@
 package org.oar.minesweeper.elements
 
-import org.oar.minesweeper.generators.GridGenerator
-import kotlin.Throws
+import android.content.Context
 import org.json.JSONException
 import org.json.JSONObject
+import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import java.io.Serializable
-import java.util.ArrayList
-import java.util.function.Consumer
-import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
-class Grid(
-    val w: Int,
-    val h: Int,
-    val bombs: Int,
-    private var generatorClass: Class<out GridGenerator>
+class Grid (
+    val gridConfig: GridConfiguration,
+    val gridSettings: GridSettings
 
 ) : Serializable, Cloneable {
+
+    val height get() = gridConfig.height
+    val width get() = gridConfig.width
+    val bombs get() = gridConfig.bombs
 
     var tiles: MutableList<Tile> = mutableListOf()
 
     // GETTERS-SETTERS
-    fun generate(callback: Runnable) {
+    fun generate(callback: (GridStartOptions) -> Unit) {
         tiles.clear()
         try {
-            val gen = generatorClass.newInstance()
-            gen.generateNewGrid(this, bombs, callback)
+            val gen = gridSettings.generatorClass.createInstance()
+            gen.generateNewGrid(this, callback)
+
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         } catch (e: InstantiationException) {
@@ -34,20 +34,14 @@ class Grid(
     }
 
     fun getGeneratorClass(): String {
-        return generatorClass.name
-    }
-
-    fun startNewGame(callback: Runnable): Grid {
-        return Grid(w, h, bombs, generatorClass).apply {
-            generate(callback)
-        }
+        return gridSettings.generatorClass.qualifiedName ?: ""
     }
 
     companion object {
         @Throws(JSONException::class)
-        fun jsonGrid(obj: JSONObject): Grid {
-            val h = obj.getInt("h")
-            val w = obj.getInt("w")
+        fun jsonGrid(context: Context, obj: JSONObject): Grid {
+            val height = obj.getInt("h")
+            val width = obj.getInt("w")
             val tilesList: MutableList<Tile> = mutableListOf()
             var bombs = 0
             val stringGrid = obj.getString("ts")
@@ -55,25 +49,25 @@ class Grid(
             for (i in stringGrid.indices) {
                 var t: Tile? = null
                 when (stringGrid[i]) {
-                    'B' -> t = Tile(i % w, i / w, Tile.Status.BOMB)
-                    ' ' -> t = Tile(i % w, i / w, Tile.Status.A0)
-                    '1' -> t = Tile(i % w, i / w, Tile.Status.A1)
-                    '2' -> t = Tile(i % w, i / w, Tile.Status.A2)
-                    '3' -> t = Tile(i % w, i / w, Tile.Status.A3)
-                    '4' -> t = Tile(i % w, i / w, Tile.Status.A4)
-                    '5' -> t = Tile(i % w, i / w, Tile.Status.A5)
-                    '6' -> t = Tile(i % w, i / w, Tile.Status.A6)
-                    '7' -> t = Tile(i % w, i / w, Tile.Status.A7)
-                    '8' -> t = Tile(i % w, i / w, Tile.Status.A8)
-                    'f' -> t = Tile(i % w, i / w, Tile.Status.FLAG)
-                    'c' -> t = Tile(i % w, i / w, Tile.Status.COVERED)
+                    'B' -> t = Tile(i % width, i / width, Tile.Status.BOMB)
+                    ' ' -> t = Tile(i % width, i / width, Tile.Status.A0)
+                    '1' -> t = Tile(i % width, i / width, Tile.Status.A1)
+                    '2' -> t = Tile(i % width, i / width, Tile.Status.A2)
+                    '3' -> t = Tile(i % width, i / width, Tile.Status.A3)
+                    '4' -> t = Tile(i % width, i / width, Tile.Status.A4)
+                    '5' -> t = Tile(i % width, i / width, Tile.Status.A5)
+                    '6' -> t = Tile(i % width, i / width, Tile.Status.A6)
+                    '7' -> t = Tile(i % width, i / width, Tile.Status.A7)
+                    '8' -> t = Tile(i % width, i / width, Tile.Status.A8)
+                    'f' -> t = Tile(i % width, i / width, Tile.Status.FLAG)
+                    'c' -> t = Tile(i % width, i / width, Tile.Status.COVERED)
                     'F' -> {
-                        t = Tile(i % w, i / w, Tile.Status.FLAG)
+                        t = Tile(i % width, i / width, Tile.Status.FLAG)
                         t.plantBomb()
                         bombs++
                     }
                     'C' -> {
-                        t = Tile(i % w, i / w, Tile.Status.COVERED)
+                        t = Tile(i % width, i / width, Tile.Status.COVERED)
                         t.plantBomb()
                         bombs++
                     }
@@ -81,15 +75,25 @@ class Grid(
                 if (t != null) tilesList.add(t)
             }
 
-            val generatorClass = Class.forName(obj.getString("g")) as Class<out GridGenerator>
-            return Grid(w, h, bombs, generatorClass).apply {
+            val isSolvable = if (obj.has("gs"))
+                    obj.getBoolean("gs")
+                else
+                    false
+
+            val gridConfig = GridConfiguration(width, height, bombs)
+            val gridSettings = GridSettings(
+                context.loadBoolean("lastRevealFirst", true),
+                isSolvable
+            )
+
+            return Grid(gridConfig, gridSettings).apply {
                 tiles = tilesList
             }
         }
     }
 
     public override fun clone(): Grid {
-        return Grid(w, h, bombs, generatorClass).also { grid ->
+        return Grid(gridConfig, gridSettings).also { grid ->
             tiles.forEach { grid.tiles.add(it.clone()) }
         }
     }

@@ -6,6 +6,7 @@ import org.oar.minesweeper.control.CanvasWrapper
 import org.oar.minesweeper.control.GridDrawer.tileSize
 import org.oar.minesweeper.control.MainLogic
 import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.elements.GridConfiguration
 import org.oar.minesweeper.elements.Tile
 import org.oar.minesweeper.elements.Tile.Status.*
 import java.util.*
@@ -14,7 +15,6 @@ import kotlin.math.roundToInt
 
 object GridUtils {
 
-    @JvmStatic
 	fun getNeighbors(grid: Grid, tile: Tile): List<Tile> {
         val tiles: List<Tile> = grid.tiles
         return getNeighborsIdx(grid, tile)
@@ -22,9 +22,13 @@ object GridUtils {
     }
 
     fun getNeighborsIdx(grid: Grid, tile: Tile): MutableList<Int> {
+        return getNeighborsIdx(grid.gridConfig, tile)
+    }
+
+    fun getNeighborsIdx(gridConfig: GridConfiguration, tile: Tile): MutableList<Int> {
         val neighbors: MutableList<Int> = ArrayList()
-        val w = grid.w
-        val h = grid.h
+        val w = gridConfig.width
+        val h = gridConfig.height
         val idx = tile.y * w + tile.x
 
         // Test (w=7, h=3):
@@ -71,17 +75,21 @@ object GridUtils {
 
     fun getTileByScreenCoords(grid: Grid, x: Float, y: Float): Tile? {
         val tileSize = tileSize
-        val scale: Float = CanvasWrapper.scale
-        val posX: Float = CanvasWrapper.posX
-        val posY: Float = CanvasWrapper.posY
+        val scale = CanvasWrapper.scale
+        val relativeX = x - CanvasWrapper.posX
+        val relativeY = y - CanvasWrapper.posY
+
+        if (relativeX < 0 || relativeY < 0) return null
+
         return getTileByCoords(grid,
-            ((-posX + x) / scale).roundToInt() / tileSize,
-            ((-posY + y) / scale).roundToInt() / tileSize)
+            (relativeX / scale).roundToInt() / tileSize,
+            (relativeY / scale).roundToInt() / tileSize)
     }
 
     fun getTileByCoords(grid: Grid, x: Int, y: Int): Tile? {
-        val w = grid.w
-        val idx = y * w + x
+        if (x >= grid.width) return null
+
+        val idx = y * grid.width + x
         return if (idx >= 0 && idx < grid.tiles.size) grid.tiles[idx] else null
     }
 
@@ -91,7 +99,7 @@ object GridUtils {
 
     fun findSafeOpenTileIdx(grid: Grid): Int {
         val rnd = Random()
-        val tiles= grid.tiles
+        val tiles = grid.tiles
         var idx: Int
         do {
             idx = rnd.nextInt(tiles.size)
@@ -132,9 +140,9 @@ object GridUtils {
         val obj = JSONObject()
 
         try {
-            obj.put("w", grid.w)
-            obj.put("h", grid.h)
-            obj.put("g", grid.getGeneratorClass())
+            obj.put("w", grid.width)
+            obj.put("h", grid.height)
+            obj.put("gs", grid.gridSettings.solvable)
             obj.put("x", CanvasWrapper.posX)
             obj.put("y", CanvasWrapper.posY)
             obj.put("s", CanvasWrapper.scale)

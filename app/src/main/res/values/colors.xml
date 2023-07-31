@@ -8,4 +8,17 @@
     <color name="white_splash">#DDFFFFFF</color>
 
     <color name="colorBgIcon">#242433</color>
+
+    <color name="statusBar">#A0000000</color>
+    <color name="statusBarWin">#A000FF00</color>
+    <color name="statusBarLose">#A0FF0000</color>
+
+    <color name="buttonGreen">#ff579f41</color>
+    <color name="buttonGreenH">#ff61a94b</color>
+
+    <color name="buttonBlue">#ff41769f</color>
+    <color name="buttonBlueH">#ff4a7fa8</color>
+
+    <color name="buttonGray">#ff828282</color>
+    <color name="buttonGrayH">#ff949494</color>
 </resources>

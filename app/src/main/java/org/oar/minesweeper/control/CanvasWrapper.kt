@@ -2,7 +2,10 @@ package org.oar.minesweeper.control
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import org.oar.minesweeper.control.ScreenProperties.dpiValue
+import org.oar.minesweeper.control.ScreenProperties.HEIGHT
+import org.oar.minesweeper.control.ScreenProperties.STATUS_BAR_HEIGHT
+import org.oar.minesweeper.control.ScreenProperties.WIDTH
+import org.oar.minesweeper.control.ScreenProperties.toDpi
 import org.oar.minesweeper.elements.Tile
 
 class CanvasWrapper(
@@ -17,9 +20,9 @@ class CanvasWrapper(
         canvas.scale(scale, scale)
 
         visibleSpace.left = (-posX / scale).toInt()
-        visibleSpace.right = ((-posX + ScreenProperties.WIDTH) / scale).toInt()
+        visibleSpace.right = ((WIDTH - posX) / scale).toInt()
         visibleSpace.top = (-posY / scale).toInt()
-        visibleSpace.bottom = ((-posY + ScreenProperties.HEIGHT) / scale).toInt()
+        visibleSpace.bottom = ((HEIGHT + STATUS_BAR_HEIGHT - posY) / scale).toInt()
     }
 
     fun end() {
@@ -31,11 +34,11 @@ class CanvasWrapper(
             private set
         var posY = 0f
             private set
-        var scale = dpiValue(.2491268f)
+        var scale = 0.2491268f.toDpi()
             private set
 
-        private val minScale = dpiValue(.05f)
-        private val maxScale = dpiValue(.8f)
+        private val minScale = 0.05f.toDpi()
+        private val maxScale = 0.8f.toDpi()
         private var contentWidth = 0f
         private var contentHeight = 0f
 
@@ -44,8 +47,8 @@ class CanvasWrapper(
             posY += y
 
             // Check limits:
-            val widthHalf = ScreenProperties.WIDTH / 2f
-            val heightHalf = ScreenProperties.HEIGHT / 2f
+            val widthHalf = WIDTH / 2f
+            val heightHalf = HEIGHT / 2f
             if (posX > widthHalf) posX =
                 widthHalf else if (posX < widthHalf - contentWidth * scale) posX =
                 widthHalf - contentWidth * scale
@@ -62,9 +65,9 @@ class CanvasWrapper(
             scale = newScale
 
             // Use center screen as anchor:
-            val widthHalf = ScreenProperties.WIDTH / 2f
+            val widthHalf = WIDTH / 2f
             posX = widthHalf - (widthHalf - posX) * z
-            val heightHalf = ScreenProperties.HEIGHT / 2f
+            val heightHalf = HEIGHT / 2f
             posY = heightHalf - (heightHalf - posY) * z
         }
 
@@ -76,8 +79,8 @@ class CanvasWrapper(
 
         fun focus(x: Int, y: Int) {
             val tileSize = GridDrawer.tileSize
-            posX = ScreenProperties.WIDTH / 2f - (x + .5f) * tileSize * scale
-            posY = ScreenProperties.HEIGHT / 2f - (y + .5f) * tileSize * scale
+            posX = WIDTH / 2f - (x + .5f) * tileSize * scale
+            posY = HEIGHT / 2f - (y + .5f) * tileSize * scale
         }
 
         fun focus(tile: Tile) {
