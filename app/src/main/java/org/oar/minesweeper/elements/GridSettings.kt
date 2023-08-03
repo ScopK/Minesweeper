@@ -8,7 +8,8 @@ import kotlin.reflect.KClass
 
 data class GridSettings(
     val firstOpen: Boolean,
-    val solvable: Boolean
+    val solvable: Boolean,
+    val visualHelp: Boolean,
 ) : Serializable {
     val generatorClass: KClass<out GridGenerator>
         get() = if (solvable)

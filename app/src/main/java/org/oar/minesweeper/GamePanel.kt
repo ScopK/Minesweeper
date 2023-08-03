@@ -86,7 +86,7 @@ class GamePanel(context: Context) : View(context) {
         super.draw(canvas)
         val xCanvas = CanvasWrapper(canvas)
 
-        logic?.also { draw(xCanvas, it.grid) }
+        logic?.also { draw(context, xCanvas, it.grid) }
 
         xCanvas.end()
         hud?.draw(canvas)

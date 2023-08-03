@@ -83,7 +83,8 @@ class Grid (
             val gridConfig = GridConfiguration(width, height, bombs)
             val gridSettings = GridSettings(
                 context.loadBoolean("lastRevealFirst", true),
-                isSolvable
+                isSolvable,
+                context.loadBoolean("lastVisualHelp", false),
             )
 
             return Grid(gridConfig, gridSettings).apply {

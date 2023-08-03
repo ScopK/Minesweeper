@@ -10,10 +10,12 @@
     <color name="iconBackground">#242433</color>
     <color name="defaultBackground">#242433</color>
 
+    <!-- HUD BAR COLOR -->
     <color name="statusBar">#A0000000</color>
     <color name="statusBarWin">#A000FF00</color>
     <color name="statusBarLose">#A0FF0000</color>
 
+    <!-- MENU BUTTONS COLOR -->
     <color name="buttonGreen">#ff579f41</color>
     <color name="buttonGreenH">#ff61a94b</color>
 
@@ -25,4 +27,8 @@
 
     <color name="buttonGray">#ff828282</color>
     <color name="buttonGrayH">#ff949494</color>
+
+    <!-- SKINS BACKGROUND COLOR -->
+    <color name="defaultSkinBackground">#3C3C3C</color>
+    <color name="winSkinBackground">#808080</color>
 </resources>

@@ -26,9 +26,11 @@ class StartGridDialogFragment(
 
         val revealFirst = view.findViewById<SwitchMaterial>(R.id.revealFirst)
         val solvable = view.findViewById<SwitchMaterial>(R.id.solvable)
+        val visualHelp = view.findViewById<SwitchMaterial>(R.id.visualHelp)
 
         revealFirst.isChecked = ctx.loadBoolean("lastRevealFirst", true)
         solvable.isChecked = ctx.loadBoolean("lastSolvable", false)
+        visualHelp.isChecked = ctx.loadBoolean("lastVisualHelp", false)
 
         solvable.setOnCheckedChangeListener { compoundButton,_ ->
             updateDependencies(revealFirst, compoundButton as SwitchMaterial)
@@ -45,10 +47,12 @@ class StartGridDialogFragment(
 
                 ctx.save("lastRevealFirst", revealFirst.isChecked)
                 ctx.save("lastSolvable", solvable.isChecked)
+                ctx.save("lastVisualHelp", visualHelp.isChecked)
 
                 confirm.accept(GridSettings(
                     revealFirst.isChecked,
-                    solvable.isChecked
+                    solvable.isChecked,
+                    visualHelp.isChecked
                 ))
             }
             .setNegativeButton(R.string.button_cancel) { _, _ -> cancel.run() }
@@ -56,7 +60,7 @@ class StartGridDialogFragment(
         return builder.show()
     }
 
-    fun updateDependencies(revealFirst: SwitchMaterial, solvable: SwitchMaterial) {
+    private fun updateDependencies(revealFirst: SwitchMaterial, solvable: SwitchMaterial) {
         revealFirst.isEnabled = !solvable.isChecked
         if (solvable.isChecked) revealFirst.isChecked = true
     }

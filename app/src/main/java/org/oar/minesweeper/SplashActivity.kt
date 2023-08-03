@@ -10,6 +10,9 @@ import org.oar.minesweeper.control.GridDrawer
 import org.oar.minesweeper.control.ScreenProperties
 import org.oar.minesweeper.control.Settings
 import org.oar.minesweeper.skins.*
+import org.oar.minesweeper.skins.DefaultSkin
+import org.oar.minesweeper.skins.DotSkin
+import org.oar.minesweeper.skins.WinSkin
 import java.io.File
 
 @SuppressLint("CustomSplashScreen")
@@ -26,10 +29,10 @@ class SplashActivity : AppCompatActivity() {
         }
 
         when (preferences.getString("option_theme", "0")){
-            "0" -> GridDrawer.setSkin(this, DefaultNumberSkin::class)
-            "1" -> GridDrawer.setSkin(this, DefaultDotSkin::class)
-            "2" -> GridDrawer.setSkin(this, DotHelpSkin::class)
-            "3" -> GridDrawer.setSkin(this, NostalgiaSkin::class)
+            "0" -> GridDrawer.setSkin(this, DefaultSkin::class)
+            "1" -> GridDrawer.setSkin(this, DotSkin::class)
+            "2" -> GridDrawer.setSkin(this, DotAltSkin::class)
+            "3" -> GridDrawer.setSkin(this, WinSkin::class)
         }
 
         val fileSavePath = ContextWrapper(this).filesDir.path +"/"+Settings.FILENAME

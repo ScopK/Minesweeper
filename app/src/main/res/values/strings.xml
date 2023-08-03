@@ -43,6 +43,9 @@
     <string name="pref_solvable">Generate solvable grid</string>
     <string name="pref_solvable_desc">Grid can be solved without RNG</string>
 
+    <string name="pref_visualHelp">Enable visual help</string>
+    <string name="pref_visualHelp_desc">Each numbered tile will indicate how many nearby mines has been flagged</string>
+
     <string name="pref_visualtheme">Visual Theme</string>
     <string-array name="pref_discoverymode_title">
         <item>Disabled</item>
@@ -62,8 +65,8 @@
     <string-array name="pref_visualtheme_title">
         <item>Default</item>
         <item>Dots</item>
-        <item>Dots (visual help)</item>
-        <item>Old windows</item>
+        <item>Dots Classic</item>
+        <item>Windows Classic</item>
     </string-array>
     <string-array name="pref_visualtheme_value">
         <item>0</item>

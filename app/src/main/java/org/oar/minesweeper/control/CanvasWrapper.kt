@@ -2,6 +2,7 @@ package org.oar.minesweeper.control
 
 import android.graphics.Canvas
 import android.graphics.Rect
+import org.oar.minesweeper.control.ScreenProperties.BUTTON_PANEL_HEIGHT
 import org.oar.minesweeper.control.ScreenProperties.HEIGHT
 import org.oar.minesweeper.control.ScreenProperties.STATUS_BAR_HEIGHT
 import org.oar.minesweeper.control.ScreenProperties.WIDTH
@@ -22,7 +23,7 @@ class CanvasWrapper(
         visibleSpace.left = (-posX / scale).toInt()
         visibleSpace.right = ((WIDTH - posX) / scale).toInt()
         visibleSpace.top = (-posY / scale).toInt()
-        visibleSpace.bottom = ((HEIGHT + STATUS_BAR_HEIGHT - posY) / scale).toInt()
+        visibleSpace.bottom = ((HEIGHT + STATUS_BAR_HEIGHT + BUTTON_PANEL_HEIGHT - posY) / scale).toInt()
     }
 
     fun end() {

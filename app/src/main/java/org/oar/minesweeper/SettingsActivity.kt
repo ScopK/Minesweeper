@@ -6,10 +6,10 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import org.oar.minesweeper.control.GridDrawer.setSkin
 import org.oar.minesweeper.control.Settings
-import org.oar.minesweeper.skins.DefaultDotSkin
-import org.oar.minesweeper.skins.DefaultNumberSkin
-import org.oar.minesweeper.skins.DotHelpSkin
-import org.oar.minesweeper.skins.NostalgiaSkin
+import org.oar.minesweeper.skins.DefaultSkin
+import org.oar.minesweeper.skins.DotAltSkin
+import org.oar.minesweeper.skins.DotSkin
+import org.oar.minesweeper.skins.WinSkin
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,10 +51,10 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<Preference>("option_theme")!!.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { _, value ->
                     when (value.toString()) {
-                        "0" -> setSkin(requireContext(), DefaultNumberSkin::class)
-                        "1" -> setSkin(requireContext(), DefaultDotSkin::class)
-                        "2" -> setSkin(requireContext(), DotHelpSkin::class)
-                        "3" -> setSkin(requireContext(), NostalgiaSkin::class)
+                        "0" -> setSkin(requireContext(), DefaultSkin::class)
+                        "1" -> setSkin(requireContext(), DotSkin::class)
+                        "2" -> setSkin(requireContext(), DotAltSkin::class)
+                        "3" -> setSkin(requireContext(), WinSkin::class)
                     }
                     true
                 }
