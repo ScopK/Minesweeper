@@ -25,11 +25,11 @@ class MenuOption
     private val index: Int
 ) {
     companion object {
-        private const val FACTOR_FONT_SIZE = 11f
-        private const val FACTOR_MARGIN_IN_SIZE = 16f
-        const val FACTOR_MARGIN_OUT_SIZE = 20f
-        private const val FACTOR_MARGIN_BTW_SIZE = 10f
-        private const val FACTOR_BORDER_SIZE = 1f
+        private const val FACTOR_FONT_SIZE = 11
+        private const val FACTOR_MARGIN_IN_SIZE = 16
+        const val FACTOR_MARGIN_OUT_SIZE = 20
+        private const val FACTOR_MARGIN_BTW_SIZE = 10
+        private const val FACTOR_BORDER_SIZE = 1
     }
 
     private val text = context.getString(textRes)

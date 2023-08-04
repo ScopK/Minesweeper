@@ -47,17 +47,6 @@ class SettingsActivity : AppCompatActivity() {
                     sets.discoveryMode = revealValue
                     true
                 }
-
-            findPreference<Preference>("option_theme")!!.onPreferenceChangeListener =
-                Preference.OnPreferenceChangeListener { _, value ->
-                    when (value.toString()) {
-                        "0" -> setSkin(requireContext(), DefaultSkin::class)
-                        "1" -> setSkin(requireContext(), DotSkin::class)
-                        "2" -> setSkin(requireContext(), DotAltSkin::class)
-                        "3" -> setSkin(requireContext(), WinSkin::class)
-                    }
-                    true
-                }
         }
     }
 }

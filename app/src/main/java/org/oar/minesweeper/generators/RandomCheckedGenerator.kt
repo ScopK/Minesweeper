@@ -67,11 +67,11 @@ open class RandomCheckedGenerator : RandomGenerator() {
             } while (protectedTiles.indexOf(aim) >= 0)
 
             val t0: Tile = grid.tiles[rplc]
-            t0.plantBomb(false)
+            t0.hasBomb = false
             getNeighbors(grid, t0).forEach { it.doesntHaveBombNear() }
 
             val tf: Tile = grid.tiles[aim]
-            tf.plantBomb()
+            tf.hasBomb = true
             getNeighbors(grid, tf).forEach { it.hasBombNear() }
         }
     }

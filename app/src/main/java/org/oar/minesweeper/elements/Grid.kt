@@ -39,7 +39,12 @@ class Grid (
 
     companion object {
         @Throws(JSONException::class)
-        fun jsonGrid(context: Context, obj: JSONObject): Grid {
+        fun jsonGrid(
+            context: Context,
+            obj: JSONObject,
+            gridSettings: GridSettings? = null
+        ): Grid {
+
             val height = obj.getInt("h")
             val width = obj.getInt("w")
             val tilesList: MutableList<Tile> = mutableListOf()
@@ -63,12 +68,12 @@ class Grid (
                     'c' -> t = Tile(i % width, i / width, Tile.Status.COVERED)
                     'F' -> {
                         t = Tile(i % width, i / width, Tile.Status.FLAG)
-                        t.plantBomb()
+                            .apply { hasBomb = true }
                         bombs++
                     }
                     'C' -> {
                         t = Tile(i % width, i / width, Tile.Status.COVERED)
-                        t.plantBomb()
+                            .apply { hasBomb = true }
                         bombs++
                     }
                 }
@@ -80,22 +85,24 @@ class Grid (
                 else
                     false
 
-            val gridConfig = GridConfiguration(width, height, bombs)
-            val gridSettings = GridSettings(
+            val config = GridConfiguration(width, height, bombs)
+            val settings = gridSettings ?: GridSettings(
                 context.loadBoolean("lastRevealFirst", true),
                 isSolvable,
                 context.loadBoolean("lastVisualHelp", false),
             )
 
-            return Grid(gridConfig, gridSettings).apply {
+            return Grid(config, settings).apply {
                 tiles = tilesList
             }
         }
     }
 
     public override fun clone(): Grid {
-        return Grid(gridConfig, gridSettings).also { grid ->
-            tiles.forEach { grid.tiles.add(it.clone()) }
+        return Grid(gridConfig, gridSettings)
+            .also { grid ->
+                tiles.forEach { grid.tiles.add(it.clone())
+            }
         }
     }
 }

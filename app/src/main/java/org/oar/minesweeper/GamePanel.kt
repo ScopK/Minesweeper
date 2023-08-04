@@ -14,6 +14,7 @@ import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.view.View
 import org.json.JSONException
 import org.json.JSONObject
+import org.oar.minesweeper.control.CanvasPosition
 import org.oar.minesweeper.control.CanvasWrapper
 import org.oar.minesweeper.control.GridDrawer.draw
 import org.oar.minesweeper.control.GridDrawer.tileSize
@@ -32,6 +33,11 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class GamePanel(context: Context) : View(context) {
+
+    companion object {
+        private val canvasPosition = CanvasPosition()
+    }
+
     private var logic: MainLogic? = null
     private var hud: Hud? = null
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
@@ -60,10 +66,10 @@ class GamePanel(context: Context) : View(context) {
                 ?: findSafeOpenTile(grid)
 
             logic!!.reveal(tile)
-            CanvasWrapper.focus(tile)
+            canvasPosition.focus(tile)
         } else {
             grid.tiles.firstOrNull { tile -> tile.status === Tile.Status.A0 }
-                ?.also { CanvasWrapper.focus(it) }
+                ?.also { canvasPosition.focus(it) }
         }
     }
 
@@ -77,18 +83,19 @@ class GamePanel(context: Context) : View(context) {
         }
 
         logic.setFinishEvent { hud?.stopTimer() }
-        CanvasWrapper.setContentDimensions(
+        canvasPosition.setContentDimensions(
             (logic.grid.width * tileSize).toFloat(),
             (logic.grid.height * tileSize).toFloat())
     }
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        val xCanvas = CanvasWrapper(canvas)
+        val xCanvas = CanvasWrapper(canvas, canvasPosition)
 
         logic?.also { draw(context, xCanvas, it.grid) }
 
         xCanvas.end()
+
         hud?.draw(canvas)
     }
 
@@ -113,7 +120,7 @@ class GamePanel(context: Context) : View(context) {
                         dragXPos = event.x
                         dragYPos = event.y
 
-                        CanvasWrapper.translate(dx.toFloat(), dy.toFloat())
+                        canvasPosition.translate(dx.toFloat(), dy.toFloat())
 
                         isMoving = true
                         postInvalidate()
@@ -143,7 +150,7 @@ class GamePanel(context: Context) : View(context) {
             isResizing = true
 
             val ratio = detector.scaleFactor
-            CanvasWrapper.zoom(ratio)
+            canvasPosition.zoom(ratio)
 
             postInvalidate()
             return true
@@ -154,7 +161,7 @@ class GamePanel(context: Context) : View(context) {
         override fun onLongPress(e: MotionEvent) {
             if (isMoving) return
 
-            val t = getTileByScreenCoords(logic!!.grid, e.x, e.y)
+            val t = getTileByScreenCoords(logic!!.grid, e.x, e.y, canvasPosition)
 
             if (t != null) {
                 if (logic!!.alternativeAction(t)) {
@@ -172,7 +179,7 @@ class GamePanel(context: Context) : View(context) {
                 return true
             }
 
-            val t = getTileByScreenCoords(logic!!.grid, e.x, e.y)
+            val t = getTileByScreenCoords(logic!!.grid, e.x, e.y, canvasPosition)
             if (t != null) {
                 logic!!.mainAction(t)
             }
@@ -194,7 +201,7 @@ class GamePanel(context: Context) : View(context) {
             return
         }
         try {
-            val obj = getJsonStatus(logic!!.grid, hud!!.time)
+            val obj = getJsonStatus(logic!!.grid, hud!!.time, canvasPosition)
 
             PrintWriter(saveStatePath).use {
                 it.print(obj)
@@ -216,7 +223,7 @@ class GamePanel(context: Context) : View(context) {
                 val bareGrid = Grid.jsonGrid(context, obj)
                 val logic = calculateLogicFromBareGrid(bareGrid)
                 setGrid(logic, obj.getInt("t"))
-                CanvasWrapper.setValues(
+                canvasPosition.setValues(
                     obj.getDouble("x").toFloat(),
                     obj.getDouble("y").toFloat(),
                     obj.getDouble("s").toFloat())

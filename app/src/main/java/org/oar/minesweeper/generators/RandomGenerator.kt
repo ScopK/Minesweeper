@@ -37,7 +37,7 @@ open class RandomGenerator : GridGenerator {
                 i++
                 continue
             }
-            grid.tiles[idx].plantBomb()
+            grid.tiles[idx].hasBomb = true
             getNeighbors(grid, grid.tiles[idx]).forEach { it.hasBombNear() }
             i++
         }

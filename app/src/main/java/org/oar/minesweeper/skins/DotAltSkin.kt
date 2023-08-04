@@ -11,4 +11,5 @@ class DotAltSkin: Skin() {
 
     override val resource = R.drawable.dot_alt_skin
     override var backgroundColor = R.color.defaultSkinBackground
+    override var name = "Dot Classic Theme"
 }

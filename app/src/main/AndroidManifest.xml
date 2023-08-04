@@ -37,6 +37,10 @@
             android:name=".MenuActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullscreenTheme" />
+        <activity
+            android:name=".SkinViewerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullscreenTheme" />
         <activity android:name=".SettingsActivity" />
     </application>
 

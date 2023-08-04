@@ -2,6 +2,7 @@ package org.oar.minesweeper.utils
 
 import org.json.JSONException
 import org.json.JSONObject
+import org.oar.minesweeper.control.CanvasPosition
 import org.oar.minesweeper.control.CanvasWrapper
 import org.oar.minesweeper.control.GridDrawer.tileSize
 import org.oar.minesweeper.control.MainLogic
@@ -73,11 +74,11 @@ object GridUtils {
         return neighbors
     }
 
-    fun getTileByScreenCoords(grid: Grid, x: Float, y: Float): Tile? {
+    fun getTileByScreenCoords(grid: Grid, x: Float, y: Float, canvasPosition: CanvasPosition): Tile? {
         val tileSize = tileSize
-        val scale = CanvasWrapper.scale
-        val relativeX = x - CanvasWrapper.posX
-        val relativeY = y - CanvasWrapper.posY
+        val scale = canvasPosition.scale
+        val relativeX = x - canvasPosition.posX
+        val relativeY = y - canvasPosition.posY
 
         if (relativeX < 0 || relativeY < 0) return null
 
@@ -136,16 +137,16 @@ object GridUtils {
         }
     }
 
-    fun getJsonStatus(grid: Grid, seconds: Int): JSONObject {
+    fun getJsonStatus(grid: Grid, seconds: Int, canvasPosition: CanvasPosition): JSONObject {
         val obj = JSONObject()
 
         try {
             obj.put("w", grid.width)
             obj.put("h", grid.height)
             obj.put("gs", grid.gridSettings.solvable)
-            obj.put("x", CanvasWrapper.posX)
-            obj.put("y", CanvasWrapper.posY)
-            obj.put("s", CanvasWrapper.scale)
+            obj.put("x", canvasPosition.posX)
+            obj.put("y", canvasPosition.posY)
+            obj.put("s", canvasPosition.scale)
             obj.put("t", seconds)
             obj.put("ts",
                 grid.tiles
@@ -178,13 +179,13 @@ object GridUtils {
 
         grid.tiles.forEach { tile ->
             if (tile.hasBomb) {
-                getNeighbors(grid, tile).forEach(Consumer { obj: Tile -> obj.hasBombNear() })
+                getNeighbors(grid, tile).forEach { it.hasBombNear() }
             }
             if (!tile.isCovered) {
                 logic.addRevealedTiles()
             }
             if (tile.status === FLAG) {
-                getNeighbors(grid, tile).forEach(Consumer { obj: Tile -> obj.addFlaggedNear() })
+                getNeighbors(grid, tile).forEach { it.addFlaggedNear() }
                 logic.addFlaggedBombs()
                 if (tile.hasBomb) {
                     logic.addCorrectFlaggedBombs()

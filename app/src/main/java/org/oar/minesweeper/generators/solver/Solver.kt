@@ -68,7 +68,7 @@ abstract class Solver {
         val tile = sketchTiles[index]
         tile.status = Tile.Status.FLAG
         tile.customFlag.add('X')
-        tile.defuseBomb()
+        tile.hasBomb = false
 
         getNeighborsIdx(sketch.grid, tile)
             .onEach { idx ->

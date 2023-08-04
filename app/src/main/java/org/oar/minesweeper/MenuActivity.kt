@@ -41,4 +41,9 @@ class MenuActivity : AppCompatActivity() {
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }
+
+    fun openSkins() {
+        val intent = Intent(this, SkinViewerActivity::class.java)
+        startActivity(intent)
+    }
 }

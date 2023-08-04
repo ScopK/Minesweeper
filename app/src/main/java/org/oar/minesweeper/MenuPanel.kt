@@ -10,8 +10,8 @@ import org.oar.minesweeper.control.ScreenProperties.toDpi
 import org.oar.minesweeper.elements.GridConfiguration
 import org.oar.minesweeper.elements.MenuOption
 import org.oar.minesweeper.elements.MenuOption.Companion.FACTOR_MARGIN_OUT_SIZE
-import org.oar.minesweeper.ui.NumbScrollView
-import org.oar.minesweeper.ui.StartGridDialogFragment
+import org.oar.minesweeper.ui.views.NumbScrollView
+import org.oar.minesweeper.ui.dialogs.StartGridDialog
 import org.oar.minesweeper.utils.ActivityController.findColor
 import kotlin.math.roundToInt
 
@@ -115,18 +115,18 @@ class MenuPanel(
                 ),
                 MenuOption(
                     context,
-                    R.string.menu_game_name_7,
-                    R.color.buttonBlue,
-                    R.color.buttonBlueH,
-                    startProcess(6, 20, 40),
-                    ++counter
-                ),
-                MenuOption(
-                    context,
                     R.string.menu_settings,
                     R.color.buttonGray,
                     R.color.buttonGrayH,
                     activity::openSettings,
+                    ++counter
+                ),
+                MenuOption(
+                    context,
+                    R.string.visual_theme,
+                    R.color.buttonGray,
+                    R.color.buttonGrayH,
+                    activity::openSkins,
                     ++counter
                 )
             ).also {
@@ -138,7 +138,7 @@ class MenuPanel(
         private fun startProcess(width: Int, height: Int, bombs: Int): Runnable {
             val gridConfig = GridConfiguration(width, height, bombs)
             return Runnable {
-                StartGridDialogFragment(
+                StartGridDialog(
                     activity,
                     gridConfig,
                     { activity.startGrid(gridConfig, it) }

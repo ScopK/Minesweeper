@@ -16,13 +16,4 @@
         android:summary="@string/pref_discoverymode_desc"
         android:title="@string/pref_discoverymode" />
 
-    <ListPreference
-        android:defaultValue="0"
-        android:entries="@array/pref_visualtheme_title"
-        android:entryValues="@array/pref_visualtheme_value"
-        android:key="option_theme"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_visualtheme" />
-
 </PreferenceScreen>

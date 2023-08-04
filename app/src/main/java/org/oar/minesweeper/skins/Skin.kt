@@ -12,7 +12,7 @@ import androidx.core.graphics.drawable.toBitmap
 
 abstract class Skin {
     open val visualHelp = false
-    protected open val unhelpfulTileIsEmpty = false
+    protected open val useEmptyTileWhenUnhelpful = false
 
     open val defaultTileSize = 128
 
@@ -24,11 +24,15 @@ abstract class Skin {
     abstract val resource: Int
     @get:ColorRes
     abstract var backgroundColor: Int
+    abstract var name: String
 
     private val defaultPaint = Paint()
     private lateinit var set: SkinSet
 
+    var loaded = false
+
     fun load(context: Context) {
+        loaded = true
         val bitmap = context.getBitmap(resource)
         val lastRowY = defaultTileSize * 4
 
@@ -67,7 +71,7 @@ abstract class Skin {
 
         val pair = if (this.visualHelp && visualHelp) {
             Pair(numValue, if (numMarked > numValue + 1) numValue + 1 else numMarked)
-        } else if (unhelpfulTileIsEmpty) {
+        } else if (useEmptyTileWhenUnhelpful) {
             Pair(numValue, 0)
         } else {
             Pair(numValue, numValue)

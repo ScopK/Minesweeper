@@ -21,21 +21,17 @@
     <string name="menu_game_name_6">Inferno</string>
     <string name="menu_game_sub_6">50x50 - 503 bombs</string>
 
-    <string name="menu_game_name_7">Chuck Norris</string>
-    <string name="menu_game_sub_7">6x20 - 40 bombs</string>
-
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
 
     <string name="app_name">Minesweeper</string>
     <string name="new_game">New game</string>
     <string name="settings">Settings</string>
+    <string name="visual_theme">Visual Theme</string>
 
     <string name="grid_summary_line">Dimensions %1$dx%2$d - %3$d bombs</string>
 
     <string name="pref_showtime">Show time</string>
-    <string name="pref_discoverymode">Set revealing mode</string>
-    <string name="pref_discoverymode_desc">Disabled: No tile will be revealed when a "number tile" is touched.\nEasy: Only when the number of flagged bombs is equal to the "number tile", the surrounding tiles will be revealed.\nNormal: Only when the number of flagged bombs is equal or bigger to the "number tile", the surrounding tiles will be revealed.\nHard: The surrounding tiles from a "number tile" will be revealed, no matter the flagged bombs around it.\nAutomatic: Tiles will be automatically open. Might be risky... Be careful with what you flag!</string>
 
     <string name="pref_revealFirst">Auto reveal first tile</string>
     <string name="pref_revealFirst_desc">Automatically open an empty tile on start</string>
@@ -46,7 +42,8 @@
     <string name="pref_visualHelp">Enable visual help</string>
     <string name="pref_visualHelp_desc">Each numbered tile will indicate how many nearby mines has been flagged</string>
 
-    <string name="pref_visualtheme">Visual Theme</string>
+    <string name="pref_discoverymode">Set revealing mode</string>
+    <string name="pref_discoverymode_desc">Disabled: No tile will be revealed when a "number tile" is touched.\nEasy: Only when the number of flagged bombs is equal to the "number tile", the surrounding tiles will be revealed.\nNormal: Only when the number of flagged bombs is equal or bigger to the "number tile", the surrounding tiles will be revealed.\nHard: The surrounding tiles from a "number tile" will be revealed, no matter the flagged bombs around it.\nAutomatic: Tiles will be automatically open. Might be risky... Be careful with what you flag!</string>
     <string-array name="pref_discoverymode_title">
         <item>Disabled</item>
         <item>Easy</item>
@@ -60,18 +57,5 @@
         <item>1</item>
         <item>2</item>
         <item>4</item>
-    </string-array>
-
-    <string-array name="pref_visualtheme_title">
-        <item>Default</item>
-        <item>Dots</item>
-        <item>Dots Classic</item>
-        <item>Windows Classic</item>
-    </string-array>
-    <string-array name="pref_visualtheme_value">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
     </string-array>
 </resources>

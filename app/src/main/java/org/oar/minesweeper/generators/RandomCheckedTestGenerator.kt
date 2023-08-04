@@ -41,7 +41,6 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
     private fun test1(grid: Grid) {
         val w = grid.width
         val h = grid.height
-        val bombs = grid.bombs
 
         val tiles = grid.tiles
         tiles.clear()
@@ -51,7 +50,7 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
             }
         }
         for (idx in intArrayOf(8, 10, 11, 12, 17, 22)) {
-            tiles[idx].plantBomb()
+            tiles[idx].hasBomb = true
             getNeighbors(grid, tiles[idx]).forEach(Consumer { obj: Tile -> obj.hasBombNear() })
         }
     }

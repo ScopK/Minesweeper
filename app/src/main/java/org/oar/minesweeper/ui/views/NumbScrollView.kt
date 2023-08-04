@@ -1,4 +1,4 @@
-package org.oar.minesweeper.ui
+package org.oar.minesweeper.ui.views
 
 import android.annotation.SuppressLint
 import android.content.Context

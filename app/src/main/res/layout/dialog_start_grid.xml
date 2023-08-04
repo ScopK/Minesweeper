@@ -19,11 +19,4 @@
         android:layout_height="wrap_content"
         android:text="@string/pref_solvable"
         android:tooltipText="@string/pref_solvable_desc" />
-
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/visualHelp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/pref_visualHelp"
-        android:tooltipText="@string/pref_visualHelp_desc" />
 </LinearLayout>

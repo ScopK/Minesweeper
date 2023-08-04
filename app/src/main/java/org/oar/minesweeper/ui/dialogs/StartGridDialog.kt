@@ -1,4 +1,4 @@
-package org.oar.minesweeper.ui
+package org.oar.minesweeper.ui.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -13,7 +13,7 @@ import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import org.oar.minesweeper.utils.PreferencesUtils.save
 import java.util.function.Consumer
 
-class StartGridDialogFragment(
+class StartGridDialog(
     private val ctx: Context,
     private val gridConfig: GridConfiguration,
     private val confirm: Consumer<GridSettings>,
@@ -26,11 +26,9 @@ class StartGridDialogFragment(
 
         val revealFirst = view.findViewById<SwitchMaterial>(R.id.revealFirst)
         val solvable = view.findViewById<SwitchMaterial>(R.id.solvable)
-        val visualHelp = view.findViewById<SwitchMaterial>(R.id.visualHelp)
 
         revealFirst.isChecked = ctx.loadBoolean("lastRevealFirst", true)
         solvable.isChecked = ctx.loadBoolean("lastSolvable", false)
-        visualHelp.isChecked = ctx.loadBoolean("lastVisualHelp", false)
 
         solvable.setOnCheckedChangeListener { compoundButton,_ ->
             updateDependencies(revealFirst, compoundButton as SwitchMaterial)
@@ -47,12 +45,11 @@ class StartGridDialogFragment(
 
                 ctx.save("lastRevealFirst", revealFirst.isChecked)
                 ctx.save("lastSolvable", solvable.isChecked)
-                ctx.save("lastVisualHelp", visualHelp.isChecked)
 
                 confirm.accept(GridSettings(
                     revealFirst.isChecked,
                     solvable.isChecked,
-                    visualHelp.isChecked
+                    ctx.loadBoolean("lastVisualHelp", false)
                 ))
             }
             .setNegativeButton(R.string.button_cancel) { _, _ -> cancel.run() }

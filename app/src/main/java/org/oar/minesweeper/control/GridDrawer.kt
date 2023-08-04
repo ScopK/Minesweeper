@@ -6,6 +6,7 @@ import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.Tile
 import org.oar.minesweeper.skins.Skin
 import org.oar.minesweeper.utils.ActivityController.findColor
+import org.oar.minesweeper.utils.GridUtils
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -26,14 +27,24 @@ object GridDrawer {
         }
     }
 
-    fun draw(context: Context, canvasW: CanvasWrapper, grid: Grid) {
+    fun draw(
+        context: Context,
+        canvasW: CanvasWrapper,
+        grid: Grid,
+        skin: Skin = this.skin
+    ) {
         canvasW.canvas.drawColor(context.findColor(skin.backgroundColor))
         for (tile in grid.tiles) {
-            draw(canvasW, tile, grid)
+            draw(canvasW, tile, grid, skin)
         }
     }
 
-    private fun draw(canvasW: CanvasWrapper, tile: Tile, grid: Grid) {
+    private fun draw(
+        canvasW: CanvasWrapper,
+        tile: Tile,
+        grid: Grid,
+        skin: Skin = this.skin
+    ) {
         val visibleSpace = canvasW.visibleSpace
         val dim = Rect()
         val size = tileSize
@@ -47,43 +58,24 @@ object GridDrawer {
 
             val canvas = canvasW.canvas
             val hashCode = tile.hashCode()
+
+            val x = (tile.x * size).toFloat()
+            val y = (tile.y * size).toFloat()
+
             when (tile.status) {
-                Tile.Status.COVERED ->
-                    skin.drawCover(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), hashCode)
-                Tile.Status.A0 ->
-                    skin.drawEmpty(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat())
-                Tile.Status.A1 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 1,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.A2 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 2,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.A3 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 3,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.A4 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 4,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.A5 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 5,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.A6 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 6,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.A7 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 7,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.A8 ->
-                    skin.drawNumber(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), 8,
-                        tile.flaggedNear, grid.gridSettings.visualHelp)
-                Tile.Status.BOMB ->
-                    skin.drawBomb(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), hashCode)
-                Tile.Status.BOMB_FINAL ->
-                    skin.drawBomb(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), hashCode, true)
-                Tile.Status.FLAG ->
-                    skin.drawFlag(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), hashCode)
-                Tile.Status.FLAG_FAIL ->
-                    skin.drawFlag(canvas, (tile.x * size).toFloat(), (tile.y * size).toFloat(), hashCode, true)
+                Tile.Status.COVERED ->    skin.drawCover(canvas, x, y, hashCode)
+                Tile.Status.A0 ->         skin.drawEmpty(canvas, x, y)
+                Tile.Status.BOMB ->       skin.drawBomb(canvas, x, y, hashCode)
+                Tile.Status.BOMB_FINAL -> skin.drawBomb(canvas, x, y, hashCode, true)
+                Tile.Status.FLAG ->       skin.drawFlag(canvas, x, y, hashCode)
+                Tile.Status.FLAG_FAIL ->  skin.drawFlag(canvas, x, y, hashCode, true)
+
+                else -> {
+                    val numValue = GridUtils.getTileNumber(tile)
+                    if (numValue > 0) {
+                        skin.drawNumber(canvas, x, y, numValue, tile.flaggedNear, grid.gridSettings.visualHelp)
+                    }
+                }
             }
         }
     }

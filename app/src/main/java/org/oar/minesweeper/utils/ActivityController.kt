@@ -13,8 +13,7 @@ import org.oar.minesweeper.elements.Grid
 object ActivityController {
 
     fun loadGrid(grid: Grid, activity: Activity) {
-        val showLoading = grid.getGeneratorClass().contains("CheckedGenerator")
-        if (showLoading) {
+        if (grid.gridSettings.solvable) {
             val intent = Intent(activity, LoadingActivity::class.java)
             intent.putExtra("grid", grid)
             activity.startActivity(intent)

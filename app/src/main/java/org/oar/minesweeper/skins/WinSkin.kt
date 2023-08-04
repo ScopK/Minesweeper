@@ -7,4 +7,5 @@ class WinSkin: Skin() {
 
     override val resource = R.drawable.win_skin
     override var backgroundColor = R.color.winSkinBackground
+    override var name = "Windows Classic Theme"
 }

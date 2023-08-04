@@ -55,7 +55,11 @@ object ScreenProperties {
         return this * DPI / 100f
     }
 
-    fun Float.adaptFontSize(): Float {
+    fun Int.toDpi(): Float {
+        return this * DPI / 100f
+    }
+
+    fun Int.adaptFontSize(): Float {
         return fontSizeBase * this / 12f
     }
 }

@@ -25,8 +25,8 @@ class Hud(
 ) {
 
     companion object {
-        private const val FONT_SIZE = 9f
-        private const val MARGIN = 10f
+        private const val FONT_SIZE = 9
+        private const val MARGIN = 10
     }
 
     private val fontHeight: Float

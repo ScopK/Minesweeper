@@ -28,14 +28,6 @@ class Tile(
         get() = !isCovered && status != Status.A0
 
 
-    fun plantBomb(value: Boolean = true) {
-        hasBomb = value
-    }
-
-    fun defuseBomb() {
-        hasBomb = false
-    }
-
     fun addFlaggedNear() {
         flaggedNear++
     }
