@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowInsets
 import android.widget.ImageView
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import org.json.JSONObject
@@ -34,6 +36,7 @@ class SkinViewerActivity : Activity() {
 
     private var skinIndex = 0
     private var visualHelp = true
+    private var hueSelected = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,35 +46,59 @@ class SkinViewerActivity : Activity() {
 
         skinIndex = loadInteger("skin")
         visualHelp = loadBoolean("lastVisualHelp", false)
+        hueSelected = loadInteger("lastCoverHue", 0)
 
         val viewer = findViewById<GridViewerView>(R.id.viewer)
-        viewer.sampleGrid = getSampleGrid()
-        viewer.skin = skins[skinIndex].createInstance()
-
         val name = findViewById<TextView>(R.id.name)
+        val hueSelector = findViewById<SeekBar>(R.id.hueSelector)
+        val prev = findViewById<ImageView>(R.id.prev)
+        val next = findViewById<ImageView>(R.id.next)
+        val useVisualHelp = findViewById<SwitchMaterial>(R.id.useVisualHelp)
+
+        viewer.sampleGrid = getSampleGrid()
+        viewer.skin = skins[skinIndex].createInstance().apply { coverHue = hueSelected }
+
+
         name.text = viewer.skin.name
 
-        val prev = findViewById<ImageView>(R.id.prev)
+        hueSelector.isEnabled = viewer.skin.acceptsHue
+        useVisualHelp.isEnabled = viewer.skin.visualHelp
+
         prev.setOnClickListener {
             if (skinIndex > 0) {
                 skinIndex--
-                viewer.skin = skins[skinIndex].createInstance()
-                name.text = viewer.skin.name
+                viewer.skin = skins[skinIndex].createInstance().apply { coverHue = hueSelected }
                 viewer.postInvalidate()
+
+                name.text = viewer.skin.name
+                hueSelector.isEnabled = viewer.skin.acceptsHue
+                useVisualHelp.isEnabled = viewer.skin.visualHelp
             }
         }
 
-        val next = findViewById<ImageView>(R.id.next)
         next.setOnClickListener {
             if (skinIndex < skins.size - 1) {
                 skinIndex++
-                viewer.skin = skins[skinIndex].createInstance()
-                name.text = viewer.skin.name
+                viewer.skin = skins[skinIndex].createInstance().apply { coverHue = hueSelected }
                 viewer.postInvalidate()
+
+                name.text = viewer.skin.name
+                hueSelector.isEnabled = viewer.skin.acceptsHue
+                useVisualHelp.isEnabled = viewer.skin.visualHelp
             }
         }
 
-        val useVisualHelp = findViewById<SwitchMaterial>(R.id.useVisualHelp)
+        hueSelector.progress = hueSelected
+        hueSelector.setOnSeekBarChangeListener(object: OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                hueSelected = hueSelector.progress
+                viewer.skin = skins[skinIndex].createInstance().apply { coverHue = hueSelected }
+                viewer.postInvalidate()
+            }
+        })
+
         useVisualHelp.isChecked = visualHelp
         useVisualHelp.setOnCheckedChangeListener { _, isChecked ->
             visualHelp = isChecked
@@ -86,7 +113,8 @@ class SkinViewerActivity : Activity() {
         findViewById<ImageView>(R.id.confirm).setOnClickListener {
             save("skin", skinIndex)
             save("lastVisualHelp", visualHelp)
-            GridDrawer.setSkin(this, skins[skinIndex])
+            save("lastCoverHue", hueSelected)
+            GridDrawer.setSkin(this, skins[skinIndex], hueSelected)
             finish()
         }
     }

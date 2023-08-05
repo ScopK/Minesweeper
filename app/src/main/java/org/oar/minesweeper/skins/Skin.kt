@@ -1,18 +1,19 @@
 package org.oar.minesweeper.skins
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import androidx.annotation.ColorInt
+import android.graphics.*
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
+import kotlin.math.cos
+import kotlin.math.sin
+
 
 abstract class Skin {
     open val visualHelp = false
     protected open val useEmptyTileWhenUnhelpful = false
+    open val acceptsHue = true
 
     open val defaultTileSize = 128
 
@@ -30,14 +31,23 @@ abstract class Skin {
     private lateinit var set: SkinSet
 
     var loaded = false
+        private set
+
+    var coverHue: Int = 0
+        set(value) {
+            if (loaded) throw RuntimeException("Cannot change hue of a loaded skin")
+            field = value
+        }
 
     fun load(context: Context) {
         loaded = true
         val bitmap = context.getBitmap(resource)
+        val coloredBitmap = bitmap.hue(coverHue)
+
         val lastRowY = defaultTileSize * 4
 
         val covers = (0 until numberOfCovers)
-            .map { i -> bitmap.sub(i * coverW, lastRowY, coverW, coverH) }
+            .map { i -> coloredBitmap.sub(i * coverW, lastRowY, coverW, coverH) }
 
         set = SkinSet(
             bitmap.sub(defaultTileSize * 10, lastRowY),
@@ -161,6 +171,60 @@ abstract class Skin {
             width: Int = defaultTileSize,
             height: Int = defaultTileSize
         ) = Bitmap.createBitmap(this, x, y, width, height)
+
+
+    private fun Bitmap.hue(hue: Int): Bitmap {
+        if (!acceptsHue) {
+            return this
+        }
+        return hueToColorMatrix(hue)
+            ?.let {
+                val paint = Paint()
+                paint.colorFilter = ColorMatrixColorFilter(it)
+
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGBA_F16)
+                val canvas = Canvas(bitmap)
+                canvas.drawBitmap(this, 0f, 0f, paint)
+
+                return bitmap
+            }
+            ?: this
+    }
+
+
+    private fun hueToColorMatrix(hue: Int): ColorMatrix? {
+        val limitedHue = hue % 360
+        if (limitedHue == 0) {
+            return null
+        }
+
+        val value = limitedHue / 180f * Math.PI.toFloat()
+        val cosVal = cos(value.toDouble()).toFloat()
+        val sinVal = sin(value.toDouble()).toFloat()
+        val lumR = 0.213f
+        val lumG = 0.715f
+        val lumB = 0.072f
+        val mat = floatArrayOf(
+            lumR + cosVal * (1 - lumR) + sinVal * -lumR,
+            lumG + cosVal * -lumG + sinVal * -lumG,
+            lumB + cosVal * -lumB + sinVal * (1 - lumB),
+            0f, 0f,
+
+            lumR + cosVal * -lumR + sinVal * 0.143f,
+            lumG + cosVal * (1 - lumG) + sinVal * 0.140f,
+            lumB + cosVal * -lumB + sinVal * -0.283f,
+            0f, 0f,
+
+            lumR + cosVal * -lumR + sinVal * -(1 - lumR),
+            lumG + cosVal * -lumG + sinVal * lumG,
+            lumB + cosVal * (1 - lumB) + sinVal * lumB,
+            0f, 0f,
+
+            0f, 0f, 0f, 1f, 0f,
+            0f, 0f, 0f, 0f, 1f
+        )
+        return ColorMatrix(mat)
+    }
 
     private fun Context.getBitmap(@DrawableRes id: Int): Bitmap {
         val drawable = AppCompatResources.getDrawable(this, id)!!

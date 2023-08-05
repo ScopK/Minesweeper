@@ -17,9 +17,12 @@ object GridDrawer {
     val tileSize: Int
         get() = skin.defaultTileSize - 1
 
-    fun setSkin(context: Context, skinClass: KClass<out Skin>) {
+    fun setSkin(context: Context, skinClass: KClass<out Skin>, coverHueColor: Int) {
         try {
-            skin = skinClass.createInstance().apply { load(context) }
+            skin = skinClass.createInstance().apply {
+                coverHue = coverHueColor
+                load(context)
+            }
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         } catch (e: InstantiationException) {

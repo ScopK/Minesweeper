@@ -13,7 +13,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/prev"
+        app:layout_constraintBottom_toTopOf="@id/hueSelector"
         android:orientation="vertical">
 
         <org.oar.minesweeper.ui.views.GridViewerView
@@ -32,8 +32,24 @@
             android:layout_marginHorizontal="16dp"
             android:textSize="16sp"
             android:textColor="@color/white_splash" />
-
     </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/hueSelector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/prev"
+        android:layout_marginHorizontal="16dp"
+
+        android:progressTint="@color/white_splash"
+        android:thumbTint="@color/white_splash"
+        android:progressBackgroundTint="@color/white_splash"
+
+        android:min="0"
+        android:max="360"
+        android:progress="90" />
 
     <ImageView
         android:id="@+id/prev"

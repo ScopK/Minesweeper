@@ -13,7 +13,9 @@ import org.oar.minesweeper.skins.*
 import org.oar.minesweeper.skins.DefaultSkin
 import org.oar.minesweeper.skins.DotSkin
 import org.oar.minesweeper.skins.WinSkin
+import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import org.oar.minesweeper.utils.PreferencesUtils.loadInteger
+import org.oar.minesweeper.utils.PreferencesUtils.loadString
 import java.io.File
 
 @SuppressLint("CustomSplashScreen")
@@ -23,17 +25,18 @@ class SplashActivity : AppCompatActivity() {
 
         ScreenProperties.load(this);
 
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         Settings.apply {
-            discoveryMode = preferences.getString("option_reveal", "1")?.toInt() ?: 1
-            showTime = preferences.getBoolean("option_time", true)
+            discoveryMode = loadString("option_reveal", "1").toInt()
+            showTime = loadBoolean("option_time", true)
         }
 
+        val lastCoverHue = loadInteger("lastCoverHue", 0)
+
         when (loadInteger("skin")){
-            0 -> GridDrawer.setSkin(this, DefaultSkin::class)
-            1 -> GridDrawer.setSkin(this, DotSkin::class)
-            2 -> GridDrawer.setSkin(this, DotAltSkin::class)
-            3 -> GridDrawer.setSkin(this, WinSkin::class)
+            0 -> GridDrawer.setSkin(this, DefaultSkin::class, lastCoverHue)
+            1 -> GridDrawer.setSkin(this, DotSkin::class, lastCoverHue)
+            2 -> GridDrawer.setSkin(this, DotAltSkin::class, lastCoverHue)
+            3 -> GridDrawer.setSkin(this, WinSkin::class, lastCoverHue)
         }
 
         val fileSavePath = ContextWrapper(this).filesDir.path +"/"+Settings.FILENAME
