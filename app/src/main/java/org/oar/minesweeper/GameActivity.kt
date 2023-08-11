@@ -1,6 +1,5 @@
 package org.oar.minesweeper
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -9,13 +8,16 @@ import android.view.Window
 import android.view.WindowInsets
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridStartOptions
+import org.oar.minesweeper.ui.views.HudView
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 class GameActivity : Activity() {
-    private val gamePanel: GamePanel by lazy { GamePanel(this) }
+    private val gamePanel: GamePanel by lazy { findViewById(R.id.panel) }
+    private val hud: HudView by lazy { findViewById(R.id.hud) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +28,9 @@ class GameActivity : Activity() {
         if (extras == null) {
             finish();
         } else {
-            setContentView(gamePanel)
+            setContentView(R.layout.activity_playing_grid)
+            gamePanel.hudView = hud
+
             window.insetsController?.apply {
                 hide(WindowInsets.Type.statusBars())
                 hide(WindowInsets.Type.navigationBars())
@@ -61,7 +65,7 @@ class GameActivity : Activity() {
     override fun onBackPressed() {
         val intent = Intent(this, MenuActivity::class.java)
         startActivity(intent)
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
     }
 }

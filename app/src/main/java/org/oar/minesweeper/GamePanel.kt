@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
@@ -14,15 +15,13 @@ import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.view.View
 import org.json.JSONException
 import org.json.JSONObject
-import org.oar.minesweeper.control.CanvasPosition
-import org.oar.minesweeper.control.CanvasWrapper
+import org.oar.minesweeper.control.*
 import org.oar.minesweeper.control.GridDrawer.draw
 import org.oar.minesweeper.control.GridDrawer.tileSize
-import org.oar.minesweeper.control.MainLogic
-import org.oar.minesweeper.control.Settings
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.ui.views.HudView
 import org.oar.minesweeper.utils.ActivityController.loadGrid
 import org.oar.minesweeper.utils.GridUtils.calculateLogicFromBareGrid
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTile
@@ -32,14 +31,21 @@ import java.io.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-class GamePanel(context: Context) : View(context) {
+class GamePanel(
+    context: Context,
+    attrs: AttributeSet?,
+) : View(context, attrs) {
+    constructor(context: Context) : this(context, null)
 
     companion object {
         private val canvasPosition = CanvasPosition()
     }
 
     private var logic: MainLogic? = null
-    private var hud: Hud? = null
+
+    lateinit var hudView: HudView
+    private var timer: Timer? = null
+
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
     private val gestureDetector = GestureDetector(context, GestureListener())
     private val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -66,6 +72,7 @@ class GamePanel(context: Context) : View(context) {
                 ?: findSafeOpenTile(grid)
 
             logic!!.reveal(tile)
+            updateHud()
             canvasPosition.focus(tile)
         } else {
             grid.tiles.firstOrNull { tile -> tile.status === Tile.Status.A0 }
@@ -75,14 +82,22 @@ class GamePanel(context: Context) : View(context) {
 
     fun setGrid(logic: MainLogic, seconds: Int) {
         this.logic = logic
+        hudView.setValues(
+            logic.totalTiles,
+            logic.revisedTiles,
+            logic.grid.bombs,
+            logic.flaggedBombs)
 
-        hud?.stopTimer()
-        hud = Hud(logic, this, context).apply {
-            time = seconds
-            startTimer()
-        }
+        logic.onChangeListener = Runnable { updateHud() }
 
-        logic.setFinishEvent { hud?.stopTimer() }
+        timer?.close()
+        timer = Timer.startTimer(seconds) {
+            (context as Activity).runOnUiThread {
+                hudView.setTimerValue(it)
+            }
+        }.apply { start() }
+
+        logic.setFinishEvent { timer?.close() }
         canvasPosition.setContentDimensions(
             (logic.grid.width * tileSize).toFloat(),
             (logic.grid.height * tileSize).toFloat())
@@ -95,8 +110,6 @@ class GamePanel(context: Context) : View(context) {
         logic?.also { draw(context, xCanvas, it.grid) }
 
         xCanvas.end()
-
-        hud?.draw(canvas)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -139,9 +152,9 @@ class GamePanel(context: Context) : View(context) {
 
     public override fun onWindowVisibilityChanged(visibility: Int) {
         when (visibility) {
-            VISIBLE -> hud?.resumeTimer()
+            VISIBLE -> timer?.unpause()
             GONE,
-            INVISIBLE -> hud?.pauseTimer()
+            INVISIBLE -> timer?.pause()
         }
     }
 
@@ -201,7 +214,7 @@ class GamePanel(context: Context) : View(context) {
             return
         }
         try {
-            val obj = getJsonStatus(logic!!.grid, hud!!.time, canvasPosition)
+            val obj = getJsonStatus(logic!!.grid, timer!!.deciSeconds, canvasPosition)
 
             PrintWriter(saveStatePath).use {
                 it.print(obj)
@@ -236,5 +249,17 @@ class GamePanel(context: Context) : View(context) {
             }
         }
         return false
+    }
+
+    private fun updateHud() {
+        logic?.apply {
+            hudView.setValues(
+                revisedTiles,
+                flaggedBombs)
+
+            if (status != MainLogic.GameStatus.PLAYING) {
+                hudView.setEndStateBackground(status == MainLogic.GameStatus.WIN)
+            }
+        }
     }
 }

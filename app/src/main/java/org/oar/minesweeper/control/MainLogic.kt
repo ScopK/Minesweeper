@@ -30,6 +30,7 @@ class MainLogic(
     val allCovered: Boolean
         get() = grid.tiles.none { tile -> tile.status !== Tile.Status.COVERED }
 
+    var onChangeListener: Runnable? = null
 
     fun mainAction(tile: Tile) {
         if (gameOver) return
@@ -47,6 +48,7 @@ class MainLogic(
                         .forEach { fastReveal(it) }
                 }
                 checkWin()
+                onChangeListener?.run()
             }
             Tile.Status.FLAG -> {
                 tile.status = Tile.Status.COVERED
@@ -61,20 +63,22 @@ class MainLogic(
                         .forEach { fastReveal(it) }
                 }
                 checkWin()
+                onChangeListener?.run()
             }
             Tile.Status.A0 -> {}
             else -> {
-                var executeMassReveal = false
-                when (Settings.discoveryMode) {
-                    Settings.EASY -> executeMassReveal = tile.flaggedNear == tile.bombsNear
-                    Settings.NORMAL -> executeMassReveal = tile.flaggedNear >= tile.bombsNear
-                    Settings.HARD -> executeMassReveal = true
-                    else -> {}
+                val executeMassReveal = when (Settings.discoveryMode) {
+                    Settings.EASY   -> tile.flaggedNear == tile.bombsNear
+                    Settings.NORMAL -> tile.flaggedNear >= tile.bombsNear
+                    Settings.HARD   -> true
+                    else            -> false
                 }
+
                 if (executeMassReveal) {
                     getNeighbors(grid, tile).stream()
                         .filter { tile2-> tile2.status === Tile.Status.COVERED }
                         .forEach { reveal(it) }
+                    onChangeListener?.run()
                 }
             }
         }
@@ -94,6 +98,7 @@ class MainLogic(
                 else
                     reveal(tile)
                 checkWin()
+                onChangeListener?.run()
                 true
             }
             Tile.Status.COVERED -> {
@@ -102,6 +107,7 @@ class MainLogic(
                 else
                     reveal(tile)
                 checkWin()
+                onChangeListener?.run()
                 true
             }
             else -> false

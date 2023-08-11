@@ -30,6 +30,9 @@
     <string name="visual_theme">Visual Theme</string>
 
     <string name="grid_summary_line">Dimensions %1$dx%2$d - %3$d bombs</string>
+    <string name="hud_x_out_of">%1$d/%2$d</string>
+    <string name="hud_open_line">Open: %1$d/%2$d</string>
+    <string name="hud_bombs_line">Bombs: %1$d/%2$d</string>
 
     <string name="pref_showtime">Show time</string>
 
