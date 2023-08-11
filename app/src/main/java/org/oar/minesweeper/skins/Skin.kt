@@ -6,6 +6,8 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
+import org.oar.minesweeper.skins.model.BitmapWrapper
+import org.oar.minesweeper.skins.model.SkinSet
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -27,8 +29,8 @@ abstract class Skin {
     abstract var backgroundColor: Int
     abstract var name: String
 
-    private val defaultPaint = Paint()
     private lateinit var set: SkinSet
+    private lateinit var emptyBitmap: Bitmap
 
     var loaded = false
         private set
@@ -44,29 +46,32 @@ abstract class Skin {
         val bitmap = context.getBitmap(resource)
         val coloredBitmap = bitmap.hue(coverHue)
 
+        emptyBitmap = Bitmap.createBitmap(defaultTileSize, defaultTileSize, bitmap.config)
+
         val lastRowY = defaultTileSize * 4
 
         val covers = (0 until numberOfCovers)
             .map { i -> coloredBitmap.sub(i * coverW, lastRowY, coverW, coverH) }
+            .map { it.bitmapWrapper }
 
         set = SkinSet(
-            bitmap.sub(defaultTileSize * 10, lastRowY),
+            bitmap.sub(defaultTileSize * 10, lastRowY).bitmapWrapper,
             covers,
-            bitmap.sub(defaultTileSize * 8, lastRowY),
-            bitmap.sub(defaultTileSize * 9, lastRowY),
-            bitmap.sub(defaultTileSize * 11, lastRowY),
-            bitmap.sub(defaultTileSize * 12, lastRowY),
+            bitmap.sub(defaultTileSize * 8, lastRowY).bitmapWrapper,
+            bitmap.sub(defaultTileSize * 9, lastRowY).bitmapWrapper,
+            bitmap.sub(defaultTileSize * 11, lastRowY).bitmapWrapper,
+            bitmap.sub(defaultTileSize * 12, lastRowY).bitmapWrapper,
             loadNumbers(bitmap)
         )
     }
 
     fun drawCover(canvas: Canvas, x: Float, y: Float, coverNumber: Int) {
         val i = coverNumber % numberOfCovers
-        canvas.drawBitmap(set.covers[i], x, y, defaultPaint)
+        set.covers[i].drawBitmap(canvas, x, y)
     }
 
     fun drawEmpty(canvas: Canvas, x: Float, y: Float) {
-        canvas.drawBitmap(set.empty, x, y, defaultPaint)
+        set.empty.drawBitmap(canvas, x, y)
     }
 
     fun drawNumber(
@@ -87,25 +92,26 @@ abstract class Skin {
             Pair(numValue, numValue)
         }
 
-        canvas.drawBitmap(set.numbers[pair]!!, x, y, defaultPaint)
+        set.numbers[pair]!!.drawBitmap(canvas, x, y)
     }
 
     fun drawBomb(canvas: Canvas, x: Float, y: Float, coverNumber: Int, endBomb: Boolean = false) {
         if (endBomb) {
             drawEmpty(canvas, x, y)
-            canvas.drawBitmap(set.bombEnd, x, y, defaultPaint)
+            set.bombEnd.drawBitmap(canvas, x, y)
         } else {
             drawCover(canvas, x, y, coverNumber)
-            canvas.drawBitmap(set.bomb, x, y, defaultPaint)
+            set.bomb.drawBitmap(canvas, x, y)
         }
     }
 
     fun drawFlag(canvas: Canvas, x: Float, y: Float, coverNumber: Int, flagFail: Boolean = false) {
         drawCover(canvas, x, y, coverNumber)
-        canvas.drawBitmap(if (flagFail) set.flagFail else set.flag, x, y, defaultPaint)
+        val bitmap = if (flagFail) set.flagFail else set.flag
+        bitmap.drawBitmap(canvas, x, y)
     }
 
-    private fun loadNumbers(bitmap: Bitmap): Map<Pair<Int, Int>, Bitmap> {
+    private fun loadNumbers(bitmap: Bitmap): Map<Pair<Int, Int>, BitmapWrapper> {
         return mapOf(
             Pair(1, 2) to bitmap.sub(0, 0),
             Pair(1, 1) to bitmap.sub(defaultTileSize, 0),
@@ -162,8 +168,11 @@ abstract class Skin {
             Pair(5, 4) to bitmap.sub(defaultTileSize * 10, defaultTileSize * 3),
             Pair(5, 5) to bitmap.sub(defaultTileSize * 11, defaultTileSize * 3),
             Pair(5, 6) to bitmap.sub(defaultTileSize * 12, defaultTileSize * 3),
-        )
+        ).mapValues { it.value.bitmapWrapper }
     }
+
+    private val Bitmap.bitmapWrapper: BitmapWrapper
+        get() = BitmapWrapper(this, emptyBitmap.sameAs(this))
 
     private fun Bitmap.sub(
             x: Int,
