@@ -51,7 +51,7 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
         }
         for (idx in intArrayOf(8, 10, 11, 12, 17, 22)) {
             tiles[idx].hasBomb = true
-            getNeighbors(grid, tiles[idx]).forEach(Consumer { obj: Tile -> obj.hasBombNear() })
+            getNeighbors(grid, tiles[idx]).forEach { it.hasBombNear() }
         }
     }
 }

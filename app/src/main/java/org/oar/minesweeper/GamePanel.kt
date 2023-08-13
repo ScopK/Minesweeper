@@ -174,13 +174,13 @@ class GamePanel(
         override fun onLongPress(e: MotionEvent) {
             if (isMoving) return
 
-            val t = getTileByScreenCoords(logic!!.grid, e.x, e.y, canvasPosition)
-
-            if (t != null) {
-                if (logic!!.alternativeAction(t)) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(1L, 1)) //VibrationEffect.DEFAULT_AMPLITUDE));
+            getTileByScreenCoords(logic!!.grid, e.x, e.y, canvasPosition)
+                ?.also {
+                    if (logic!!.alternativeAction(it)) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(1L, 1)) //VibrationEffect.DEFAULT_AMPLITUDE));
+                    }
                 }
-            }
+
             postInvalidate()
         }
 

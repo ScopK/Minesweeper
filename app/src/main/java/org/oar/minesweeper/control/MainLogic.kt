@@ -37,7 +37,7 @@ class MainLogic(
         when (tile.status) {
             Tile.Status.COVERED -> {
                 tile.status = Tile.Status.FLAG
-                getNeighbors(grid, tile).forEach(Consumer { obj: Tile -> obj.addFlaggedNear() })
+                getNeighbors(grid, tile).forEach { it.addFlaggedNear() }
                 flaggedBombs++
                 if (tile.hasBomb) {
                     correctFlaggedBombs++
@@ -52,7 +52,7 @@ class MainLogic(
             }
             Tile.Status.FLAG -> {
                 tile.status = Tile.Status.COVERED
-                getNeighbors(grid, tile).forEach(Consumer { obj: Tile -> obj.removeFlaggedNear() })
+                getNeighbors(grid, tile).forEach { it.removeFlaggedNear() }
                 flaggedBombs--
                 if (tile.hasBomb) {
                     correctFlaggedBombs--
@@ -75,7 +75,7 @@ class MainLogic(
                 }
 
                 if (executeMassReveal) {
-                    getNeighbors(grid, tile).stream()
+                    getNeighbors(grid, tile)
                         .filter { tile2-> tile2.status === Tile.Status.COVERED }
                         .forEach { reveal(it) }
                     onChangeListener?.run()

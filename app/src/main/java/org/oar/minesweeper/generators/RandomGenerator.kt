@@ -1,11 +1,10 @@
 package org.oar.minesweeper.generators
 
-import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import java.util.*
-import java.util.function.Consumer
 
 open class RandomGenerator : GridGenerator {
     override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {

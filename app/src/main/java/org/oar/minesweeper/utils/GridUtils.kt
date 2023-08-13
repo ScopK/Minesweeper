@@ -3,7 +3,6 @@ package org.oar.minesweeper.utils
 import org.json.JSONException
 import org.json.JSONObject
 import org.oar.minesweeper.control.CanvasPosition
-import org.oar.minesweeper.control.CanvasWrapper
 import org.oar.minesweeper.control.GridDrawer.tileSize
 import org.oar.minesweeper.control.MainLogic
 import org.oar.minesweeper.elements.Grid
@@ -11,7 +10,6 @@ import org.oar.minesweeper.elements.GridConfiguration
 import org.oar.minesweeper.elements.Tile
 import org.oar.minesweeper.elements.Tile.Status.*
 import java.util.*
-import java.util.function.Consumer
 import kotlin.math.roundToInt
 
 object GridUtils {
