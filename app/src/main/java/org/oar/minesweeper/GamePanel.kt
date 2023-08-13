@@ -107,7 +107,7 @@ class GamePanel(
         super.draw(canvas)
         val xCanvas = CanvasWrapper(canvas, canvasPosition)
 
-        logic?.also { draw(context, xCanvas, it.grid) }
+        logic?.also { draw(context, xCanvas, it.grid, isGameOver = it.gameOver) }
 
         xCanvas.end()
     }

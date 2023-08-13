@@ -34,11 +34,12 @@ object GridDrawer {
         context: Context,
         canvasW: CanvasWrapper,
         grid: Grid,
-        skin: Skin = this.skin
+        skin: Skin = this.skin,
+        isGameOver: Boolean = false,
     ) {
         canvasW.canvas.drawColor(context.findColor(skin.backgroundColor))
         for (tile in grid.tiles) {
-            draw(canvasW, tile, grid, skin)
+            draw(canvasW, tile, grid, skin, isGameOver)
         }
     }
 
@@ -46,7 +47,8 @@ object GridDrawer {
         canvasW: CanvasWrapper,
         tile: Tile,
         grid: Grid,
-        skin: Skin = this.skin
+        skin: Skin,
+        isGameOver: Boolean
     ) {
         val visibleSpace = canvasW.visibleSpace
         val dim = Rect()
@@ -70,8 +72,8 @@ object GridDrawer {
                 Tile.Status.A0 ->         skin.drawEmpty(canvas, x, y)
                 Tile.Status.BOMB ->       skin.drawBomb(canvas, x, y, hashCode)
                 Tile.Status.BOMB_FINAL -> skin.drawBomb(canvas, x, y, hashCode, true)
-                Tile.Status.FLAG ->       skin.drawFlag(canvas, x, y, hashCode)
-                Tile.Status.FLAG_FAIL ->  skin.drawFlag(canvas, x, y, hashCode, true)
+                Tile.Status.FLAG ->       skin.drawFlag(canvas, x, y, hashCode, if (isGameOver) Skin.FLAG_OK else Skin.FLAG)
+                Tile.Status.FLAG_FAIL ->  skin.drawFlag(canvas, x, y, hashCode, Skin.FLAG_FAIL)
 
                 else -> {
                     val numValue = GridUtils.getTileNumber(tile)

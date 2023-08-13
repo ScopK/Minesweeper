@@ -13,6 +13,13 @@ import kotlin.math.sin
 
 
 abstract class Skin {
+
+    companion object {
+        const val FLAG = 0
+        const val FLAG_OK = 1
+        const val FLAG_FAIL = -1
+    }
+
     open val visualHelp = false
     protected open val useEmptyTileWhenUnhelpful = false
     open val acceptsHue = true
@@ -57,6 +64,7 @@ abstract class Skin {
         set = SkinSet(
             bitmap.sub(defaultTileSize * 10, lastRowY).bitmapWrapper,
             covers,
+            bitmap.sub(defaultTileSize * 7, lastRowY).bitmapWrapper,
             bitmap.sub(defaultTileSize * 8, lastRowY).bitmapWrapper,
             bitmap.sub(defaultTileSize * 9, lastRowY).bitmapWrapper,
             bitmap.sub(defaultTileSize * 11, lastRowY).bitmapWrapper,
@@ -105,9 +113,13 @@ abstract class Skin {
         }
     }
 
-    fun drawFlag(canvas: Canvas, x: Float, y: Float, coverNumber: Int, flagFail: Boolean = false) {
+    fun drawFlag(canvas: Canvas, x: Float, y: Float, coverNumber: Int, value: Int = FLAG) {
         drawCover(canvas, x, y, coverNumber)
-        val bitmap = if (flagFail) set.flagFail else set.flag
+        val bitmap = when(value) {
+            FLAG_OK -> set.flagOk
+            FLAG_FAIL -> set.flagFail
+            else -> set.flag
+        }
         bitmap.drawBitmap(canvas, x, y)
     }
 
