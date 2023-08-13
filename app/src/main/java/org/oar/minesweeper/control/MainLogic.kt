@@ -87,20 +87,6 @@ class MainLogic(
     fun alternativeAction(tile: Tile): Boolean {
         if (gameOver) return false
         return when (tile.status) {
-            Tile.Status.FLAG -> {
-                getNeighbors(grid, tile).forEach(Consumer { obj: Tile -> obj.removeFlaggedNear() })
-                flaggedBombs--
-                if (tile.hasBomb) {
-                    correctFlaggedBombs--
-                }
-                if (Settings.discoveryMode == Settings.AUTOMATIC)
-                    fastReveal(tile)
-                else
-                    reveal(tile)
-                checkWin()
-                onChangeListener?.run()
-                true
-            }
             Tile.Status.COVERED -> {
                 if (Settings.discoveryMode == Settings.AUTOMATIC)
                     fastReveal(tile)
