@@ -42,8 +42,8 @@
     <string name="pref_solvable">Generate solvable grid</string>
     <string name="pref_solvable_desc">Grid can be solved without RNG</string>
 
-    <string name="pref_visualHelp">Enable visual help</string>
-    <string name="pref_visualHelp_desc">Each numbered tile will indicate how many nearby mines has been flagged</string>
+    <string name="pref_visualHelp">Show remaining bombs instead of total bombs</string>
+    <string name="pref_visualHelp_desc">Each numbered tile will indicate how many nearby mines are left to be flagged</string>
 
     <string name="pref_discoverymode">Set revealing mode</string>
     <string name="pref_discoverymode_desc">Disabled: No tile will be revealed when a "number tile" is touched.\nEasy: Only when the number of flagged bombs is equal to the "number tile", the surrounding tiles will be revealed.\nNormal: Only when the number of flagged bombs is equal or bigger to the "number tile", the surrounding tiles will be revealed.\nHard: The surrounding tiles from a "number tile" will be revealed, no matter the flagged bombs around it.\nAutomatic: Tiles will be automatically open. Might be risky... Be careful with what you flag!</string>
