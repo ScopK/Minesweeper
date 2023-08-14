@@ -29,7 +29,8 @@ import org.oar.minesweeper.utils.GridUtils.getJsonStatus
 import org.oar.minesweeper.utils.GridUtils.getTileByScreenCoords
 import java.io.*
 import kotlin.math.abs
-import kotlin.math.roundToInt
+import kotlin.math.cos
+import kotlin.math.pow
 
 class GamePanel(
     context: Context,
@@ -49,10 +50,16 @@ class GamePanel(
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
     private val gestureDetector = GestureDetector(context, GestureListener())
     private val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
     private var dragXPos = 0f
     private var dragYPos = 0f
     private var isResizing = false
     private var isMoving = false
+
+    private var animation: Runnable? = null
+    private var speedX = mutableListOf<Float>()
+    private var speedY = mutableListOf<Float>()
+    private var lastTime = 0L
 
     init {
         //make gamePanel focusable so it can handle events
@@ -110,6 +117,8 @@ class GamePanel(
         logic?.also { draw(context, xCanvas, it.grid, isGameOver = it.gameOver) }
 
         xCanvas.end()
+
+        animation?.run()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -119,21 +128,35 @@ class GamePanel(
         if (!scaleDetector.isInProgress) {
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    animation = null
+                    speedX.clear()
+                    speedY.clear()
+
                     dragXPos = event.x
                     dragYPos = event.y
+                    lastTime = System.currentTimeMillis()
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (isResizing)
                         return true
 
-                    val dx = (event.x - dragXPos).roundToInt()
-                    val dy = (event.y - dragYPos).roundToInt()
+                    val dx = event.x - dragXPos
+                    val dy = event.y - dragYPos
 
                     if (isMoving || abs(dx) + abs(dy) > 35) {
                         dragXPos = event.x
                         dragYPos = event.y
 
-                        canvasPosition.translate(dx.toFloat(), dy.toFloat())
+                        System.currentTimeMillis()
+                            .also {
+                                speedX.add(dx)
+                                speedY.add(dy)
+                                if (speedX.size > 5) speedX.removeAt(0)
+                                if (speedY.size > 5) speedY.removeAt(0)
+                                lastTime = it
+                            }
+
+                        canvasPosition.translate(dx, dy)
 
                         isMoving = true
                         postInvalidate()
@@ -141,6 +164,10 @@ class GamePanel(
                 }
                 MotionEvent.ACTION_OUTSIDE,
                 MotionEvent.ACTION_UP -> {
+                    if ((System.currentTimeMillis() - lastTime) < 25) {
+                        continueScrollingAnimation()
+                        postInvalidate()
+                    }
                     isMoving = false
                     isResizing = false
                 }
@@ -148,6 +175,56 @@ class GamePanel(
             }
         }
         return true
+    }
+
+    private fun continueScrollingAnimation() {
+        val speedValueX = if (speedX.isEmpty()) 0f else speedX.average().toFloat()
+        val speedValueY = if (speedY.isEmpty()) 0f else speedY.average().toFloat()
+
+        if (speedValueX == 0f && speedValueY == 0f) {
+            animation = null
+            return
+        }
+
+        val totalFrames = ScreenProperties.FRAME_RATE
+        var frame = 0
+
+        val initialX = canvasPosition.posX
+        val initialY = canvasPosition.posY
+
+        val delta = (totalFrames * (totalFrames + 1) / 2) / (totalFrames + 1)
+        var relativeEndX = speedValueX * delta
+        var relativeEndY = speedValueY * delta
+
+        animation = Runnable {
+            val x = (frame / totalFrames)
+                .let { x -> cos((x.pow(0.5f) - 1) * Math.PI / 2).toFloat() }
+
+            val xPos = relativeEndX * x + initialX
+            val yPos = relativeEndY * x + initialY
+
+            var dx = xPos - canvasPosition.posX
+            var dy = yPos - canvasPosition.posY
+
+            if (abs(dx) > abs(speedValueX)) {
+                relativeEndX -= dx - speedValueX
+                dx = speedValueX
+            }
+
+            if (abs(dy) > abs(speedValueY)) {
+                relativeEndY -= dy - speedValueY
+                dy = speedValueY
+            }
+
+            canvasPosition.translate(dx, dy)
+
+            if (frame > totalFrames) {
+                animation = null
+            } else {
+                frame++
+            }
+            postInvalidate()
+        }
     }
 
     public override fun onWindowVisibilityChanged(visibility: Int) {

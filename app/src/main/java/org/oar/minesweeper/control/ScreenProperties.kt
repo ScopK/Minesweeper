@@ -14,6 +14,7 @@ object ScreenProperties {
     var DPI_W = 0f
     var DPI_H = 0f
     var DPI = 0f
+    var FRAME_RATE = 0f
 
     private var fontSizeBase = 0f
 
@@ -49,6 +50,8 @@ object ScreenProperties {
             statusBarHeight = activity.resources.getDimensionPixelSize(resourceId)
         }
         STATUS_BAR_HEIGHT = statusBarHeight
+
+        FRAME_RATE = activity.display?.refreshRate ?: 60f
     }
 
     fun Float.toDpi(): Float {
