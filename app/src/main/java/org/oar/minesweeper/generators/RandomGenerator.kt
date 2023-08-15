@@ -3,6 +3,7 @@ package org.oar.minesweeper.generators
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import java.util.*
 
@@ -22,7 +23,7 @@ open class RandomGenerator : GridGenerator {
         grid.tiles.clear()
         for (j in 0 until h) {
             for (i in 0 until w) {
-                grid.tiles.add(Tile(i, j, Tile.Status.COVERED))
+                grid.tiles.add(Tile(i, j, TileStatus.COVERED))
             }
         }
         val random = Random()
@@ -37,7 +38,7 @@ open class RandomGenerator : GridGenerator {
                 continue
             }
             grid.tiles[idx].hasBomb = true
-            getNeighbors(grid, grid.tiles[idx]).forEach { it.hasBombNear() }
+            grid.getNeighbors(grid.tiles[idx]).forEach { it.hasBombNear() }
             i++
         }
     }

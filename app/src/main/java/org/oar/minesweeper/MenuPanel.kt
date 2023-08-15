@@ -10,9 +10,9 @@ import org.oar.minesweeper.control.ScreenProperties.toDpi
 import org.oar.minesweeper.elements.GridConfiguration
 import org.oar.minesweeper.elements.MenuOption
 import org.oar.minesweeper.elements.MenuOption.Companion.FACTOR_MARGIN_OUT_SIZE
-import org.oar.minesweeper.ui.views.NumbScrollView
+import org.oar.minesweeper.ui.views.components.HardTouchMoveView
 import org.oar.minesweeper.ui.dialogs.StartGridDialog
-import org.oar.minesweeper.utils.ActivityController.findColor
+import org.oar.minesweeper.utils.ContextUtils.findColor
 import kotlin.math.roundToInt
 
 
@@ -36,7 +36,7 @@ class MenuPanel(
         linear.addView(internalMenuView)
     }
 
-    inner class InternalView: NumbScrollView(activity) {
+    inner class InternalView: HardTouchMoveView(activity) {
         private val options: MutableList<MenuOption> = mutableListOf()
         private var ignoreTouchEvent = false
 
@@ -146,7 +146,7 @@ class MenuPanel(
             }
         }
 
-        override fun numbOnTouch(event: MotionEvent): Boolean {
+        override fun hardOnTouch(event: MotionEvent): Boolean {
             val x = event.x.roundToInt()
             val y = event.y.roundToInt()
 

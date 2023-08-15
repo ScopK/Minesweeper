@@ -9,7 +9,7 @@ import androidx.annotation.StringRes
 import org.oar.minesweeper.control.ScreenProperties
 import org.oar.minesweeper.control.ScreenProperties.adaptFontSize
 import org.oar.minesweeper.control.ScreenProperties.toDpi
-import org.oar.minesweeper.utils.ActivityController.findColor
+import org.oar.minesweeper.utils.ContextUtils.findColor
 import kotlin.math.roundToInt
 
 class MenuOption

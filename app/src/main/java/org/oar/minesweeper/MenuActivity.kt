@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridConfiguration
 import org.oar.minesweeper.elements.GridSettings
-import org.oar.minesweeper.utils.ActivityController
+import org.oar.minesweeper.utils.ActivityUtils.startGridActivity
 
 class MenuActivity : AppCompatActivity() {
     private val menuPanel: MenuPanel by lazy { MenuPanel(this) }
@@ -26,7 +26,7 @@ class MenuActivity : AppCompatActivity() {
         settings: GridSettings
     ) {
         val grid = Grid(config, settings)
-        ActivityController.loadGrid(grid, this)
+        startGridActivity(grid)
     }
 
     fun loadGrid() {

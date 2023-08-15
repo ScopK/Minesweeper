@@ -2,8 +2,8 @@ package org.oar.minesweeper.control
 
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
-import org.oar.minesweeper.utils.GridUtils.getTileStatus
 import java.util.function.Consumer
 
 class MainLogic(
@@ -28,44 +28,44 @@ class MainLogic(
     val revisedTiles: Int
         get() = revealedTiles + flaggedBombs
     val allCovered: Boolean
-        get() = grid.tiles.none { tile -> tile.status !== Tile.Status.COVERED }
+        get() = grid.tiles.none { it.status !== TileStatus.COVERED }
 
     var onChangeListener: Runnable? = null
 
     fun mainAction(tile: Tile) {
         if (gameOver) return
         when (tile.status) {
-            Tile.Status.COVERED -> {
-                tile.status = Tile.Status.FLAG
-                getNeighbors(grid, tile).forEach { it.addFlaggedNear() }
+            TileStatus.COVERED -> {
+                tile.status = TileStatus.FLAG
+                grid.getNeighbors(tile).forEach { it.addFlaggedNear() }
                 flaggedBombs++
                 if (tile.hasBomb) {
                     correctFlaggedBombs++
                 }
                 if (Settings.discoveryMode == Settings.AUTOMATIC) {
-                    getNeighbors(grid, tile)
+                    grid.getNeighbors(tile)
                         .filter { tile2 -> tile2.isNumberVisible && tile2.flaggedNear == tile2.bombsNear }
                         .forEach { fastReveal(it) }
                 }
                 checkWin()
                 onChangeListener?.run()
             }
-            Tile.Status.FLAG -> {
-                tile.status = Tile.Status.COVERED
-                getNeighbors(grid, tile).forEach { it.removeFlaggedNear() }
+            TileStatus.FLAG -> {
+                tile.status = TileStatus.COVERED
+                grid.getNeighbors(tile).forEach { it.removeFlaggedNear() }
                 flaggedBombs--
                 if (tile.hasBomb) {
                     correctFlaggedBombs--
                 }
                 if (Settings.discoveryMode == Settings.AUTOMATIC) {
-                    getNeighbors(grid, tile)
-                        .filter { tile2 -> tile2.isNumberVisible && tile2.flaggedNear == tile2.bombsNear }
+                    grid.getNeighbors(tile)
+                        .filter { it.isNumberVisible && it.flaggedNear == it.bombsNear }
                         .forEach { fastReveal(it) }
                 }
                 checkWin()
                 onChangeListener?.run()
             }
-            Tile.Status.A0 -> {}
+            TileStatus.A0 -> {}
             else -> {
                 val executeMassReveal = when (Settings.discoveryMode) {
                     Settings.EASY   -> tile.flaggedNear == tile.bombsNear
@@ -75,8 +75,8 @@ class MainLogic(
                 }
 
                 if (executeMassReveal) {
-                    getNeighbors(grid, tile)
-                        .filter { tile2-> tile2.status === Tile.Status.COVERED }
+                    grid.getNeighbors(tile)
+                        .filter { it.status === TileStatus.COVERED }
                         .forEach { reveal(it) }
                     onChangeListener?.run()
                 }
@@ -87,7 +87,7 @@ class MainLogic(
     fun alternativeAction(tile: Tile): Boolean {
         if (gameOver) return false
         return when (tile.status) {
-            Tile.Status.COVERED -> {
+            TileStatus.COVERED -> {
                 if (Settings.discoveryMode == Settings.AUTOMATIC)
                     fastReveal(tile)
                 else
@@ -105,17 +105,17 @@ class MainLogic(
             revealedTiles++
         }
         if (tile.hasBomb) {
-            tile.status = Tile.Status.BOMB_FINAL
+            tile.status = TileStatus.BOMB_FINAL
             gameOver()
         } else {
             when (tile.bombsNear) {
                 0 -> {
-                    tile.status = Tile.Status.A0
-                    getNeighbors(grid, tile)
-                        .filter { it.status === Tile.Status.COVERED }
+                    tile.status = TileStatus.A0
+                    grid.getNeighbors(tile)
+                        .filter { it.status === TileStatus.COVERED }
                         .forEach { reveal(it) }
                 }
-                else -> tile.status = getTileStatus(tile.bombsNear)
+                else -> tile.status = TileStatus.findByTileNumber(tile.bombsNear)
             }
         }
     }
@@ -125,20 +125,20 @@ class MainLogic(
             revealedTiles++
         }
         if (tile.hasBomb) {
-            tile.status = Tile.Status.BOMB_FINAL
+            tile.status = TileStatus.BOMB_FINAL
             gameOver()
         } else {
             var massReveal = true
             when (tile.bombsNear) {
-                0 -> tile.status = Tile.Status.A0
+                0 -> tile.status = TileStatus.A0
                 else -> {
-                    tile.status = getTileStatus(tile.bombsNear)
+                    tile.status = TileStatus.findByTileNumber(tile.bombsNear)
                     massReveal = tile.bombsNear == tile.flaggedNear
                 }
             }
             if (massReveal) {
-                getNeighbors(grid, tile)
-                    .filter { it.status === Tile.Status.COVERED }
+                grid.getNeighbors(tile)
+                    .filter { it.status === TileStatus.COVERED }
                     .forEach { fastReveal(it) }
             }
         }
@@ -156,11 +156,11 @@ class MainLogic(
         grid.tiles
             .forEach { tile ->
                 if (tile.hasBomb) {
-                    if (tile.status === Tile.Status.COVERED) {
-                        tile.status = Tile.Status.BOMB
+                    if (tile.status === TileStatus.COVERED) {
+                        tile.status = TileStatus.BOMB
                     }
-                } else if (tile.status === Tile.Status.FLAG) {
-                    tile.status = Tile.Status.FLAG_FAIL
+                } else if (tile.status === TileStatus.FLAG) {
+                    tile.status = TileStatus.FLAG_FAIL
                 }
             }
         if (finishEvent != null) finishEvent!!.accept(false)

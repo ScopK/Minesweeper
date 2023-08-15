@@ -1,6 +1,7 @@
 package org.oar.minesweeper.generators.solver
 
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 import java.util.*
@@ -12,8 +13,8 @@ class PossibleSolver : Solver() {
         val sketchTiles = sketch.tiles
         for (i in sketch.numberedCopy) {
             val sTile = sketchTiles[i]
-            val coveredIdx = getNeighborsIdx(sketch.grid, sTile)
-                .filter { idx -> sketchTiles[idx].status === Tile.Status.COVERED }
+            val coveredIdx = sketch.grid.getNeighborsIdx(sTile)
+                .filter { idx -> sketchTiles[idx].status === TileStatus.COVERED }
 
             if (coveredIdx.isNotEmpty()) {
                 val options = getOptions(coveredIdx, sTile.bombsNear)
@@ -22,9 +23,9 @@ class PossibleSolver : Solver() {
                     val option = optIterator.next()
                     for (idxTile in option) {
                         val oTile = sketchTiles[idxTile]
-                        oTile.status = Tile.Status.FLAG
-                        getNeighbors(sketch.grid, oTile)
-                            .forEach { tile -> tile.addFlaggedNear() }
+                        oTile.status = TileStatus.FLAG
+                        sketch.grid.getNeighbors(oTile)
+                            .forEach { it.addFlaggedNear() }
                     }
                     if (!isPossible(sTile)) {
                         optIterator.remove()
@@ -32,9 +33,9 @@ class PossibleSolver : Solver() {
 
                     for (idxTile in option) {
                         val oTile = sketchTiles[idxTile]
-                        oTile.status = Tile.Status.COVERED
-                        getNeighbors(sketch.grid, oTile)
-                            .forEach { tile -> tile.removeFlaggedNear() }
+                        oTile.status = TileStatus.COVERED
+                        sketch.grid.getNeighbors(oTile)
+                            .forEach { it.removeFlaggedNear() }
                     }
                 }
                 changesMade = if (options.size == 1) {
@@ -54,11 +55,11 @@ class PossibleSolver : Solver() {
     }
 
     private fun isPossible(tile: Tile): Boolean {
-        return getNeighbors(sketch.grid, tile)
+        return sketch.grid.getNeighbors(tile)
             .filter(Tile::isNumberVisible)
-            .none { tile ->
-                getNeighbors(sketch.grid, tile)
-                    .count { nei -> nei.status === Tile.Status.FLAG && !nei.customFlag.contains('X') } > tile.bombsNear
+            .none {
+                sketch.grid.getNeighbors(it)
+                    .count { nei -> nei.status === TileStatus.FLAG && !nei.customFlag.contains('X') } > it.bombsNear
             }
     }
 
@@ -77,8 +78,8 @@ class PossibleSolver : Solver() {
         return list
     }
 
-    private fun getOptions(flist: List<Int>, select: Int): MutableList<List<Int>> {
-        val list = flist.toMutableList()
+    private fun getOptions(fList: List<Int>, select: Int): MutableList<List<Int>> {
+        val list = fList.toMutableList()
         val opts: MutableList<List<Int>> = mutableListOf()
 
         while (list.isNotEmpty()) {

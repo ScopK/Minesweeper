@@ -20,13 +20,13 @@ import org.oar.minesweeper.control.GridDrawer.draw
 import org.oar.minesweeper.control.GridDrawer.tileSize
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridStartOptions
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.ui.views.HudView
-import org.oar.minesweeper.utils.ActivityController.loadGrid
-import org.oar.minesweeper.utils.GridUtils.calculateLogicFromBareGrid
+import org.oar.minesweeper.utils.ActivityUtils.startGridActivity
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTile
-import org.oar.minesweeper.utils.GridUtils.getJsonStatus
+import org.oar.minesweeper.utils.GridUtils.generateLogic
 import org.oar.minesweeper.utils.GridUtils.getTileByScreenCoords
+import org.oar.minesweeper.utils.GridUtils.toJson
 import java.io.*
 import kotlin.math.abs
 import kotlin.math.cos
@@ -76,13 +76,13 @@ class GamePanel(
         if (grid.gridSettings.firstOpen && logic!!.allCovered) {
             val tile = options.firstTileReveal
                 ?.let { grid.tiles[it] }
-                ?: findSafeOpenTile(grid)
+                ?: grid.findSafeOpenTile()
 
             logic!!.reveal(tile)
             updateHud()
             canvasPosition.focus(tile)
         } else {
-            grid.tiles.firstOrNull { tile -> tile.status === Tile.Status.A0 }
+            grid.tiles.firstOrNull { tile -> tile.status === TileStatus.A0 }
                 ?.also { canvasPosition.focus(it) }
         }
     }
@@ -251,7 +251,7 @@ class GamePanel(
         override fun onLongPress(e: MotionEvent) {
             if (isMoving) return
 
-            getTileByScreenCoords(logic!!.grid, e.x, e.y, canvasPosition)
+            logic!!.grid.getTileByScreenCoords(e.x, e.y, canvasPosition)
                 ?.also {
                     if (logic!!.alternativeAction(it)) {
                         vibrator.vibrate(VibrationEffect.createOneShot(1L, 1)) //VibrationEffect.DEFAULT_AMPLITUDE));
@@ -264,12 +264,12 @@ class GamePanel(
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             if (logic!!.gameOver) {
                 // restart:
-                loadGrid(logic!!.grid, (context as Activity))
+                (context as Activity).startGridActivity(logic!!.grid)
                 postInvalidate()
                 return true
             }
 
-            val t = getTileByScreenCoords(logic!!.grid, e.x, e.y, canvasPosition)
+            val t = logic!!.grid.getTileByScreenCoords(e.x, e.y, canvasPosition)
             if (t != null) {
                 logic!!.mainAction(t)
             }
@@ -291,7 +291,7 @@ class GamePanel(
             return
         }
         try {
-            val obj = getJsonStatus(logic!!.grid, timer!!.deciSeconds, canvasPosition)
+            val obj = logic!!.grid.toJson(timer!!.deciSeconds, canvasPosition)
 
             PrintWriter(saveStatePath).use {
                 it.print(obj)
@@ -311,7 +311,7 @@ class GamePanel(
 
                 val obj = JSONObject(line)
                 val bareGrid = Grid.jsonGrid(context, obj)
-                val logic = calculateLogicFromBareGrid(bareGrid)
+                val logic = bareGrid.generateLogic()
                 setGrid(logic, obj.getInt("t"))
                 canvasPosition.setValues(
                     obj.getDouble("x").toFloat(),

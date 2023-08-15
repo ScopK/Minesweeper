@@ -13,13 +13,13 @@ import org.json.JSONObject
 import org.oar.minesweeper.control.GridDrawer
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridSettings
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.skins.DefaultSkin
 import org.oar.minesweeper.skins.DotAltSkin
 import org.oar.minesweeper.skins.DotSkin
 import org.oar.minesweeper.skins.WinSkin
 import org.oar.minesweeper.ui.views.GridViewerView
-import org.oar.minesweeper.utils.GridUtils
+import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import org.oar.minesweeper.utils.PreferencesUtils.loadInteger
 import org.oar.minesweeper.utils.PreferencesUtils.save
@@ -125,8 +125,8 @@ class SkinViewerActivity : Activity() {
         val grid = Grid.jsonGrid(this, obj, settings)
 
         grid.tiles
-            .filter { it.status === Tile.Status.FLAG }
-            .flatMap { GridUtils.getNeighbors(grid, it) }
+            .filter { it.status === TileStatus.FLAG }
+            .flatMap { grid.getNeighbors(it) }
             .forEach { it.addFlaggedNear() }
 
         return grid

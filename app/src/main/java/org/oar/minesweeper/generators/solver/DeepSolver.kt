@@ -1,6 +1,7 @@
 package org.oar.minesweeper.generators.solver
 
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 
@@ -18,8 +19,8 @@ class DeepSolver : Solver() {
         for (i in sketch.numberedCopy) {
             val sTile = sketchTiles[i]
             if (sTile.isNumberVisible) {
-                val coveredIdx = getNeighborsIdx(sketch.grid, sTile)
-                    .filter { idx -> sketchTiles[idx].status === Tile.Status.COVERED }
+                val coveredIdx = sketch.grid.getNeighborsIdx(sTile)
+                    .filter { idx -> sketchTiles[idx].status === TileStatus.COVERED }
 
                 if (coveredIdx.isNotEmpty()) {
                     val bNear = sTile.bombsNear
@@ -28,12 +29,12 @@ class DeepSolver : Solver() {
                         .map { idx -> sketchTiles[idx] }
                         .forEach { tile -> tile.customFlag.add('?') }
 
-                    val numberedNeighbors = getNeighbors(sketch.grid, sTile)
+                    val numberedNeighbors = sketch.grid.getNeighbors(sTile)
                         .filter(Tile::isNumberVisible)
 
                     for (sTile2 in numberedNeighbors) {
-                        val coveredIdx2 = getNeighborsIdx(sketch.grid, sTile2)
-                            .filter { idx -> sketchTiles[idx].status === Tile.Status.COVERED }
+                        val coveredIdx2 = sketch.grid.getNeighborsIdx(sTile2)
+                            .filter { idx -> sketchTiles[idx].status === TileStatus.COVERED }
 
                         val bNear2 = sTile2.bombsNear
                         val totalCovers2 = coveredIdx2.size

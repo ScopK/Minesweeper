@@ -1,6 +1,6 @@
 package org.oar.minesweeper.generators.solver
 
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 
 class BasicSolver : Solver() {
@@ -12,8 +12,8 @@ class BasicSolver : Solver() {
         for (i in sketch.uncovered) {
             val sTile = sketchTiles[i]
             if (sTile.bombsNear > 0) {
-                val nearCovered = getNeighborsIdx(sketch.grid, sTile)
-                    .filter { ix -> sketchTiles[ix].status === Tile.Status.COVERED }
+                val nearCovered = sketch.grid.getNeighborsIdx(sTile)
+                    .filter { ix -> sketchTiles[ix].status === TileStatus.COVERED }
 
                 if (sTile.bombsNear == nearCovered.size) {
                     changesMade = changesMade or (nearCovered.isNotEmpty())
@@ -27,8 +27,8 @@ class BasicSolver : Solver() {
         for (i in sketchTilesUncovered) {
             val sTile = sketchTiles[i]
             if (sTile.customFlag.contains('0')) {
-                for (idx in getNeighborsIdx(sketch.grid, sTile)) {
-                    if (sketchTiles[idx].status === Tile.Status.COVERED) {
+                for (idx in sketch.grid.getNeighborsIdx(sTile)) {
+                    if (sketchTiles[idx].status === TileStatus.COVERED) {
                         reveal(idx)
                         changesMade = true
                     }

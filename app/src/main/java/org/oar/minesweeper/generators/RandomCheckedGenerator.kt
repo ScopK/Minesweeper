@@ -1,18 +1,13 @@
 package org.oar.minesweeper.generators
 
-import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx
-import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
-import org.oar.minesweeper.utils.GridUtils.getNeighbors
-import org.oar.minesweeper.generators.solver.Sketch
-import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.control.MainLogic
+import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
-import org.oar.minesweeper.generators.solver.Solver
-import org.oar.minesweeper.generators.solver.BasicSolver
-import org.oar.minesweeper.generators.solver.PossibleSolver
-import org.oar.minesweeper.generators.solver.DeepSolver
-import org.oar.minesweeper.generators.solver.AdvancedSolver
+import org.oar.minesweeper.generators.solver.*
+import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx
+import org.oar.minesweeper.utils.GridUtils.getNeighbors
+import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 
 open class RandomCheckedGenerator : RandomGenerator() {
 
@@ -25,7 +20,7 @@ open class RandomCheckedGenerator : RandomGenerator() {
     override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
         Thread {
             generateNewRandomGrid(grid)
-            selectedSafeTile = findSafeOpenTileIdx(grid)
+            selectedSafeTile = grid.findSafeOpenTileIdx()
 
             var originalGrid = grid
             var numBombsLeft = 1
@@ -44,7 +39,7 @@ open class RandomCheckedGenerator : RandomGenerator() {
                     } else {
                         generateNewRandomGrid(grid)
                         originalGrid = grid
-                        selectedSafeTile = findSafeOpenTileIdx(grid)
+                        selectedSafeTile = grid.findSafeOpenTileIdx()
                         retrySwapping = MAX_SWAPPING_RETRY
                     }
                 }
@@ -57,22 +52,22 @@ open class RandomCheckedGenerator : RandomGenerator() {
     }
 
     fun swapBombs(grid: Grid, toReplace: Set<Int>) {
-        val protectedTiles = getNeighborsIdx(grid, grid.tiles[selectedSafeTile])
+        val protectedTiles = grid.getNeighborsIdx(grid.tiles[selectedSafeTile])
         protectedTiles.add(selectedSafeTile)
 
         for (rplc in toReplace) {
             var aim: Int
             do {
-                aim = findSafeOpenTileIdx(grid)
+                aim = grid.findSafeOpenTileIdx()
             } while (protectedTiles.indexOf(aim) >= 0)
 
             val t0: Tile = grid.tiles[rplc]
             t0.hasBomb = false
-            getNeighbors(grid, t0).forEach { it.doesntHaveBombNear() }
+            grid.getNeighbors(t0).forEach { it.doesntHaveBombNear() }
 
             val tf: Tile = grid.tiles[aim]
             tf.hasBomb = true
-            getNeighbors(grid, tf).forEach { it.hasBombNear() }
+            grid.getNeighbors(tf).forEach { it.hasBombNear() }
         }
     }
 

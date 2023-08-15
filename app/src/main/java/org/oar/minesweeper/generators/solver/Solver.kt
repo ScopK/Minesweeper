@@ -1,10 +1,9 @@
 package org.oar.minesweeper.generators.solver
 
-import org.oar.minesweeper.utils.GridUtils.getTileStatus
-import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 import org.oar.minesweeper.control.MainLogic
 import org.oar.minesweeper.elements.Tile
-import java.util.HashSet
+import org.oar.minesweeper.elements.TileStatus
+import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 
 abstract class Solver {
 
@@ -24,9 +23,9 @@ abstract class Solver {
             for (i in logicTiles.indices) {
                 val tile = logicTiles[i]
                 val sTile = sketchTiles[i]
-                if (tile.status !== Tile.Status.COVERED && sTile.status === Tile.Status.COVERED) {
+                if (tile.status !== TileStatus.COVERED && sTile.status === TileStatus.COVERED) {
                     val bombsNear = sTile.bombsNear
-                    sTile.status = getTileStatus(bombsNear)
+                    sTile.status = TileStatus.findByTileNumber(bombsNear)
                     if (bombsNear > 0) sketch.addNumbered(i) else sketch.addUncovered(i)
                 }
             }
@@ -37,16 +36,16 @@ abstract class Solver {
                 val li: MutableSet<Int> = HashSet()
                 for (i in sketch.numbered) {
                     val sTile = sketch.tiles[i]
-                    val neigh = getNeighborsIdx(sketch.grid, sTile)
+                    val neigh = sketch.grid.getNeighborsIdx(sTile)
                     for (n in neigh) {
                         val t = logicTiles[n]
-                        if (t.status === Tile.Status.COVERED && t.hasBomb) li.add(n)
+                        if (t.status === TileStatus.COVERED && t.hasBomb) li.add(n)
                     }
                 }
                 if (li.size == 0) {
                     for (i in logicTiles.indices) {
                         val t = logicTiles[i]
-                        if (t.status === Tile.Status.COVERED && t.hasBomb) li.add(i)
+                        if (t.status === TileStatus.COVERED && t.hasBomb) li.add(i)
                     }
                     if (li.size > 0) {
                         return null
@@ -60,23 +59,23 @@ abstract class Solver {
     abstract fun analyze(): Boolean
 
     protected fun markBomb(index: Int) {
-        if (logicTiles[index].status === Tile.Status.FLAG) return
-        logicTiles[index].status = Tile.Status.FLAG
+        if (logicTiles[index].status === TileStatus.FLAG) return
+        logicTiles[index].status = TileStatus.FLAG
 
         val sketchTiles = sketch.tiles
 
         val tile = sketchTiles[index]
-        tile.status = Tile.Status.FLAG
+        tile.status = TileStatus.FLAG
         tile.customFlag.add('X')
         tile.hasBomb = false
 
-        getNeighborsIdx(sketch.grid, tile)
+        sketch.grid.getNeighborsIdx(tile)
             .onEach { idx ->
                 val t = sketchTiles[idx]
                 t.doesntHaveBombNear()
                 if (t.isNumberVisible) {
                     val bombs = t.bombsNear
-                    t.status = getTileStatus(bombs)
+                    t.status = TileStatus.findByTileNumber(bombs)
                     if (bombs == 0) sketch.removeNumbered(idx)
                 }
             }
@@ -96,16 +95,16 @@ abstract class Solver {
         if (sTile.isCovered) {
             val tile = logicTiles[idx]
 
-            if (tile.status === Tile.Status.A0) {
+            if (tile.status === TileStatus.A0) {
                 sketch.addUncovered(idx)
-                sTile.status = Tile.Status.A0
-                for (idxChild in getNeighborsIdx(sketch.grid, sTile)) {
-                    tileUpdate(idxChild)
-                }
+                sTile.status = TileStatus.A0
+
+                sketch.grid.getNeighborsIdx(sTile)
+                    .forEach { idxChild -> tileUpdate(idxChild) }
 
             } else {
                 sketch.addNumbered(idx)
-                sTile.status = getTileStatus(sTile.bombsNear)
+                sTile.status = TileStatus.findByTileNumber(sTile.bombsNear)
             }
         }
     }

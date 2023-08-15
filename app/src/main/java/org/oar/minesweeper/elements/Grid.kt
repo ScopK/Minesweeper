@@ -54,25 +54,25 @@ class Grid (
             for (i in stringGrid.indices) {
                 var t: Tile? = null
                 when (stringGrid[i]) {
-                    'B' -> t = Tile(i % width, i / width, Tile.Status.BOMB)
-                    ' ' -> t = Tile(i % width, i / width, Tile.Status.A0)
-                    '1' -> t = Tile(i % width, i / width, Tile.Status.A1)
-                    '2' -> t = Tile(i % width, i / width, Tile.Status.A2)
-                    '3' -> t = Tile(i % width, i / width, Tile.Status.A3)
-                    '4' -> t = Tile(i % width, i / width, Tile.Status.A4)
-                    '5' -> t = Tile(i % width, i / width, Tile.Status.A5)
-                    '6' -> t = Tile(i % width, i / width, Tile.Status.A6)
-                    '7' -> t = Tile(i % width, i / width, Tile.Status.A7)
-                    '8' -> t = Tile(i % width, i / width, Tile.Status.A8)
-                    'f' -> t = Tile(i % width, i / width, Tile.Status.FLAG)
-                    'c' -> t = Tile(i % width, i / width, Tile.Status.COVERED)
+                    'B' -> t = Tile(i % width, i / width, TileStatus.BOMB)
+                    ' ' -> t = Tile(i % width, i / width, TileStatus.A0)
+                    '1' -> t = Tile(i % width, i / width, TileStatus.A1)
+                    '2' -> t = Tile(i % width, i / width, TileStatus.A2)
+                    '3' -> t = Tile(i % width, i / width, TileStatus.A3)
+                    '4' -> t = Tile(i % width, i / width, TileStatus.A4)
+                    '5' -> t = Tile(i % width, i / width, TileStatus.A5)
+                    '6' -> t = Tile(i % width, i / width, TileStatus.A6)
+                    '7' -> t = Tile(i % width, i / width, TileStatus.A7)
+                    '8' -> t = Tile(i % width, i / width, TileStatus.A8)
+                    'f' -> t = Tile(i % width, i / width, TileStatus.FLAG)
+                    'c' -> t = Tile(i % width, i / width, TileStatus.COVERED)
                     'F' -> {
-                        t = Tile(i % width, i / width, Tile.Status.FLAG)
+                        t = Tile(i % width, i / width, TileStatus.FLAG)
                             .apply { hasBomb = true }
                         bombs++
                     }
                     'C' -> {
-                        t = Tile(i % width, i / width, Tile.Status.COVERED)
+                        t = Tile(i % width, i / width, TileStatus.COVERED)
                             .apply { hasBomb = true }
                         bombs++
                     }

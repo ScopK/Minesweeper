@@ -2,6 +2,7 @@ package org.oar.minesweeper.generators.solver
 
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 
 class Sketch(grid: Grid) : Iterable<Tile?> {
     val grid: Grid = grid.clone()
@@ -22,7 +23,7 @@ class Sketch(grid: Grid) : Iterable<Tile?> {
             val t = getTile(i)
             if (t.isUncovered) {
                 uncovered.add(i)
-                if (t.status !== Tile.Status.A0) {
+                if (t.status !== TileStatus.A0) {
                     numbered.add(i)
                 }
             }

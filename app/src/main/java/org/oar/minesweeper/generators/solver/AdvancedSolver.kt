@@ -1,6 +1,6 @@
 package org.oar.minesweeper.generators.solver
 
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 
 class AdvancedSolver : Solver() {
@@ -12,14 +12,14 @@ class AdvancedSolver : Solver() {
 
         for (i in sketch.numberedCopy) {
             val sTile = sketchTiles[i]
-            val coveredIdx = getNeighborsIdx(sketch.grid, sTile)
-                .filter { idx -> sketchTiles[idx].status === Tile.Status.COVERED }
+            val coveredIdx = sketch.grid.getNeighborsIdx(sTile)
+                .filter { idx -> sketchTiles[idx].status === TileStatus.COVERED }
 
-            if (!coveredIdx.isEmpty()) {
+            if (coveredIdx.isNotEmpty()) {
                 val matching = sketch.numberedCopy
                 matching.remove(i)
                 for (j in coveredIdx) {
-                    val neight = getNeighborsIdx(sketch.grid, sketchTiles[j])
+                    val neight = sketch.grid.getNeighborsIdx(sketchTiles[j])
                         .filter { idx -> sketchTiles[idx].status === sTile.status }
 
                     val it = matching.iterator()
@@ -28,9 +28,8 @@ class AdvancedSolver : Solver() {
                     }
                 }
                 matching
-                    .map { k -> getNeighborsIdx(sketch.grid, sketchTiles[k]) }
-                    .flatten()
-                    .filter { idx -> sketchTiles[idx].status === Tile.Status.COVERED }
+                    .flatMap { k -> sketch.grid.getNeighborsIdx(sketchTiles[k]) }
+                    .filter { idx -> sketchTiles[idx].status === TileStatus.COVERED }
                     .filter { idx -> !coveredIdx.contains(idx) && !toReveal.contains(idx) }
                     .forEach { e -> toReveal.add(e) }
             }

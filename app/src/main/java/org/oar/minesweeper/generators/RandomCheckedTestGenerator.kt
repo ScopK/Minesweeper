@@ -3,9 +3,9 @@ package org.oar.minesweeper.generators
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.GridStartOptions
 import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.TileStatus
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
-import java.util.function.Consumer
 
 class RandomCheckedTestGenerator : RandomCheckedGenerator() {
     override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
@@ -18,7 +18,7 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
 
             } else {
                 generateNewRandomGrid(grid)
-                selectedSafeTile = findSafeOpenTileIdx(grid)
+                selectedSafeTile = grid.findSafeOpenTileIdx()
 
                 var numBombsLeft = 0
 
@@ -28,7 +28,7 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
 
                     if (numBombsLeft == 0) {
                         generateNewRandomGrid(grid)
-                        selectedSafeTile = findSafeOpenTileIdx(grid)
+                        selectedSafeTile = grid.findSafeOpenTileIdx()
                     }
                 }
             }
@@ -46,12 +46,12 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
         tiles.clear()
         for (j in 0 until h) {
             for (i in 0 until w) {
-                tiles.add(Tile(i, j, Tile.Status.COVERED))
+                tiles.add(Tile(i, j, TileStatus.COVERED))
             }
         }
         for (idx in intArrayOf(8, 10, 11, 12, 17, 22)) {
             tiles[idx].hasBomb = true
-            getNeighbors(grid, tiles[idx]).forEach { it.hasBombNear() }
+            grid.getNeighbors(tiles[idx]).forEach { it.hasBombNear() }
         }
     }
 }
