@@ -2,18 +2,17 @@ package org.oar.minesweeper.control
 
 import android.graphics.Canvas
 import android.graphics.Rect
-import org.oar.minesweeper.control.ScreenProperties.BUTTON_PANEL_HEIGHT
-import org.oar.minesweeper.control.ScreenProperties.HEIGHT
-import org.oar.minesweeper.control.ScreenProperties.STATUS_BAR_HEIGHT
-import org.oar.minesweeper.control.ScreenProperties.WIDTH
-import org.oar.minesweeper.elements.GridPosition
+import android.view.View
+import org.oar.minesweeper.grid.GridPosition
+import java.io.Closeable
 
 class CanvasWrapper(
     val canvas: Canvas,
-    gridPosition: GridPosition
-) {
+    gridPosition: GridPosition,
+    view: View
+): Closeable {
 
-    val visibleSpace = Rect()
+    val viewport: Rect
 
     init {
         val posX = gridPosition.posX
@@ -24,13 +23,15 @@ class CanvasWrapper(
         canvas.translate(posX, posY)
         canvas.scale(scale, scale)
 
-        visibleSpace.left = (-posX / scale).toInt()
-        visibleSpace.right = ((WIDTH - posX) / scale).toInt()
-        visibleSpace.top = (-posY / scale).toInt()
-        visibleSpace.bottom = ((HEIGHT + STATUS_BAR_HEIGHT + BUTTON_PANEL_HEIGHT - posY) / scale).toInt()
+        viewport = Rect().apply {
+            left = (-posX / scale).toInt()
+            right = ((view.width - posX) / scale).toInt()
+            top = (-posY / scale).toInt()
+            bottom = ((view.height - posY) / scale).toInt()
+        }
     }
 
-    fun end() {
+    override fun close() {
         canvas.restore()
     }
 }

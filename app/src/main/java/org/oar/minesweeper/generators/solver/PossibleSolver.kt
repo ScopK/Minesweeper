@@ -1,6 +1,6 @@
 package org.oar.minesweeper.generators.solver
 
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
@@ -25,7 +25,7 @@ class PossibleSolver : Solver() {
                         val oTile = sketchTiles[idxTile]
                         oTile.status = TileStatus.FLAG
                         sketch.grid.getNeighbors(oTile)
-                            .forEach { it.addFlaggedNear() }
+                            .forEach { it.flaggedNear++ }
                     }
                     if (!isPossible(sTile)) {
                         optIterator.remove()
@@ -35,7 +35,7 @@ class PossibleSolver : Solver() {
                         val oTile = sketchTiles[idxTile]
                         oTile.status = TileStatus.COVERED
                         sketch.grid.getNeighbors(oTile)
-                            .forEach { it.removeFlaggedNear() }
+                            .forEach { it.flaggedNear-- }
                     }
                 }
                 changesMade = if (options.size == 1) {

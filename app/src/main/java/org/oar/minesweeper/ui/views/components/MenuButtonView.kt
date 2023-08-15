@@ -7,7 +7,7 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 import org.oar.minesweeper.R
-import org.oar.minesweeper.control.ScreenProperties.toDpi
+import org.oar.minesweeper.utils.ScreenProperties.toDpi
 import org.oar.minesweeper.utils.ContextUtils.findColor
 
 class MenuButtonView(

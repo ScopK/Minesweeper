@@ -3,12 +3,13 @@ package org.oar.minesweeper
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.Window
-import android.view.WindowInsets
-import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.models.GridStartOptions
+import android.view.*
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import org.oar.minesweeper.models.Grid
+import org.oar.minesweeper.models.GridGenerationDetails
 import org.oar.minesweeper.ui.views.GameView
+import org.oar.minesweeper.utils.ActivityUtils.animateStartActivity
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -39,9 +40,19 @@ class GameActivity : Activity() {
                 }
             } else {
                 val grid = extras.getSerializable("grid") as Grid
-                val options = extras.getSerializable("options") as GridStartOptions
-                gameView.setNewGrid(grid, options)
-                gameView.postInvalidate()
+                val details = extras.getSerializable("options") as GridGenerationDetails
+
+                gameView.viewTreeObserver.addOnGlobalLayoutListener(
+                    object: OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            // at this point, view dimensions are set (view.width and view.height)
+                            gameView.setGrid(grid, details)
+                            gameView.postInvalidate()
+                            // make sure it is only executed once:
+                            gameView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        }
+                    }
+                )
             }
         }
     }
@@ -61,8 +72,6 @@ class GameActivity : Activity() {
 
     override fun onBackPressed() {
         val intent = Intent(this, MenuActivity::class.java)
-        startActivity(intent)
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        finish()
+        animateStartActivity(intent, true)
     }
 }

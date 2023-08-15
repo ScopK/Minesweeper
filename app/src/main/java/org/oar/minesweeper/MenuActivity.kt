@@ -5,11 +5,12 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowInsets
 import androidx.appcompat.app.AppCompatActivity
-import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.models.Grid
 import org.oar.minesweeper.models.GridConfiguration
 import org.oar.minesweeper.models.GridSettings
 import org.oar.minesweeper.ui.dialogs.StartGridDialog
 import org.oar.minesweeper.ui.views.components.MenuButtonView
+import org.oar.minesweeper.utils.ActivityUtils.animateStartActivity
 import org.oar.minesweeper.utils.ActivityUtils.startGridActivity
 
 class MenuActivity : AppCompatActivity() {
@@ -18,7 +19,6 @@ class MenuActivity : AppCompatActivity() {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_main_menu)
         window.insetsController?.hide(WindowInsets.Type.statusBars())
-
 
         findViewById<MenuButtonView>(R.id.loadButton)
             .setOnClickListener { loadGrid() }
@@ -45,7 +45,7 @@ class MenuActivity : AppCompatActivity() {
             .setOnClickListener { openSettings() }
     }
 
-    fun startGrid(width: Int, height: Int, bombs: Int) {
+    private fun startGrid(width: Int, height: Int, bombs: Int) {
         val gridConfig = GridConfiguration(width, height, bombs)
         StartGridDialog(
             this,
@@ -54,7 +54,7 @@ class MenuActivity : AppCompatActivity() {
         ).show(supportFragmentManager, null)
     }
 
-    fun startGrid(
+    private fun startGrid(
         config: GridConfiguration,
         settings: GridSettings
     ) {
@@ -62,21 +62,19 @@ class MenuActivity : AppCompatActivity() {
         startGridActivity(grid)
     }
 
-    fun loadGrid() {
+    private fun loadGrid() {
         val intent = Intent(this, GameActivity::class.java)
         intent.putExtra("l", true)
-        startActivity(intent)
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        finish()
+        animateStartActivity(intent, true)
     }
 
-    fun openSettings() {
-        val intent = Intent(this, SettingsActivity::class.java)
-        startActivity(intent)
-    }
-
-    fun openSkins() {
+    private fun openSkins() {
         val intent = Intent(this, SkinViewerActivity::class.java)
+        animateStartActivity(intent)
+    }
+
+    private fun openSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }
 }

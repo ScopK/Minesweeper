@@ -5,14 +5,11 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
-import org.oar.minesweeper.control.GridDrawer
-import org.oar.minesweeper.control.ScreenProperties
+import org.oar.minesweeper.grid.GridDrawer
+import org.oar.minesweeper.utils.ScreenProperties
 import org.oar.minesweeper.control.Settings
 import org.oar.minesweeper.skins.*
-import org.oar.minesweeper.skins.DefaultSkin
-import org.oar.minesweeper.skins.DotSkin
-import org.oar.minesweeper.skins.WinSkin
+import org.oar.minesweeper.utils.ActivityUtils.animateStartActivity
 import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import org.oar.minesweeper.utils.PreferencesUtils.loadInteger
 import org.oar.minesweeper.utils.PreferencesUtils.loadString
@@ -43,15 +40,13 @@ class SplashActivity : AppCompatActivity() {
 
         val intent: Intent
         if (File(fileSavePath).exists()){
-            intent = Intent(this@SplashActivity, GameActivity::class.java)
+            intent = Intent(this, GameActivity::class.java)
             intent.putExtra("l",true);
 
         } else {
-            intent = Intent(this@SplashActivity, MenuActivity::class.java)
+            intent = Intent(this, MenuActivity::class.java)
         }
 
-        startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        finish();
+        animateStartActivity(intent, true)
 	}
 }

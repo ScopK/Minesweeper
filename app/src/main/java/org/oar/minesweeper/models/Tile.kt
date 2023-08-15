@@ -1,45 +1,28 @@
-package org.oar.minesweeper.elements
+package org.oar.minesweeper.models
 
-import org.oar.minesweeper.models.TileStatus
 import java.io.Serializable
 import java.util.*
 
-class Tile(
+@Suppress("EqualsOrHashCode")
+data class Tile(
     val x: Int,
     val y: Int,
     var status: TileStatus = TileStatus.COVERED
 ) : Serializable, Cloneable {
 
-    var customFlag: MutableList<Char> = mutableListOf()
+    val customFlag = mutableListOf<Char>()
     var hasBomb = false
-
     var flaggedNear = 0
-        private set
     var bombsNear = 0
-        private set
+
     val isCovered: Boolean
         get() = status == TileStatus.COVERED || status == TileStatus.FLAG
+
     val isUncovered: Boolean
         get() = !isCovered
+
     val isNumberVisible: Boolean
         get() = !isCovered && status != TileStatus.A0
-
-
-    fun addFlaggedNear() {
-        flaggedNear++
-    }
-
-    fun removeFlaggedNear() {
-        flaggedNear--
-    }
-
-    fun hasBombNear() {
-        bombsNear++
-    }
-
-    fun doesntHaveBombNear() {
-        bombsNear--
-    }
 
     override fun toString(): String {
         return when (status) {
@@ -59,16 +42,14 @@ class Tile(
         }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(x, y, hasBomb, bombsNear, super.hashCode())
-    }
+    override fun hashCode() = Objects.hash(x, y, hasBomb, bombsNear, super.hashCode())
 
     public override fun clone(): Tile {
-        val tile = Tile(x, y, status)
-        tile.hasBomb = hasBomb
-        tile.flaggedNear = flaggedNear
-        tile.bombsNear = bombsNear
-        tile.customFlag = customFlag
-        return tile
+        return Tile(x, y, status).also {
+            it.hasBomb = hasBomb
+            it.flaggedNear = flaggedNear
+            it.bombsNear = bombsNear
+            it.customFlag.addAll(customFlag)
+        }
     }
 }

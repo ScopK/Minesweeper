@@ -5,7 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowInsets
-import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.models.Grid
+import org.oar.minesweeper.utils.ActivityUtils.animateStartActivity
+import org.oar.minesweeper.utils.GridUtils.generate
+import kotlin.reflect.full.createInstance
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -26,9 +29,7 @@ class LoadingActivity : Activity() {
             val intent = Intent(this, GameActivity::class.java)
             intent.putExtra("grid", grid)
             intent.putExtra("options", it)
-            startActivity(intent)
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-            finish()
+            animateStartActivity(intent, true)
         }
     }
 }

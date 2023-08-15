@@ -1,9 +1,10 @@
-package org.oar.minesweeper.control
+package org.oar.minesweeper.grid
 
 import android.content.Context
 import android.graphics.Rect
-import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.control.CanvasWrapper
+import org.oar.minesweeper.models.Grid
+import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.skins.Skin
 import org.oar.minesweeper.utils.ContextUtils.findColor
@@ -14,8 +15,8 @@ import kotlin.reflect.full.createInstance
 object GridDrawer {
     private lateinit var skin: Skin
 
-    val tileSize: Int
-        get() = skin.defaultTileSize - 1
+    var tileSize: Int = 0
+        private set
 
     fun setSkin(context: Context, skinClass: KClass<out Skin>, coverHueColor: Int) {
         try {
@@ -23,6 +24,8 @@ object GridDrawer {
                 coverHue = coverHueColor
                 load(context)
             }
+            tileSize = skin.defaultTileSize - 1
+
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         } catch (e: InstantiationException) {
@@ -34,7 +37,7 @@ object GridDrawer {
         context: Context,
         canvasW: CanvasWrapper,
         grid: Grid,
-        skin: Skin = this.skin,
+        skin: Skin = GridDrawer.skin,
         isGameOver: Boolean = false,
     ) {
         canvasW.canvas.drawColor(context.findColor(skin.backgroundColor))
@@ -50,22 +53,19 @@ object GridDrawer {
         skin: Skin,
         isGameOver: Boolean
     ) {
-        val visibleSpace = canvasW.visibleSpace
-        val dim = Rect()
-        val size = tileSize
-        dim.left = tile.x * size
-        dim.right = dim.left + size
-        dim.top = tile.y * size
-        dim.bottom = dim.top + size
+        val dim = Rect().apply {
+            left = tile.x * tileSize
+            right = left + tileSize
+            top = tile.y * tileSize
+            bottom = top + tileSize
+        }
 
-        if (visibleSpace.contains(dim) || visibleSpace.intersects(
-                dim.left, dim.top, dim.right, dim.bottom)) {
-
+        if (Rect.intersects(canvasW.viewport, dim)) {
             val canvas = canvasW.canvas
             val hashCode = tile.hashCode()
 
-            val x = (tile.x * size).toFloat()
-            val y = (tile.y * size).toFloat()
+            val x = dim.left.toFloat()
+            val y = dim.top.toFloat()
 
             when (tile.status) {
                 TileStatus.COVERED ->    skin.drawCover(canvas, x, y, hashCode)

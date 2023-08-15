@@ -4,10 +4,10 @@ import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
-import org.oar.minesweeper.elements.GridPosition
+import org.oar.minesweeper.grid.GridPosition
 import org.oar.minesweeper.control.CanvasWrapper
-import org.oar.minesweeper.control.GridDrawer
-import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.grid.GridDrawer
+import org.oar.minesweeper.models.Grid
 import org.oar.minesweeper.skins.Skin
 import org.oar.minesweeper.skins.WinSkin
 
@@ -29,10 +29,10 @@ open class GridViewerView(
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
 
-        sampleGrid?.also {
-            val pos = getCanvasPosition()
-            val canvasW = CanvasWrapper(canvas, pos)
-            GridDrawer.draw(context, canvasW, it, skin)
+        sampleGrid?.also { grid ->
+            CanvasWrapper(canvas, getCanvasPosition(), this).use { canvasW ->
+                GridDrawer.draw(context, canvasW, grid, skin)
+            }
         }
     }
 

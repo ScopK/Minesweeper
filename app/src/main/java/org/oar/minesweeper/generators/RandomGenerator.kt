@@ -1,17 +1,17 @@
 package org.oar.minesweeper.generators
 
-import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.models.GridStartOptions
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.models.Grid
+import org.oar.minesweeper.models.GridGenerationDetails
+import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import java.util.*
 
 open class RandomGenerator : GridGenerator {
-    override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
+    override fun generateNewGrid(grid: Grid, onFinish: (GridGenerationDetails) -> Unit) {
         Thread {
             generateNewRandomGrid(grid)
-            onFinish(GridStartOptions())
+            onFinish(GridGenerationDetails())
         }.start()
     }
 
@@ -38,7 +38,7 @@ open class RandomGenerator : GridGenerator {
                 continue
             }
             grid.tiles[idx].hasBomb = true
-            grid.getNeighbors(grid.tiles[idx]).forEach { it.hasBombNear() }
+            grid.getNeighbors(grid.tiles[idx]).forEach { it.bombsNear++ }
             i++
         }
     }

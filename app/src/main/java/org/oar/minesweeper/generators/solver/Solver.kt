@@ -1,18 +1,18 @@
 package org.oar.minesweeper.generators.solver
 
-import org.oar.minesweeper.control.MainLogic
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.grid.GameLogic
+import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 
 abstract class Solver {
 
     companion object {
-        private lateinit var logic: MainLogic
+        private lateinit var logic: GameLogic
         lateinit var logicTiles: List<Tile>
         lateinit var sketch: Sketch
 
-        fun setSolver(logic: MainLogic, sketch: Sketch) {
+        fun setSolver(logic: GameLogic, sketch: Sketch) {
             Companion.logic = logic
             logicTiles = logic.grid.tiles
             Companion.sketch = sketch
@@ -72,7 +72,7 @@ abstract class Solver {
         sketch.grid.getNeighborsIdx(tile)
             .onEach { idx ->
                 val t = sketchTiles[idx]
-                t.doesntHaveBombNear()
+                t.bombsNear--
                 if (t.isNumberVisible) {
                     val bombs = t.bombsNear
                     t.status = TileStatus.findByTileNumber(bombs)

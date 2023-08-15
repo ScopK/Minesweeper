@@ -1,9 +1,9 @@
 package org.oar.minesweeper.generators
 
-import org.oar.minesweeper.control.MainLogic
-import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.models.GridStartOptions
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.grid.GameLogic
+import org.oar.minesweeper.models.Grid
+import org.oar.minesweeper.models.GridGenerationDetails
+import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.generators.solver.*
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
@@ -17,7 +17,7 @@ open class RandomCheckedGenerator : RandomGenerator() {
 
     protected var selectedSafeTile = 0
     private var sketch: Sketch? = null
-    override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
+    override fun generateNewGrid(grid: Grid, onFinish: (GridGenerationDetails) -> Unit) {
         Thread {
             generateNewRandomGrid(grid)
             selectedSafeTile = grid.findSafeOpenTileIdx()
@@ -46,7 +46,7 @@ open class RandomCheckedGenerator : RandomGenerator() {
             }
 
             onFinish(
-                GridStartOptions(selectedSafeTile)
+                GridGenerationDetails(selectedSafeTile)
             )
         }.start()
     }
@@ -63,16 +63,16 @@ open class RandomCheckedGenerator : RandomGenerator() {
 
             val t0: Tile = grid.tiles[rplc]
             t0.hasBomb = false
-            grid.getNeighbors(t0).forEach { it.doesntHaveBombNear() }
+            grid.getNeighbors(t0).forEach { it.bombsNear-- }
 
             val tf: Tile = grid.tiles[aim]
             tf.hasBomb = true
-            grid.getNeighbors(tf).forEach { it.hasBombNear() }
+            grid.getNeighbors(tf).forEach { it.bombsNear++ }
         }
     }
 
     fun solve(grid: Grid): Set<Int>? {
-        val ml = MainLogic(grid)
+        val ml = GameLogic(grid)
 
         val t: Tile = grid.tiles[selectedSafeTile]
         ml.reveal(t)

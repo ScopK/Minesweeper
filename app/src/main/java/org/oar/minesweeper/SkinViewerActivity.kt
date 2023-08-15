@@ -10,8 +10,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import org.json.JSONObject
-import org.oar.minesweeper.control.GridDrawer
-import org.oar.minesweeper.elements.Grid
+import org.oar.minesweeper.grid.GridDrawer
+import org.oar.minesweeper.models.Grid
 import org.oar.minesweeper.models.GridSettings
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.skins.DefaultSkin
@@ -20,6 +20,7 @@ import org.oar.minesweeper.skins.DotSkin
 import org.oar.minesweeper.skins.WinSkin
 import org.oar.minesweeper.ui.views.GridViewerView
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
+import org.oar.minesweeper.utils.GridUtils.gridFromJson
 import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import org.oar.minesweeper.utils.PreferencesUtils.loadInteger
 import org.oar.minesweeper.utils.PreferencesUtils.save
@@ -122,13 +123,18 @@ class SkinViewerActivity : Activity() {
     private fun getSampleGrid(): Grid {
         val obj = JSONObject("{\"w\":5,\"h\":5,\"gs\":true,\"x\":1,\"y\":1,\"s\":1,\"t\":348,\"ts\":\"   1C 112c 1F2c1334FcCCcF\"}")
         val settings = GridSettings(firstOpen = false, solvable = false, visualHelp)
-        val grid = Grid.jsonGrid(this, obj, settings)
+        val grid = gridFromJson(obj, settings)
 
         grid.tiles
             .filter { it.status === TileStatus.FLAG }
             .flatMap { grid.getNeighbors(it) }
-            .forEach { it.addFlaggedNear() }
+            .forEach { it.flaggedNear++ }
 
         return grid
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 }

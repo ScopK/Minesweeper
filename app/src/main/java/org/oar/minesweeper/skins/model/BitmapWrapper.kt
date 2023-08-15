@@ -5,8 +5,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 
 data class BitmapWrapper(
-    val bitmap: Bitmap,
-    val isEmpty: Boolean
+    private val bitmap: Bitmap,
+    private val isEmpty: Boolean
 ) {
     companion object {
         private val defaultPaint = Paint()

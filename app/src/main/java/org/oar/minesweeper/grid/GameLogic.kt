@@ -1,12 +1,12 @@
-package org.oar.minesweeper.control
+package org.oar.minesweeper.grid
 
-import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.control.Settings
+import org.oar.minesweeper.models.Grid
+import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
-import java.util.function.Consumer
 
-class MainLogic(
+class GameLogic(
     val grid: Grid
 ) {
     enum class GameStatus {
@@ -19,7 +19,6 @@ class MainLogic(
         private set
     private var correctFlaggedBombs = 0
     private var revealedTiles = 0
-    private var finishEvent: Consumer<Boolean>? = null
 
     val gameOver: Boolean
         get() = status == GameStatus.WIN || status == GameStatus.LOSE
@@ -31,13 +30,14 @@ class MainLogic(
         get() = grid.tiles.none { it.status !== TileStatus.COVERED }
 
     var onChangeListener: Runnable? = null
+    var onEndListener: Runnable? = null
 
-    fun mainAction(tile: Tile) {
-        if (gameOver) return
-        when (tile.status) {
+    fun mainAction(tile: Tile): Boolean {
+        if (gameOver) return false
+        return when (tile.status) {
             TileStatus.COVERED -> {
                 tile.status = TileStatus.FLAG
-                grid.getNeighbors(tile).forEach { it.addFlaggedNear() }
+                grid.getNeighbors(tile).forEach { it.flaggedNear++ }
                 flaggedBombs++
                 if (tile.hasBomb) {
                     correctFlaggedBombs++
@@ -49,10 +49,11 @@ class MainLogic(
                 }
                 checkWin()
                 onChangeListener?.run()
+                true
             }
             TileStatus.FLAG -> {
                 tile.status = TileStatus.COVERED
-                grid.getNeighbors(tile).forEach { it.removeFlaggedNear() }
+                grid.getNeighbors(tile).forEach { it.flaggedNear-- }
                 flaggedBombs--
                 if (tile.hasBomb) {
                     correctFlaggedBombs--
@@ -64,22 +65,25 @@ class MainLogic(
                 }
                 checkWin()
                 onChangeListener?.run()
+                true
             }
-            TileStatus.A0 -> {}
+            TileStatus.A0 -> false
             else -> {
                 val executeMassReveal = when (Settings.discoveryMode) {
-                    Settings.EASY   -> tile.flaggedNear == tile.bombsNear
+                    Settings.EASY -> tile.flaggedNear == tile.bombsNear
                     Settings.NORMAL -> tile.flaggedNear >= tile.bombsNear
-                    Settings.HARD   -> true
-                    else            -> false
+                    Settings.HARD -> true
+                    else          -> false
                 }
 
                 if (executeMassReveal) {
                     grid.getNeighbors(tile)
                         .filter { it.status === TileStatus.COVERED }
-                        .forEach { reveal(it) }
+                        .onEach { reveal(it) }
+                        .ifEmpty { return@mainAction false }
                     onChangeListener?.run()
                 }
+                executeMassReveal
             }
         }
     }
@@ -107,20 +111,20 @@ class MainLogic(
         if (tile.hasBomb) {
             tile.status = TileStatus.BOMB_FINAL
             gameOver()
+
         } else {
+            tile.status = TileStatus.findByTileNumber(tile.bombsNear)
             when (tile.bombsNear) {
                 0 -> {
-                    tile.status = TileStatus.A0
                     grid.getNeighbors(tile)
                         .filter { it.status === TileStatus.COVERED }
                         .forEach { reveal(it) }
                 }
-                else -> tile.status = TileStatus.findByTileNumber(tile.bombsNear)
             }
         }
     }
 
-    fun fastReveal(tile: Tile) {
+    private fun fastReveal(tile: Tile) {
         if (tile.isCovered) {
             revealedTiles++
         }
@@ -144,13 +148,14 @@ class MainLogic(
         }
     }
 
-    fun checkWin() {
+    private fun checkWin() {
         if (correctFlaggedBombs == grid.bombs && correctFlaggedBombs == flaggedBombs) {
-            gameWin()
+            status = GameStatus.WIN
+            onEndListener?.run()
         }
     }
 
-    fun gameOver() {
+    private fun gameOver() {
         if (status == GameStatus.LOSE) return
         status = GameStatus.LOSE
         grid.tiles
@@ -163,28 +168,10 @@ class MainLogic(
                     tile.status = TileStatus.FLAG_FAIL
                 }
             }
-        if (finishEvent != null) finishEvent!!.accept(false)
+        onEndListener?.run()
     }
 
-    fun gameWin() {
-        status = GameStatus.WIN
-        if (finishEvent != null) finishEvent!!.accept(true)
-    }
-
-    fun setFinishEvent(finishEvent: Consumer<Boolean>?) {
-        this.finishEvent = finishEvent
-    }
-
-    fun addRevealedTiles() {
-        revealedTiles++
-    }
-
-    fun addFlaggedBombs() {
-        flaggedBombs++
-    }
-
-    fun addCorrectFlaggedBombs() {
-        correctFlaggedBombs++
-    }
-
+    fun addRevealedTiles() = ++revealedTiles
+    fun addFlaggedBombs() = ++flaggedBombs
+    fun addCorrectFlaggedBombs() = ++correctFlaggedBombs
 }

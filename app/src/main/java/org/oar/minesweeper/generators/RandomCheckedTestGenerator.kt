@@ -1,14 +1,14 @@
 package org.oar.minesweeper.generators
 
-import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.models.GridStartOptions
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.models.Grid
+import org.oar.minesweeper.models.GridGenerationDetails
+import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 
 class RandomCheckedTestGenerator : RandomCheckedGenerator() {
-    override fun generateNewGrid(grid: Grid, onFinish: (GridStartOptions) -> Unit) {
+    override fun generateNewGrid(grid: Grid, onFinish: (GridGenerationDetails) -> Unit) {
         Thread {
             val test = false
             if (test) {
@@ -33,7 +33,7 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
                 }
             }
             onFinish(
-                GridStartOptions(selectedSafeTile)
+                GridGenerationDetails(selectedSafeTile)
             )
         }.start()
     }
@@ -51,7 +51,7 @@ class RandomCheckedTestGenerator : RandomCheckedGenerator() {
         }
         for (idx in intArrayOf(8, 10, 11, 12, 17, 22)) {
             tiles[idx].hasBomb = true
-            grid.getNeighbors(tiles[idx]).forEach { it.hasBombNear() }
+            grid.getNeighbors(tiles[idx]).forEach { it.bombsNear++ }
         }
     }
 }
