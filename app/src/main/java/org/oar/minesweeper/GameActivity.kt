@@ -7,17 +7,15 @@ import android.view.KeyEvent
 import android.view.Window
 import android.view.WindowInsets
 import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.GridStartOptions
-import org.oar.minesweeper.ui.views.HudView
+import org.oar.minesweeper.models.GridStartOptions
+import org.oar.minesweeper.ui.views.GameView
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 class GameActivity : Activity() {
-    private val gamePanel: GamePanel by lazy { findViewById(R.id.panel) }
-    private val hud: HudView by lazy { findViewById(R.id.hud) }
-
+    private val gameView: GameView by lazy { findViewById(R.id.panel) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +27,6 @@ class GameActivity : Activity() {
             finish();
         } else {
             setContentView(R.layout.activity_playing_grid)
-            gamePanel.hudView = hud
 
             window.insetsController?.apply {
                 hide(WindowInsets.Type.statusBars())
@@ -37,20 +34,20 @@ class GameActivity : Activity() {
             }
 
             if (extras.getBoolean("l")) {
-                if (!gamePanel.loadState()) {
+                if (!gameView.loadState()) {
                     finish()
                 }
             } else {
                 val grid = extras.getSerializable("grid") as Grid
                 val options = extras.getSerializable("options") as GridStartOptions
-                gamePanel.setNewGrid(grid, options)
-                gamePanel.postInvalidate()
+                gameView.setNewGrid(grid, options)
+                gameView.postInvalidate()
             }
         }
     }
 
     override fun onPause() {
-        gamePanel.saveState()
+        gameView.saveState()
         super.onPause()
     }
 

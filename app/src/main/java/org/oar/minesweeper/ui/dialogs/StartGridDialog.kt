@@ -7,8 +7,8 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.switchmaterial.SwitchMaterial
 import org.oar.minesweeper.R
-import org.oar.minesweeper.elements.GridConfiguration
-import org.oar.minesweeper.elements.GridSettings
+import org.oar.minesweeper.models.GridConfiguration
+import org.oar.minesweeper.models.GridSettings
 import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import org.oar.minesweeper.utils.PreferencesUtils.save
 import java.util.function.Consumer
@@ -46,11 +46,13 @@ class StartGridDialog(
                 ctx.save("lastRevealFirst", revealFirst.isChecked)
                 ctx.save("lastSolvable", solvable.isChecked)
 
-                confirm.accept(GridSettings(
+                confirm.accept(
+                    GridSettings(
                     revealFirst.isChecked,
                     solvable.isChecked,
                     ctx.loadBoolean("lastVisualHelp", false)
-                ))
+                )
+                )
             }
             .setNegativeButton(R.string.button_cancel) { _, _ -> cancel.run() }
 

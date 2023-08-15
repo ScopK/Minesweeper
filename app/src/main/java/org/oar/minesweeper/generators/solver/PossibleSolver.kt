@@ -1,7 +1,7 @@
 package org.oar.minesweeper.generators.solver
 
 import org.oar.minesweeper.elements.Tile
-import org.oar.minesweeper.elements.TileStatus
+import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import org.oar.minesweeper.utils.GridUtils.getNeighborsIdx
 import java.util.*

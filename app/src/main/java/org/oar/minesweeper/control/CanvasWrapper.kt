@@ -6,20 +6,19 @@ import org.oar.minesweeper.control.ScreenProperties.BUTTON_PANEL_HEIGHT
 import org.oar.minesweeper.control.ScreenProperties.HEIGHT
 import org.oar.minesweeper.control.ScreenProperties.STATUS_BAR_HEIGHT
 import org.oar.minesweeper.control.ScreenProperties.WIDTH
-import org.oar.minesweeper.control.ScreenProperties.toDpi
-import org.oar.minesweeper.elements.Tile
+import org.oar.minesweeper.elements.GridPosition
 
 class CanvasWrapper(
     val canvas: Canvas,
-    canvasPosition: CanvasPosition
+    gridPosition: GridPosition
 ) {
 
     val visibleSpace = Rect()
 
     init {
-        val posX = canvasPosition.posX
-        val posY = canvasPosition.posY
-        val scale = canvasPosition.scale
+        val posX = gridPosition.posX
+        val posY = gridPosition.posY
+        val scale = gridPosition.scale
 
         canvas.save()
         canvas.translate(posX, posY)

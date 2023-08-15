@@ -1,4 +1,4 @@
-package org.oar.minesweeper
+package org.oar.minesweeper.ui.views
 
 import android.app.Activity
 import android.content.Context
@@ -19,9 +19,9 @@ import org.oar.minesweeper.control.*
 import org.oar.minesweeper.control.GridDrawer.draw
 import org.oar.minesweeper.control.GridDrawer.tileSize
 import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.GridStartOptions
-import org.oar.minesweeper.elements.TileStatus
-import org.oar.minesweeper.ui.views.HudView
+import org.oar.minesweeper.elements.GridPosition
+import org.oar.minesweeper.models.GridStartOptions
+import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.ActivityUtils.startGridActivity
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTile
 import org.oar.minesweeper.utils.GridUtils.generateLogic
@@ -32,19 +32,20 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.pow
 
-class GamePanel(
+class GameView(
     context: Context,
-    attrs: AttributeSet?,
+    attrs: AttributeSet,
 ) : View(context, attrs) {
-    constructor(context: Context) : this(context, null)
 
     companion object {
-        private val canvasPosition = CanvasPosition()
+        private val gridPosition = GridPosition()
     }
+
+    private val hudView: HudView by lazy { rootView.findViewById(hudViewId) }
+    private val hudViewId: Int
 
     private var logic: MainLogic? = null
 
-    lateinit var hudView: HudView
     private var timer: Timer? = null
 
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
@@ -62,8 +63,15 @@ class GamePanel(
     private var lastTime = 0L
 
     init {
-        //make gamePanel focusable so it can handle events
+        //make gameView focusable so it can handle events
         isFocusable = true
+
+        attrs
+            .getAttributeResourceValue("http://schemas.android.com/apk/res-auto", "hud", id)
+            .also {
+                if (it == id) throw RuntimeException("Hud view id not found")
+                hudViewId = it
+            }
 
         scaleDetector.isQuickScaleEnabled = false
         gestureDetector.setIsLongpressEnabled(true)
@@ -80,10 +88,10 @@ class GamePanel(
 
             logic!!.reveal(tile)
             updateHud()
-            canvasPosition.focus(tile)
+            gridPosition.focus(tile)
         } else {
             grid.tiles.firstOrNull { tile -> tile.status === TileStatus.A0 }
-                ?.also { canvasPosition.focus(it) }
+                ?.also { gridPosition.focus(it) }
         }
     }
 
@@ -105,14 +113,14 @@ class GamePanel(
         }.apply { start() }
 
         logic.setFinishEvent { timer?.close() }
-        canvasPosition.setContentDimensions(
+        gridPosition.setContentDimensions(
             (logic.grid.width * tileSize).toFloat(),
             (logic.grid.height * tileSize).toFloat())
     }
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        val xCanvas = CanvasWrapper(canvas, canvasPosition)
+        val xCanvas = CanvasWrapper(canvas, gridPosition)
 
         logic?.also { draw(context, xCanvas, it.grid, isGameOver = it.gameOver) }
 
@@ -156,7 +164,7 @@ class GamePanel(
                                 lastTime = it
                             }
 
-                        canvasPosition.translate(dx, dy)
+                        gridPosition.translate(dx, dy)
 
                         isMoving = true
                         postInvalidate()
@@ -189,8 +197,8 @@ class GamePanel(
         val totalFrames = ScreenProperties.FRAME_RATE
         var frame = 0
 
-        val initialX = canvasPosition.posX
-        val initialY = canvasPosition.posY
+        val initialX = gridPosition.posX
+        val initialY = gridPosition.posY
 
         val delta = (totalFrames * (totalFrames + 1) / 2) / (totalFrames + 1)
         var relativeEndX = speedValueX * delta
@@ -203,8 +211,8 @@ class GamePanel(
             val xPos = relativeEndX * x + initialX
             val yPos = relativeEndY * x + initialY
 
-            var dx = xPos - canvasPosition.posX
-            var dy = yPos - canvasPosition.posY
+            var dx = xPos - gridPosition.posX
+            var dy = yPos - gridPosition.posY
 
             if (abs(dx) > abs(speedValueX)) {
                 relativeEndX -= dx - speedValueX
@@ -216,7 +224,7 @@ class GamePanel(
                 dy = speedValueY
             }
 
-            canvasPosition.translate(dx, dy)
+            gridPosition.translate(dx, dy)
 
             if (frame > totalFrames) {
                 animation = null
@@ -240,7 +248,7 @@ class GamePanel(
             isResizing = true
 
             val ratio = detector.scaleFactor
-            canvasPosition.zoom(ratio)
+            gridPosition.zoom(ratio)
 
             postInvalidate()
             return true
@@ -251,7 +259,7 @@ class GamePanel(
         override fun onLongPress(e: MotionEvent) {
             if (isMoving) return
 
-            logic!!.grid.getTileByScreenCoords(e.x, e.y, canvasPosition)
+            logic!!.grid.getTileByScreenCoords(e.x, e.y, gridPosition)
                 ?.also {
                     if (logic!!.alternativeAction(it)) {
                         vibrator.vibrate(VibrationEffect.createOneShot(1L, 1)) //VibrationEffect.DEFAULT_AMPLITUDE));
@@ -269,7 +277,7 @@ class GamePanel(
                 return true
             }
 
-            val t = logic!!.grid.getTileByScreenCoords(e.x, e.y, canvasPosition)
+            val t = logic!!.grid.getTileByScreenCoords(e.x, e.y, gridPosition)
             if (t != null) {
                 logic!!.mainAction(t)
             }
@@ -291,7 +299,7 @@ class GamePanel(
             return
         }
         try {
-            val obj = logic!!.grid.toJson(timer!!.deciSeconds, canvasPosition)
+            val obj = logic!!.grid.toJson(timer!!.deciSeconds, gridPosition)
 
             PrintWriter(saveStatePath).use {
                 it.print(obj)
@@ -313,7 +321,7 @@ class GamePanel(
                 val bareGrid = Grid.jsonGrid(context, obj)
                 val logic = bareGrid.generateLogic()
                 setGrid(logic, obj.getInt("t"))
-                canvasPosition.setValues(
+                gridPosition.setValues(
                     obj.getDouble("x").toFloat(),
                     obj.getDouble("y").toFloat(),
                     obj.getDouble("s").toFloat())

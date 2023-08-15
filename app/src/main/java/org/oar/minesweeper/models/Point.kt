@@ -1,4 +1,4 @@
-package org.oar.minesweeper.utils
+package org.oar.minesweeper.models
 
 import kotlin.math.abs
 

@@ -3,6 +3,10 @@ package org.oar.minesweeper.elements
 import android.content.Context
 import org.json.JSONException
 import org.json.JSONObject
+import org.oar.minesweeper.models.GridConfiguration
+import org.oar.minesweeper.models.GridSettings
+import org.oar.minesweeper.models.GridStartOptions
+import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import java.io.Serializable
 import kotlin.reflect.full.createInstance

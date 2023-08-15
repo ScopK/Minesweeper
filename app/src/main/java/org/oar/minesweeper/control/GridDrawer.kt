@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Rect
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.Tile
-import org.oar.minesweeper.elements.TileStatus
+import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.skins.Skin
 import org.oar.minesweeper.utils.ContextUtils.findColor
 import kotlin.reflect.KClass

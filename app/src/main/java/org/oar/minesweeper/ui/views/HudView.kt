@@ -18,7 +18,7 @@ import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 
 class HudView(
     context: Context,
-    attrs: AttributeSet?
+    attrs: AttributeSet
 ) : ConstraintLayout(context, attrs) {
 
     companion object {
@@ -33,8 +33,6 @@ class HudView(
     private val remainingTilesView: HudLabel
     private val timeView: HudLabel
     private val remainingBombsView: HudLabel
-
-    constructor(context: Context) : this(context, null)
 
     init {
         background = ContextCompat.getDrawable(context, R.drawable.hud_background)

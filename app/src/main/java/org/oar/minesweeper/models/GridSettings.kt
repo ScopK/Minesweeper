@@ -1,4 +1,4 @@
-package org.oar.minesweeper.elements
+package org.oar.minesweeper.models
 
 import org.oar.minesweeper.generators.GridGenerator
 import org.oar.minesweeper.generators.RandomCheckedGenerator
@@ -11,6 +11,7 @@ data class GridSettings(
     val solvable: Boolean,
     var visualHelp: Boolean,
 ) : Serializable {
+
     val generatorClass: KClass<out GridGenerator>
         get() = if (solvable)
                 RandomCheckedGenerator::class

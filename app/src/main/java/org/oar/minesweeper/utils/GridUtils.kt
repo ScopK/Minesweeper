@@ -2,13 +2,13 @@ package org.oar.minesweeper.utils
 
 import org.json.JSONException
 import org.json.JSONObject
-import org.oar.minesweeper.control.CanvasPosition
+import org.oar.minesweeper.elements.GridPosition
 import org.oar.minesweeper.control.GridDrawer.tileSize
 import org.oar.minesweeper.control.MainLogic
 import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.GridConfiguration
+import org.oar.minesweeper.models.GridConfiguration
 import org.oar.minesweeper.elements.Tile
-import org.oar.minesweeper.elements.TileStatus.*
+import org.oar.minesweeper.models.TileStatus.*
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -71,11 +71,11 @@ object GridUtils {
     }
 
 
-    fun Grid.getTileByScreenCoords(x: Float, y: Float, canvasPosition: CanvasPosition): Tile? {
+    fun Grid.getTileByScreenCoords(x: Float, y: Float, gridPosition: GridPosition): Tile? {
         val tileSize = tileSize
-        val scale = canvasPosition.scale
-        val relativeX = x - canvasPosition.posX
-        val relativeY = y - canvasPosition.posY
+        val scale = gridPosition.scale
+        val relativeX = x - gridPosition.posX
+        val relativeY = y - gridPosition.posY
 
         if (relativeX < 0 || relativeY < 0) return null
 
@@ -106,16 +106,16 @@ object GridUtils {
         return idx
     }
 
-    fun Grid.toJson(seconds: Int, canvasPosition: CanvasPosition): JSONObject {
+    fun Grid.toJson(seconds: Int, gridPosition: GridPosition): JSONObject {
         val obj = JSONObject()
 
         try {
             obj.put("w", width)
             obj.put("h", height)
             obj.put("gs", gridSettings.solvable)
-            obj.put("x", canvasPosition.posX)
-            obj.put("y", canvasPosition.posY)
-            obj.put("s", canvasPosition.scale)
+            obj.put("x", gridPosition.posX)
+            obj.put("y", gridPosition.posY)
+            obj.put("s", gridPosition.scale)
             obj.put("t", seconds)
             obj.put("ts",
                 tiles

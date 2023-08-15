@@ -2,7 +2,7 @@ package org.oar.minesweeper.control
 
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.Tile
-import org.oar.minesweeper.elements.TileStatus
+import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 import java.util.function.Consumer
 

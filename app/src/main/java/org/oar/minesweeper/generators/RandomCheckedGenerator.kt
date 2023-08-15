@@ -2,7 +2,7 @@ package org.oar.minesweeper.generators
 
 import org.oar.minesweeper.control.MainLogic
 import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.GridStartOptions
+import org.oar.minesweeper.models.GridStartOptions
 import org.oar.minesweeper.elements.Tile
 import org.oar.minesweeper.generators.solver.*
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx

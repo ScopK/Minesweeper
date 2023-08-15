@@ -1,4 +1,4 @@
-package org.oar.minesweeper.elements
+package org.oar.minesweeper.models
 
 import java.io.Serializable
 

@@ -12,8 +12,8 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import org.json.JSONObject
 import org.oar.minesweeper.control.GridDrawer
 import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.GridSettings
-import org.oar.minesweeper.elements.TileStatus
+import org.oar.minesweeper.models.GridSettings
+import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.skins.DefaultSkin
 import org.oar.minesweeper.skins.DotAltSkin
 import org.oar.minesweeper.skins.DotSkin

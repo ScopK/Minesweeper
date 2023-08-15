@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
-import org.oar.minesweeper.control.CanvasPosition
+import org.oar.minesweeper.elements.GridPosition
 import org.oar.minesweeper.control.CanvasWrapper
 import org.oar.minesweeper.control.GridDrawer
 import org.oar.minesweeper.elements.Grid
@@ -13,7 +13,7 @@ import org.oar.minesweeper.skins.WinSkin
 
 open class GridViewerView(
     context: Context,
-    attrs: AttributeSet?,
+    attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
     var sampleGrid: Grid? = null
@@ -21,8 +21,6 @@ open class GridViewerView(
         set(skin) {
             field = skin.apply { if (!loaded) load(context) }
         }
-
-    constructor(context: Context) : this(context, null)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, widthMeasureSpec)
@@ -38,12 +36,12 @@ open class GridViewerView(
         }
     }
 
-    private fun getCanvasPosition(): CanvasPosition {
+    private fun getCanvasPosition(): GridPosition {
         val tileSize = (skin.defaultTileSize - 1).toFloat()
         val widthToDisplay = (sampleGrid!!.width + 2) * tileSize
 
         val scale = measuredWidth / widthToDisplay
         val position = tileSize * scale
-        return CanvasPosition(position, position, scale)
+        return GridPosition(position, position, scale)
     }
 }

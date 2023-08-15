@@ -1,8 +1,8 @@
 package org.oar.minesweeper.elements
 
+import org.oar.minesweeper.models.TileStatus
 import java.io.Serializable
 import java.util.*
-import kotlin.jvm.JvmOverloads
 
 class Tile(
     val x: Int,

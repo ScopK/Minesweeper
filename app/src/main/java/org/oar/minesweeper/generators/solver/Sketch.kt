@@ -2,7 +2,7 @@ package org.oar.minesweeper.generators.solver
 
 import org.oar.minesweeper.elements.Grid
 import org.oar.minesweeper.elements.Tile
-import org.oar.minesweeper.elements.TileStatus
+import org.oar.minesweeper.models.TileStatus
 
 class Sketch(grid: Grid) : Iterable<Tile?> {
     val grid: Grid = grid.clone()

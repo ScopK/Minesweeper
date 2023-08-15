@@ -7,19 +7,16 @@
     <string name="menu_game_sub_1">4x6 - 5 bombs"</string>
 
     <string name="menu_game_name_2">Baby</string>
-    <string name="menu_game_sub_2">10x10 - 12 bombs</string>
+    <string name="menu_game_sub_2">10x10 - 25 bombs</string>
 
-    <string name="menu_game_name_3">Atomic Baby</string>
-    <string name="menu_game_sub_3">10x10 - 25 bombs</string>
+    <string name="menu_game_name_3">Profi</string>
+    <string name="menu_game_sub_3">15x15 - 60 bombs</string>
 
-    <string name="menu_game_name_4">Profi</string>
-    <string name="menu_game_sub_4">15x15 - 50 bombs</string>
+    <string name="menu_game_name_4">Mom, take me back</string>
+    <string name="menu_game_sub_4">25x25 - 125 bombs</string>
 
-    <string name="menu_game_name_5">Mom, take me back</string>
-    <string name="menu_game_sub_5">25x25 - 100 bombs</string>
-
-    <string name="menu_game_name_6">Inferno</string>
-    <string name="menu_game_sub_6">50x50 - 503 bombs</string>
+    <string name="menu_game_name_5">Inferno</string>
+    <string name="menu_game_sub_5">50x50 - 603 bombs</string>
 
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>

@@ -1,11 +1,11 @@
-package org.oar.minesweeper.control
+package org.oar.minesweeper.elements
 
+import org.oar.minesweeper.control.GridDrawer
 import org.oar.minesweeper.control.ScreenProperties.HEIGHT
 import org.oar.minesweeper.control.ScreenProperties.WIDTH
 import org.oar.minesweeper.control.ScreenProperties.toDpi
-import org.oar.minesweeper.elements.Tile
 
-class CanvasPosition(
+class GridPosition(
     posX: Float = 0f,
     posY: Float = 0f,
     scale: Float = 0.2491268f.toDpi(),

@@ -1,9 +1,9 @@
 package org.oar.minesweeper.generators
 
 import org.oar.minesweeper.elements.Grid
-import org.oar.minesweeper.elements.GridStartOptions
+import org.oar.minesweeper.models.GridStartOptions
 import org.oar.minesweeper.elements.Tile
-import org.oar.minesweeper.elements.TileStatus
+import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.findSafeOpenTileIdx
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
 
