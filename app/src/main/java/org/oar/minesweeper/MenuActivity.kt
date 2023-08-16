@@ -2,6 +2,7 @@ package org.oar.minesweeper
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import android.view.WindowInsets
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ import org.oar.minesweeper.ui.dialogs.StartGridDialog
 import org.oar.minesweeper.ui.views.components.MenuButtonView
 import org.oar.minesweeper.utils.ActivityUtils.animateStartActivity
 import org.oar.minesweeper.utils.ActivityUtils.startGridActivity
+import org.oar.minesweeper.utils.SaveStateUtils.hasState
 
 class MenuActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +23,10 @@ class MenuActivity : AppCompatActivity() {
         window.insetsController?.hide(WindowInsets.Type.statusBars())
 
         findViewById<MenuButtonView>(R.id.loadButton)
-            .setOnClickListener { loadGrid() }
+            .apply {
+                setOnClickListener { loadGrid() }
+                if (!hasState()) visibility =  View.GONE
+            }
 
         findViewById<MenuButtonView>(R.id.startGame1)
             .setOnClickListener { startGrid(4,6,5) }

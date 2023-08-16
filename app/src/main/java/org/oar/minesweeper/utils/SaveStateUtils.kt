@@ -28,6 +28,11 @@ object SaveStateUtils {
         File(statePath).delete()
     }
 
+    fun Context.hasState(): Boolean {
+        val saveStatePath = ContextWrapper(this).filesDir.path + "/" + Settings.FILENAME
+        return File(saveStatePath).exists()
+    }
+
     fun Context.loadState(): JSONObject? {
         val statePath = statePath
 
