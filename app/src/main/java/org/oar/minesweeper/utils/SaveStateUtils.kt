@@ -29,8 +29,7 @@ object SaveStateUtils {
     }
 
     fun Context.hasState(): Boolean {
-        val saveStatePath = ContextWrapper(this).filesDir.path + "/" + Settings.FILENAME
-        return File(saveStatePath).exists()
+        return File(statePath).exists()
     }
 
     fun Context.loadState(): JSONObject? {

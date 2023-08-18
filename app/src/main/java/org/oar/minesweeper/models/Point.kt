@@ -1,12 +1,12 @@
 package org.oar.minesweeper.models
 
+import java.util.*
 import kotlin.math.abs
 
 data class Point (
     val x: Float,
     val y: Float,
 ) {
-
     fun zero() = x == 0f && y == 0f
 
     fun add(point: Point): Point {
@@ -28,4 +28,12 @@ data class Point (
     override fun toString(): String {
         return "Point($x, $y)"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+
+        other as Point
+        return x == other.x && y == other.y
+    }
+    override fun hashCode() = Objects.hash(x, y)
 }

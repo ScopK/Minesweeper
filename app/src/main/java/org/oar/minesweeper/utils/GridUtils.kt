@@ -80,16 +80,15 @@ object GridUtils {
 
 
     fun Grid.getTileByScreenCoords(x: Float, y: Float, gridPosition: GridPosition): Tile? {
-        val tileSize = tileSize
         val scale = gridPosition.scale
-        val relativeX = x - gridPosition.posX
-        val relativeY = y - gridPosition.posY
+        val relativeX = (x - gridPosition.posX) / scale
+        val relativeY = (y - gridPosition.posY) / scale
 
         if (relativeX < 0 || relativeY < 0) return null
 
         return getTileByCoords(
-            (relativeX / scale).roundToInt() / tileSize,
-            (relativeY / scale).roundToInt() / tileSize)
+            relativeX.roundToInt() / tileSize,
+            relativeY.roundToInt() / tileSize)
     }
 
     fun Grid.getTileByCoords(x: Int, y: Int): Tile? {
