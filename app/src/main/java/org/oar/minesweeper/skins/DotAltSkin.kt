@@ -4,6 +4,7 @@ import org.oar.minesweeper.R
 
 class DotAltSkin: Skin() {
     override val visualHelp = true
+    override val useEmptyTileWhenUnhelpful = true
 
     override val numberOfCovers = 4
     override val coverW = 138
