@@ -32,6 +32,7 @@
     <string name="hud_bombs_line">Bombs: %1$d/%2$d</string>
 
     <string name="pref_showtime">Show time</string>
+    <string name="pref_longpressflag">Use long touch to flag bombs</string>
 
     <string name="pref_revealFirst">Auto reveal first tile</string>
     <string name="pref_revealFirst_desc">Automatically open an empty tile on start</string>
@@ -42,20 +43,13 @@
     <string name="pref_visualHelp">Show remaining bombs instead of total bombs</string>
     <string name="pref_visualHelp_desc">Each numbered tile will indicate how many nearby mines are left to be flagged</string>
 
-    <string name="pref_discoverymode">Set revealing mode</string>
-    <string name="pref_discoverymode_desc">Disabled: No tile will be revealed when a "number tile" is touched.\nEasy: Only when the number of flagged bombs is equal to the "number tile", the surrounding tiles will be revealed.\nNormal: Only when the number of flagged bombs is equal or bigger to the "number tile", the surrounding tiles will be revealed.\nHard: The surrounding tiles from a "number tile" will be revealed, no matter the flagged bombs around it.\nAutomatic: Tiles will be automatically open. Might be risky... Be careful with what you flag!</string>
-    <string-array name="pref_discoverymode_title">
-        <item>Disabled</item>
-        <item>Easy</item>
-        <item>Normal</item>
-        <item>Hard</item>
-        <item>Automatic</item>
-    </string-array>
-    <string-array name="pref_discoverymode_value">
-        <item>3</item>
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>4</item>
-    </string-array>
+    <string name="pref_discoverymode">Reveal surrounding blocks</string>
+
+    <string name="pref_discoverymode_disable">Disabled</string>
+    <string name="pref_discoverymode_enable">Enabled</string>
+    <string name="pref_discoverymode_auto">Automatic</string>
+
+    <string name="pref_discoverymode_disable_desc">No tile will be revealed when a numbered tile is touched</string>
+    <string name="pref_discoverymode_enable_desc">Reveal when the number of flags is equal to the tile\'s number</string>
+    <string name="pref_discoverymode_auto_desc">Tiles will be automatically open. Might be risky… You may not have a second chance!</string>
 </resources>

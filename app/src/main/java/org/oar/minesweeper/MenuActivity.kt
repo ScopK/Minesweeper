@@ -79,7 +79,7 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun openSettings() {
-        val intent = Intent(this, SettingsActivity::class.java)
-        startActivity(intent)
+        val intent = Intent(this, PreferencesActivity::class.java)
+        animateStartActivity(intent)
     }
 }

@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import org.oar.minesweeper.control.CanvasWrapper
+import org.oar.minesweeper.control.Settings
 import org.oar.minesweeper.grid.GridDrawer.draw
 import org.oar.minesweeper.grid.GridDrawer.tileSize
 import org.oar.minesweeper.grid.GameLogic
@@ -24,6 +25,7 @@ import org.oar.minesweeper.utils.GridUtils.generateLogic
 import org.oar.minesweeper.utils.GridUtils.getTileByScreenCoords
 import org.oar.minesweeper.utils.GridUtils.gridFromJson
 import org.oar.minesweeper.utils.GridUtils.toJson
+import org.oar.minesweeper.utils.PreferencesUtils.loadBoolean
 import org.oar.minesweeper.utils.SaveStateUtils.deleteState
 import org.oar.minesweeper.utils.SaveStateUtils.loadState
 import org.oar.minesweeper.utils.SaveStateUtils.saveState
@@ -72,7 +74,10 @@ class GameView(
 
         val t = logic.grid.getTileByScreenCoords(x, y, gridPosition)
         if (t != null) {
-            logic.mainAction(t)
+            if (Settings.switchActions)
+                logic.alternativeAction(t)
+            else
+                logic.mainAction(t)
         }
         postInvalidate()
     }
@@ -80,7 +85,12 @@ class GameView(
     override fun longPressed(x: Float, y: Float) {
         logic.grid.getTileByScreenCoords(x, y, gridPosition)
             ?.also {
-                if (logic.alternativeAction(it)) {
+                val vibrate = if (Settings.switchActions)
+                        logic.mainAction(it)
+                    else
+                        logic.alternativeAction(it)
+
+                if (vibrate) {
                     vibrator.vibrate(VibrationEffect.createOneShot(1L, 1)) //VibrationEffect.DEFAULT_AMPLITUDE));
                 }
             }

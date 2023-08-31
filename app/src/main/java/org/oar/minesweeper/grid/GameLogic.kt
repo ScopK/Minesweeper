@@ -70,9 +70,7 @@ class GameLogic(
             TileStatus.A0 -> false
             else -> {
                 val executeMassReveal = when (Settings.discoveryMode) {
-                    Settings.EASY -> tile.flaggedNear == tile.bombsNear
                     Settings.NORMAL -> tile.flaggedNear >= tile.bombsNear
-                    Settings.HARD -> true
                     else          -> false
                 }
 

@@ -23,8 +23,9 @@ class SplashActivity : AppCompatActivity() {
         ScreenProperties.load(this);
 
         Settings.apply {
-            discoveryMode = loadString("option_reveal", "1").toInt()
-            showTime = loadBoolean("option_time", true)
+            discoveryMode = loadInteger("revealMode", 1)
+            showTime = loadBoolean("showTime", true)
+            switchActions = loadBoolean("switchActions", false)
         }
 
         val lastCoverHue = loadInteger("lastCoverHue", 0)

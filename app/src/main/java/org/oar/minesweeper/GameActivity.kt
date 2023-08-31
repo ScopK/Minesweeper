@@ -64,7 +64,7 @@ class GameActivity : Activity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_MENU) {
-            val intent = Intent(this, SettingsActivity::class.java)
+            val intent = Intent(this, PreferencesActivity::class.java)
             startActivity(intent)
         }
         return super.onKeyDown(keyCode, event)

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/defaultBackground"
+    tools:context=".LoadingActivity"
+    android:padding="24dp"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/showTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/showTimeLabel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textColor="@color/white_splash"
+                android:text="@string/pref_showtime"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchActions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/switchActionsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textColor="@color/white_splash"
+                android:text="@string/pref_longpressflag"/>
+        </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/revealGroup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="8dp"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white_splash"
+                android:text="@string/pref_discoverymode"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:id="@+id/revealDisable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white_splash"
+                android:paddingStart="8dp"
+                android:text="@string/pref_discoverymode_disable" />
+
+            <TextView
+                android:id="@+id/revealDisableLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white_splash"
+                android:alpha="0.7"
+                android:text="@string/pref_discoverymode_disable_desc"
+                android:paddingBottom="8dp"
+                android:textSize="12sp"/>
+
+            <RadioButton
+                android:id="@+id/revealEnable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white_splash"
+                android:paddingStart="8dp"
+                android:text="@string/pref_discoverymode_enable" />
+
+            <TextView
+                android:id="@+id/revealEnableLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white_splash"
+                android:alpha="0.7"
+                android:text="@string/pref_discoverymode_enable_desc"
+                android:paddingBottom="8dp"
+                android:textSize="12sp"/>
+
+            <RadioButton
+                android:id="@+id/revealAuto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white_splash"
+                android:paddingStart="8dp"
+                android:text="@string/pref_discoverymode_auto" />
+
+            <TextView
+                android:id="@+id/revealAutoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white_splash"
+                android:alpha="0.7"
+                android:text="@string/pref_discoverymode_auto_desc"
+                android:paddingBottom="8dp"
+                android:textSize="12sp"/>
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+
+</LinearLayout>

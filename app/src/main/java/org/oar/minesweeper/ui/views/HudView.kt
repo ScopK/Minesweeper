@@ -59,7 +59,7 @@ class HudView(
                 }
             }
 
-        if (!context.loadBoolean("option_time", true)) {
+        if (!context.loadBoolean("showTime", true)) {
             timeView.visibility = GONE
         }
 
@@ -108,7 +108,7 @@ class HudView(
 
     fun resetBackground() {
         background = ContextCompat.getDrawable(context, R.drawable.hud_background)
-        if (!context.loadBoolean("option_time", true)) {
+        if (!context.loadBoolean("showTime", true)) {
             timeView.visibility = GONE
         }
     }
