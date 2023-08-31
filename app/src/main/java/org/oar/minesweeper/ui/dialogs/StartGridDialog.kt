@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.switchmaterial.SwitchMaterial
 import org.oar.minesweeper.R
@@ -24,16 +25,24 @@ class StartGridDialog(
         val inflater = requireActivity().layoutInflater
         val view = inflater.inflate(R.layout.dialog_start_grid, null)
 
-        val revealFirst = view.findViewById<SwitchMaterial>(R.id.revealFirst)
-        val solvable = view.findViewById<SwitchMaterial>(R.id.solvable)
+        val randomButton = view.findViewById<TextView>(R.id.randomGridButton)
+        val solvableButton = view.findViewById<TextView>(R.id.solvableButton)
 
-        revealFirst.isChecked = ctx.loadBoolean("lastRevealFirst", true)
-        solvable.isChecked = ctx.loadBoolean("lastSolvable", false)
+        randomButton.setOnClickListener {
+            ctx.save("lastSolvable", false)
 
-        solvable.setOnCheckedChangeListener { compoundButton,_ ->
-            updateDependencies(revealFirst, compoundButton as SwitchMaterial)
+            confirm.accept(
+                GridSettings(false, ctx.loadBoolean("lastVisualHelp", false))
+            )
         }
-        updateDependencies(revealFirst, solvable)
+
+        solvableButton.setOnClickListener {
+            ctx.save("lastSolvable", true)
+
+            confirm.accept(
+                GridSettings(true, ctx.loadBoolean("lastVisualHelp", false))
+            )
+        }
 
         val title = String.format(getString(R.string.grid_summary_line),
             gridConfig.width, gridConfig.height, gridConfig.bombs)
@@ -41,26 +50,9 @@ class StartGridDialog(
         val builder = AlertDialog.Builder(activity)
         builder.setMessage(title)
             .setView(view)
-            .setPositiveButton(R.string.button_confirm) { _, _ ->
-
-                ctx.save("lastRevealFirst", revealFirst.isChecked)
-                ctx.save("lastSolvable", solvable.isChecked)
-
-                confirm.accept(
-                    GridSettings(
-                    revealFirst.isChecked,
-                    solvable.isChecked,
-                    ctx.loadBoolean("lastVisualHelp", false)
-                )
-                )
-            }
-            .setNegativeButton(R.string.button_cancel) { _, _ -> cancel.run() }
+            //.setNegativeButton(R.string.button_cancel) { _, _ -> cancel.run() }
+            .setOnDismissListener { cancel.run() }
 
         return builder.show()
-    }
-
-    private fun updateDependencies(revealFirst: SwitchMaterial, solvable: SwitchMaterial) {
-        revealFirst.isEnabled = !solvable.isChecked
-        if (solvable.isChecked) revealFirst.isChecked = true
     }
 }

@@ -3,20 +3,32 @@
     android:id="@+id/parentLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="16dp"
     android:orientation="vertical">
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/revealFirst"
+    <TextView
+        android:id="@+id/randomGridButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/pref_revealFirst"
-        android:tooltipText="@string/pref_revealFirst_desc"/>
+        android:paddingVertical="24dp"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/default_text"
+        android:text="@string/pref_randomGrid"
+        android:tooltipText="@string/pref_randomGrid_desc"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/solvable"
+    <TextView
+        android:id="@+id/solvableButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingVertical="24dp"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/default_text"
         android:text="@string/pref_solvable"
-        android:tooltipText="@string/pref_solvable_desc" />
+        android:tooltipText="@string/pref_solvable_desc"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground" />
+
 </LinearLayout>

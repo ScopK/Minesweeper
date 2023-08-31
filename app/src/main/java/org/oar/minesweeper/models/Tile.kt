@@ -10,6 +10,8 @@ data class Tile(
     var status: TileStatus = TileStatus.COVERED
 ) : Serializable, Cloneable {
 
+    var cachedHashCode: Int? = null
+
     val customFlag = mutableListOf<Char>()
     var hasBomb = false
     var flaggedNear = 0
@@ -42,7 +44,10 @@ data class Tile(
         }
     }
 
-    override fun hashCode() = Objects.hash(x, y, hasBomb, bombsNear, super.hashCode())
+    override fun hashCode(): Int {
+        return cachedHashCode ?: Objects.hash(x, y, hasBomb, bombsNear, super.hashCode())
+            .also {cachedHashCode = it }
+    }
 
     public override fun clone(): Tile {
         return Tile(x, y, status).also {

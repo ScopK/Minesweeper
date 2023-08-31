@@ -51,6 +51,10 @@ open class RandomCheckedGenerator : RandomGenerator() {
         }.start()
     }
 
+    override fun forceCleanSpot(grid: Grid, tile: Tile) {
+        throw RuntimeException("Function not supported for solvable grids")
+    }
+
     fun swapBombs(grid: Grid, toReplace: Set<Int>) {
         val protectedTiles = grid.getNeighborsIdx(grid.tiles[selectedSafeTile])
         protectedTiles.add(selectedSafeTile)

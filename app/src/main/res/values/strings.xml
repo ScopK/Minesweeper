@@ -34,11 +34,11 @@
     <string name="pref_showtime">Show time</string>
     <string name="pref_longpressflag">Use long touch to flag bombs</string>
 
-    <string name="pref_revealFirst">Auto reveal first tile</string>
-    <string name="pref_revealFirst_desc">Automatically open an empty tile on start</string>
+    <string name="pref_randomGrid">Generate full random grid</string>
+    <string name="pref_randomGrid_desc">Generate a full random grid, that could not be possible to solve without guessing</string>
 
     <string name="pref_solvable">Generate solvable grid</string>
-    <string name="pref_solvable_desc">Grid can be solved without RNG</string>
+    <string name="pref_solvable_desc">Grid can be solved without guessing</string>
 
     <string name="pref_visualHelp">Show remaining bombs instead of total bombs</string>
     <string name="pref_visualHelp_desc">Each numbered tile will indicate how many nearby mines are left to be flagged</string>

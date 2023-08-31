@@ -5,6 +5,7 @@ import org.oar.minesweeper.models.Grid
 import org.oar.minesweeper.models.Tile
 import org.oar.minesweeper.models.TileStatus
 import org.oar.minesweeper.utils.GridUtils.getNeighbors
+import kotlin.reflect.full.createInstance
 
 class GameLogic(
     val grid: Grid
@@ -90,6 +91,11 @@ class GameLogic(
         if (gameOver) return false
         return when (tile.status) {
             TileStatus.COVERED -> {
+
+                if (allCovered && grid.gridSettings.firstTapGenerate) {
+                    grid.gridSettings.generatorClass.createInstance().forceCleanSpot(grid, tile)
+                }
+
                 if (Settings.discoveryMode == Settings.AUTOMATIC)
                     fastReveal(tile)
                 else

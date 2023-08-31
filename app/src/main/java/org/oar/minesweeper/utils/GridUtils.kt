@@ -210,7 +210,6 @@ object GridUtils {
 
         val config = GridConfiguration(width, height, bombs)
         val settings = gridSettings ?: GridSettings(
-            loadBoolean("lastRevealFirst", true),
             isSolvable,
             loadBoolean("lastVisualHelp", false),
         )

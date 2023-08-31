@@ -122,7 +122,7 @@ class SkinViewerActivity : Activity() {
 
     private fun getSampleGrid(): Grid {
         val obj = JSONObject("{\"w\":5,\"h\":5,\"gs\":true,\"x\":1,\"y\":1,\"s\":1,\"t\":348,\"ts\":\"   1C 112c 1F2c1334FcCCcF\"}")
-        val settings = GridSettings(firstOpen = false, solvable = false, visualHelp)
+        val settings = GridSettings(solvable = false, visualHelp)
         val grid = gridFromJson(obj, settings)
 
         grid.tiles
